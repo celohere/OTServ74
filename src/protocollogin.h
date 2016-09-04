@@ -18,37 +18,27 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_PROTOCOLLOGIN_H__
-#define __OTSERV_PROTOCOLLOGIN_H__
+#ifndef __OTSERV_PROTOCOL_LOGIN_H__
+#define __OTSERV_PROTOCOL_LOGIN_H__
 
-#include "classes.h"
+#include "definitions.h"
 #include "protocol.h"
+
+class NetworkMessage;
+class OutputMessage;
 
 class ProtocolLogin : public Protocol
 {
 public:
-	// static protocol information
-	enum { server_sends_first = false };
-	enum { protocol_identifier = 0x01 };
-	enum { use_checksum = true };
-	static const char *protocol_name()
-	{
-		return "login protocol";
-	}
-
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 	static uint32_t protocolLoginCount;
 #endif
-
-	ProtocolLogin(Connection_ptr connection) : Protocol(connection)
+	ProtocolLogin(Connection *connection) : Protocol(connection)
 	{
-		enableChecksum();
-
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 		protocolLoginCount++;
 #endif
 	}
-
 	virtual ~ProtocolLogin()
 	{
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__

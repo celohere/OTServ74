@@ -18,16 +18,18 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_HOUSETILE_H__
-#define __OTSERV_HOUSETILE_H__
+#ifndef __HOUSETILE_H__
+#define __HOUSETILE_H__
 
-#include "classes.h"
+#include "definitions.h"
 #include "tile.h"
 
-class HouseTile : public IndexedTile
+class House;
+
+class HouseTile : public Tile
 {
 public:
-	HouseTile(uint16_t x, uint16_t y, uint16_t z, House *_house);
+	HouseTile(int x, int y, int z, House *_house);
 	~HouseTile();
 
 	// cylinder implementations
@@ -36,13 +38,14 @@ public:
 	virtual Cylinder *
 	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags);
 
-	virtual void __addThing(Creature *actor, int32_t index, Thing *thing);
+	virtual void __addThing(int32_t index, Thing *thing);
 	virtual void __internalAddThing(uint32_t index, Thing *thing);
 
 	House *getHouse()
 	{
 		return house;
 	}
+
 
 private:
 	void updateHouse(Item *item);

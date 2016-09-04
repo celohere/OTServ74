@@ -22,13 +22,13 @@
 #define __OTSERV_CHAT_H__
 
 #include "const.h"
+#include "definitions.h"
+
 #include <list>
 #include <map>
-#include <stdint.h>
 #include <string>
 
 class Player;
-class Party;
 
 typedef std::map<uint32_t, Player *> UsersMap;
 
@@ -37,9 +37,9 @@ enum ChannelID {
 	CHANNEL_RULE_REP = 0x03,
 	CHANNEL_GAME_CHAT = 0x04,
 	CHANNEL_TRADE = 0x05,
-	CHANNEL_TRADE_ROOK = 0x06,
+	// CHANNEL_TRADE_ROOK = 0x06,
 	CHANNEL_RL_CHAT = 0x07,
-	CHANNEL_PARTY = 0x08,
+	// CHANNEL_PARTY      = 0x08,
 	CHANNEL_HELP = 0x09,
 	CHANNEL_PRIVATE = 0xFFFF
 };
@@ -48,31 +48,35 @@ class ChatChannel
 {
 public:
 	ChatChannel(uint16_t channelId, std::string channelName);
-	virtual ~ChatChannel();
+	virtual ~ChatChannel()
+	{
+	}
 
 	bool addUser(Player *player);
-	bool removeUser(Player *player, bool sendCloseChannel = false);
+	bool removeUser(Player *player);
 
-	bool talk(Player *fromPlayer, SpeakClass type, const std::string &text, uint32_t time = 0);
-	bool sendInfo(SpeakClass type, const std::string &text, uint32_t time = 0);
+	bool talk(Player *fromPlayer, SpeakClasses type, const std::string &text, uint32_t time = 0);
 
-	const std::string &getName() const;
-	uint16_t getId() const;
-	const UsersMap &getUsers() const;
+	const std::string &getName()
+	{
+		return m_name;
+	}
+	const uint16_t getId()
+	{
+		return m_id;
+	}
+	const UsersMap &getUsers()
+	{
+		return m_users;
+	}
 
-	virtual uint32_t getOwner();
-
-	// Block a player from hearing messages, required for the lua events to work
-	// properly
-	// this is to prevent the player from hearing a message before he has been
-	// sent the
-	// channel contents. ONLY ONE PLAYER CAN BE DEAF AT A TIME
-	// Call with NULL to make everyone hear again.
-	void makePlayerDeaf(Player *p);
+	virtual const uint32_t getOwner()
+	{
+		return 0;
+	}
 
 protected:
 	UsersMap m_users;
-	Player *m_deaf_user;
 	std::string m_name;
 	uint16_t m_id;
 };
@@ -81,10 +85,16 @@ class PrivateChatChannel : public ChatChannel
 {
 public:
 	PrivateChatChannel(uint16_t channelId, std::string channelName);
-	virtual ~PrivateChatChannel();
+	virtual ~PrivateChatChannel(){};
 
-	virtual uint32_t getOwner();
-	void setOwner(uint32_t id);
+	virtual const uint32_t getOwner()
+	{
+		return m_owner;
+	}
+	void setOwner(uint32_t id)
+	{
+		m_owner = id;
+	}
 
 	bool isInvited(const Player *player);
 
@@ -112,7 +122,6 @@ public:
 	~Chat();
 	ChatChannel *createChannel(Player *player, uint16_t channelId);
 	bool deleteChannel(Player *player, uint16_t channelId);
-	bool deleteChannel(Party *party);
 
 	bool addUserToChannel(Player *player, uint16_t channelId);
 	bool removeUserFromChannel(Player *player, uint16_t channelId);
@@ -120,14 +129,13 @@ public:
 
 	uint16_t getFreePrivateChannelId();
 	bool isPrivateChannel(uint16_t channelId);
-	bool isMuteableChannel(uint16_t channelId, SpeakClass type);
+	bool isMuteableChannel(uint16_t channelId, SpeakClasses type);
 
-	bool talkToChannel(Player *player, SpeakClass type, const std::string &text, unsigned short channelId);
+	bool talkToChannel(Player *player, SpeakClasses type, const std::string &text, unsigned short channelId);
 
 	std::string getChannelName(Player *player, uint16_t channelId);
 	ChannelList getChannelList(Player *player);
 
-	ChatChannel *getChannel(Party *party);
 	ChatChannel *getChannel(Player *player, uint16_t channelId);
 	ChatChannel *getChannelById(uint16_t channelId);
 	PrivateChatChannel *getPrivateChannel(Player *player);
@@ -135,10 +143,8 @@ public:
 private:
 	typedef std::map<uint16_t, ChatChannel *> NormalChannelMap;
 	typedef std::map<uint32_t, ChatChannel *> GuildChannelMap;
-	typedef std::map<Party *, PrivateChatChannel *> PartyChannelMap;
 	NormalChannelMap m_normalChannels;
 	GuildChannelMap m_guildChannels;
-	PartyChannelMap m_partyChannels;
 
 	typedef std::map<uint16_t, PrivateChatChannel *> PrivateChannelMap;
 	PrivateChannelMap m_privateChannels;

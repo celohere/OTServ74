@@ -19,18 +19,28 @@
 //////////////////////////////////////////////////////////////////////
 #include "otpch.h"
 
-#include "ban.h"
-#include "configmanager.h"
 #include "connection.h"
-#include "game.h"
-#include "ioaccount.h"
 #include "outputmessage.h"
 #include "protocollogin.h"
+
+#include "ban.h"
+#include "configmanager.h"
+#include "game.h"
+#include "ioaccount.h"
+#include "tools.h"
+#ifdef __PROTOCOL_77__
+#include "rsa.h"
+#endif // __PROTOCOL_77__
+
 #include <iomanip>
 
 extern ConfigManager g_config;
+extern IPList serverIPs;
 extern BanManager g_bans;
 extern Game g_game;
+#ifdef __PROTOCOL_77__
+extern RSA *g_otservRSA;
+#endif // __PROTOCOL_77__
 
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 uint32_t ProtocolLogin::protocolLoginCount = 0;
@@ -53,8 +63,10 @@ void ProtocolLogin::disconnectClient(uint8_t error, const char *message)
 		output->AddString(message);
 		OutputMessagePool::getInstance()->send(output);
 	}
+
 	getConnection()->closeConnection();
 }
+
 
 bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
 {
@@ -69,11 +81,13 @@ bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
 	uint16_t version = msg.GetU16();
 	msg.SkipBytes(12);
 
-	if (version <= 760) {
-		disconnectClient(0x0A, "This server requires client version " CLIENT_VERSION_STRING ".");
+	if (version < CLIENT_VERSION_MIN || version > CLIENT_VERSION_MAX) {
+		disconnectClient(0x0A, STRING_CLIENT_VERSION);
+		return false;
 	}
 
-	if (!RSA_decrypt(msg)) {
+#ifdef __PROTOCOL_77__
+	if (!RSA_decrypt(g_otservRSA, msg)) {
 		getConnection()->closeConnection();
 		return false;
 	}
@@ -85,24 +99,23 @@ bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
 	key[3] = msg.GetU32();
 	enableXTEAEncryption();
 	setXTEAKey(key);
+#endif // __PROTOCOL_77__
 
-	std::string accname = msg.GetString();
+	uint32_t accnumber = msg.GetU32();
 	std::string password = msg.GetString();
 
-	if (!accname.length()) {
-		// Tibia sends this message if the account name length is < 5
-		// We will send it only if account name is BLANK
-		disconnectClient(0x0A, "Invalid Account Name.");
-		return false;
-	}
-
-	if (version < CLIENT_VERSION_MIN || version > CLIENT_VERSION_MAX) {
-		disconnectClient(0x0A, "This server requires client version " CLIENT_VERSION_STRING ".");
+	if (!accnumber) {
+		disconnectClient(0x0A, "You must enter your account number.");
 		return false;
 	}
 
 	if (g_game.getGameState() == GAME_STATE_STARTUP) {
 		disconnectClient(0x0A, "Gameworld is starting up. Please wait.");
+		return false;
+	}
+
+	if (g_bans.isDeleted(accnumber)) {
+		disconnectClient(0x0A, "Your account has been deleted!");
 		return false;
 	}
 
@@ -116,23 +129,20 @@ bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
 		disconnectClient(0x0A, "Your IP is banished!");
 		return false;
 	}
-	/*
-	uint32_t serverip = serverIPs[0].first;
-	for(uint32_t i = 0; i < serverIPs.size(); i++){
-	  if((serverIPs[i].first & serverIPs[i].second) == (clientip &
-	serverIPs[i].second)){
-	    serverip = serverIPs[i].first;
-	    break;
-	  }
-	}
-	*/
 
-	Account account = IOAccount::instance()->loadAccount(accname);
-	if (!(asLowerCaseString(account.name) == asLowerCaseString(accname) &&
-	      passwordTest(password, account.password))) {
+	uint32_t serverip = serverIPs[0].first;
+	for (uint32_t i = 0; i < serverIPs.size(); i++) {
+		if ((serverIPs[i].first & serverIPs[i].second) == (clientip & serverIPs[i].second)) {
+			serverip = serverIPs[i].first;
+			break;
+		}
+	}
+
+	Account account = IOAccount::instance()->loadAccount(accnumber);
+	if (!(accnumber != 0 && account.accnumber == accnumber && passwordTest(password, account.password))) {
 
 		g_bans.addLoginAttempt(clientip, false);
-		disconnectClient(0x0A, "Account name or password is not correct.");
+		disconnectClient(0x0A, "Please enter a valid account number and password.");
 		return false;
 	}
 
@@ -150,19 +160,19 @@ bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
 		// Add char list
 		output->AddByte(0x64);
 		output->AddByte((uint8_t)account.charList.size());
-		std::list<AccountCharacter>::iterator it;
+		std::list<std::string>::iterator it;
 		for (it = account.charList.begin(); it != account.charList.end(); it++) {
-			const AccountCharacter &character = *it;
-			output->AddString(character.name);
-			output->AddString(character.world_name);
-			output->AddU32(character.ip);
-			output->AddU16(character.port);
+			output->AddString((*it));
+			output->AddString(g_config.getString(ConfigManager::WORLD_NAME));
+			output->AddU32(serverip);
+			output->AddU16(g_config.getNumber(ConfigManager::PORT));
 		}
-
-		output->AddU16(IOAccount::getPremiumDaysLeft(account.premiumEnd));
+		// Add premium days
+		output->AddU16(Account::getPremiumDaysLeft(account.premEnd));
 
 		OutputMessagePool::getInstance()->send(output);
 	}
+
 	getConnection()->closeConnection();
 
 	return true;

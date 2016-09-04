@@ -17,20 +17,33 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
+
 #include "otpch.h"
 
 #include "configmanager.h"
 #include "md5.h"
+#include "otsystem.h"
 #include "sha1.h"
 #include "tools.h"
+
+#include <cmath>
 #include <iomanip>
-#include <iostream>
-#include <libxml/encoding.h>
-#include <libxml/tree.h>
+#include <sstream>
+
+#include <boost/algorithm/string/predicate.hpp>
 
 extern ConfigManager g_config;
 
-void replaceString(std::string &str, const std::string &sought, const std::string &replacement)
+bool fileExists(const char *filename)
+{
+	FILE *f = fopen(filename, "rb");
+	bool exists = (f != NULL);
+	if (f != NULL) fclose(f);
+
+	return exists;
+}
+
+void replaceString(std::string &str, const std::string sought, const std::string replacement)
 {
 	size_t pos = 0;
 	size_t start = 0;
@@ -50,12 +63,6 @@ void trim_right(std::string &source, const std::string &t)
 void trim_left(std::string &source, const std::string &t)
 {
 	source.erase(0, source.find_first_not_of(t));
-}
-
-void trim(std::string &source, const std::string &t)
-{
-	trim_left(source, t);
-	trim_right(source, t);
 }
 
 void toLowerCaseString(std::string &source)
@@ -82,7 +89,7 @@ std::string asUpperCaseString(const std::string &source)
 	return s;
 }
 
-bool readXMLInteger(xmlNodePtr node, const char *tag, int32_t &value)
+bool readXMLInteger(xmlNodePtr node, const char *tag, int &value)
 {
 	char *nodeValue = (char *)xmlGetProp(node, (xmlChar *)tag);
 	if (nodeValue) {
@@ -98,7 +105,7 @@ bool readXMLInteger64(xmlNodePtr node, const char *tag, uint64_t &value)
 {
 	char *nodeValue = (char *)xmlGetProp(node, (xmlChar *)tag);
 	if (nodeValue) {
-		value = atoll(nodeValue);
+		value = ATOI64(nodeValue);
 		xmlFree(nodeValue);
 		return true;
 	}
@@ -126,22 +133,21 @@ bool utf8ToLatin1(char *intext, std::string &outtext)
 		return false;
 	}
 
-	size_t inlen = strlen(intext);
+	int inlen = strlen(intext);
 	if (inlen == 0) {
 		return false;
 	}
 
-	size_t outlen = inlen * 2;
+	int outlen = inlen * 2;
 	unsigned char *outbuf = new unsigned char[outlen];
-	// The casts to int* are safe according to the documentation
-	// Unless inlen is negative, outlen will never be
-	int res = UTF8Toisolat1(outbuf, (int *)&outlen, (unsigned char *)intext, (int *)&inlen);
+	int res = UTF8Toisolat1(outbuf, &outlen, (unsigned char *)intext, &inlen);
 	if (res < 0) {
 		delete[] outbuf;
 		return false;
 	}
 
-	outtext = std::string((char *)outbuf, outlen);
+	outbuf[outlen] = '\0';
+	outtext = (char *)outbuf;
 	delete[] outbuf;
 	return true;
 }
@@ -199,7 +205,7 @@ bool hasBitSet(uint32_t flag, uint32_t flags)
 #define RAND_MAX24 16777216
 uint32_t rand24b()
 {
-	return ((rand() << 12) ^ ((rand()) & (0xFFFFFF)));
+	return (rand() << 12) ^ (rand()) & (0xFFFFFF);
 }
 
 float box_muller(float m, float s)
@@ -207,17 +213,15 @@ float box_muller(float m, float s)
 	// normal random variate generator
 	// mean m, standard deviation s
 
-	float y1;
+	float x1, x2, w, y1;
 	static float y2;
 	static int use_last = 0;
 
-	if (use_last) {
-		// use value from previous call
+	if (use_last) // use value from previous call
+	{
 		y1 = y2;
 		use_last = 0;
 	} else {
-		double w = 0.00;
-		float x1, x2;
 		do {
 			double r1 = (((float)(rand()) / RAND_MAX));
 			double r2 = (((float)(rand()) / RAND_MAX));
@@ -233,7 +237,7 @@ float box_muller(float m, float s)
 		use_last = 1;
 	}
 
-	return m + y1 * s;
+	return (m + y1 * s);
 }
 
 int random_range(int lowest_number, int highest_number, DistributionType_t type /*= DISTRO_UNIFORM*/)
@@ -269,6 +273,7 @@ int random_range(int lowest_number, int highest_number, DistributionType_t type 
 	}
 }
 
+
 // dump a part of the memory to stderr.
 void hexdump(unsigned char *_data, int _len)
 {
@@ -281,7 +286,7 @@ void hexdump(unsigned char *_data, int _len)
 
 		fprintf(stderr, " ");
 		for (i = 0; i < 16 && i < _len; i++)
-			fprintf(stderr, "%c", (_data[i] & 0x70) < 32 ? '?' : _data[i]);
+			fprintf(stderr, "%c", (_data[i] & 0x70) < 32 ? '·' : _data[i]);
 
 		fprintf(stderr, "\n");
 	}
@@ -296,11 +301,30 @@ char upchar(char c)
 	return c;
 }
 
-bool passwordTest(std::string plain, std::string &hash)
+std::string urlEncode(const std::string &str)
 {
-	// Salt it beforehand
-	plain += g_config.getString(ConfigManager::PASSWORD_SALT);
+	return urlEncode(str.c_str());
+}
 
+std::string urlEncode(const char *str)
+{
+	std::string out;
+	const char *it;
+	for (it = str; *it != 0; it++) {
+		char ch = *it;
+		if (!(ch >= '0' && ch <= '9') && !(ch >= 'A' && ch <= 'Z') && !(ch >= 'a' && ch <= 'z')) {
+			char tmp[4];
+			sprintf(tmp, "%%%02X", ch);
+			out = out + tmp;
+		} else {
+			out = out + *it;
+		}
+	}
+	return out;
+}
+
+bool passwordTest(const std::string &plain, std::string &hash)
+{
 	switch (g_config.getNumber(ConfigManager::PASSWORD_TYPE)) {
 	case PASSWORD_TYPE_PLAIN: {
 		if (plain == hash) {
@@ -351,11 +375,10 @@ bool passwordTest(std::string plain, std::string &hash)
 	return false;
 }
 
-std::string convertIPToString(uint32_t ip)
+// buffer should have at least 17 bytes
+void formatIP(uint32_t ip, char *buffer)
 {
-	char buffer[20];
 	sprintf(buffer, "%d.%d.%d.%d", ip & 0xFF, (ip >> 8) & 0xFF, (ip >> 16) & 0xFF, (ip >> 24));
-	return buffer;
 }
 
 // buffer should have at least 21 bytes
@@ -363,7 +386,7 @@ void formatDate(time_t time, char *buffer)
 {
 	const tm *tms = localtime(&time);
 	if (tms) {
-		sprintf(buffer, "%02d/%02d/%04d %02d:%02d:%02d", tms->tm_mday, tms->tm_mon + 1,
+		sprintf(buffer, "%02d/%02d/%04d  %02d:%02d:%02d", tms->tm_mday, tms->tm_mon + 1,
 		        tms->tm_year + 1900, tms->tm_hour, tms->tm_min, tms->tm_sec);
 	} else {
 		sprintf(buffer, "UNIX Time : %d", (int)time);
@@ -371,7 +394,7 @@ void formatDate(time_t time, char *buffer)
 }
 
 // buffer should have at least 16 bytes
-void formatDateShort(time_t time, char *buffer)
+void formatDate2(time_t time, char *buffer)
 {
 	const tm *tms = localtime(&time);
 	if (tms) {
@@ -381,126 +404,172 @@ void formatDateShort(time_t time, char *buffer)
 	}
 }
 
-std::string getViolationReasonString(int32_t reasonId)
+std::string formatTime(int32_t hours, int32_t minutes)
 {
-	switch (reasonId) {
-	case 0:
-		return "Offensive Name";
-	case 1:
-		return "Invalid Name Format";
-	case 2:
-		return "Unsuitable Name";
-	case 3:
-		return "Name Inciting Rule Violation";
-	case 4:
-		return "Offensive Statement";
-	case 5:
-		return "Spamming";
-	case 6:
-		return "Illegal Advertising";
-	case 7:
-		return "Off-Topic Public Statement";
-	case 8:
-		return "Non-English Public Statement";
-	case 9:
-		return "Inciting Rule Violation";
-	case 10:
-		return "Bug Abuse";
-	case 11:
-		return "Game Weakness Abuse";
-	case 12:
-		return "Using Unofficial Software to Play";
-	case 13:
-		return "Hacking";
-	case 14:
-		return "Multi-Clienting";
-	case 15:
-		return "Account Trading or Sharing";
-	case 16:
-		return "Threatening Gamemaster";
-	case 17:
-		return "Pretending to Have Influence on Rule Enforcement";
-	case 18:
-		return "False Report to Gamemaster";
-	case 19:
-		return "Destructive Behaviour";
+	std::stringstream time;
+	if (hours)
+		time << hours << " " << (hours > 1 ? "hours" : "hour") << (minutes ? " and " : "");
+
+	if (minutes) time << minutes << " " << (minutes > 1 ? "minutes" : "minute");
+
+	return time.str();
+}
+
+Position getNextPosition(Direction direction, Position pos)
+{
+	switch (direction) {
+	case NORTH:
+		pos.y--;
+		break;
+	case SOUTH:
+		pos.y++;
+		break;
+	case WEST:
+		pos.x--;
+		break;
+	case EAST:
+		pos.x++;
+		break;
+	case SOUTHWEST:
+		pos.x--;
+		pos.y++;
+		break;
+	case NORTHWEST:
+		pos.x--;
+		pos.y--;
+		break;
+	case SOUTHEAST:
+		pos.x++;
+		pos.y++;
+		break;
+	case NORTHEAST:
+		pos.x++;
+		pos.y--;
+		break;
+	default:
+		break;
 	}
 
-	return "Unknown Reason";
+	return pos;
 }
 
-std::string getViolationActionString(ViolationAction actionId, bool ipBanishment)
+struct MagicEffectNames {
+	const char *name;
+	MagicEffectClasses effect;
+};
+
+struct ShootTypeNames {
+	const char *name;
+	ShootType_t shoot;
+};
+
+struct AmmoTypeNames {
+	const char *name;
+	Ammo_t ammoType;
+};
+
+struct AmmoActionNames {
+	const char *name;
+	AmmoAction_t ammoAction;
+};
+
+MagicEffectNames magicEffectNames[] = { { "redspark", NM_ME_DRAW_BLOOD },
+	                                { "bluebubble", NM_ME_LOSE_ENERGY },
+	                                { "poff", NM_ME_PUFF },
+	                                { "yellowspark", NM_ME_BLOCKHIT },
+	                                { "explosionarea", NM_ME_EXPLOSION_AREA },
+	                                { "explosion", NM_ME_EXPLOSION_DAMAGE },
+	                                { "firearea", NM_ME_FIRE_AREA },
+	                                { "yellowbubble", NM_ME_YELLOW_RINGS },
+	                                { "greenbubble", NM_ME_POISON_RINGS },
+	                                { "blackspark", NM_ME_HIT_AREA },
+	                                { "energyarea", NM_ME_ENERGY_AREA },
+	                                { "energy", NM_ME_ENERGY_DAMAGE },
+	                                { "blueshimmer", NM_ME_MAGIC_ENERGY },
+	                                { "redshimmer", NM_ME_MAGIC_BLOOD },
+	                                { "greenshimmer", NM_ME_MAGIC_POISON },
+	                                { "fire", NM_ME_HITBY_FIRE },
+	                                { "greenspark", NM_ME_POISON },
+	                                { "mortarea", NM_ME_MORT_AREA },
+	                                { "greennote", NM_ME_SOUND_GREEN },
+	                                { "rednote", NM_ME_SOUND_RED },
+	                                { "poison", NM_ME_POISON_AREA },
+	                                { "yellownote", NM_ME_SOUND_YELLOW },
+	                                { "purplenote", NM_ME_SOUND_PURPLE },
+	                                { "bluenote", NM_ME_SOUND_BLUE },
+	                                { "whitenote", NM_ME_SOUND_WHITE } };
+
+ShootTypeNames shootTypeNames[] = { { "spear", NM_SHOOT_SPEAR },
+	                            { "bolt", NM_SHOOT_BOLT },
+	                            { "arrow", NM_SHOOT_ARROW },
+	                            { "fire", NM_SHOOT_FIRE },
+	                            { "energy", NM_SHOOT_ENERGY },
+	                            { "poisonarrow", NM_SHOOT_POISONARROW },
+	                            { "burstarrow", NM_SHOOT_BURSTARROW },
+	                            { "throwingstar", NM_SHOOT_THROWINGSTAR },
+	                            { "throwingknife", NM_SHOOT_THROWINGKNIFE },
+	                            { "smallstone", NM_SHOOT_SMALLSTONE },
+	                            { "suddendeath", NM_SHOOT_SUDDENDEATH },
+	                            { "largerock", NM_SHOOT_LARGEROCK },
+	                            { "snowball", NM_SHOOT_SNOWBALL },
+	                            { "powerbolt", NM_SHOOT_POWERBOLT },
+	                            { "poison", NM_SHOOT_POISONFIELD } };
+
+AmmoTypeNames ammoTypeNames[] = { { "spear", AMMO_SPEAR },
+	                          { "bolt", AMMO_BOLT },
+	                          { "arrow", AMMO_ARROW },
+	                          { "poisonarrow", AMMO_ARROW },
+	                          { "burstarrow", AMMO_ARROW },
+	                          { "throwingstar", AMMO_THROWINGSTAR },
+	                          { "throwingknife", AMMO_THROWINGKNIFE },
+	                          { "smallstone", AMMO_STONE },
+	                          { "largerock", AMMO_STONE },
+	                          { "snowball", AMMO_SNOWBALL },
+	                          { "powerbolt", AMMO_BOLT } };
+
+AmmoActionNames ammoActionNames[] = { { "move", AMMOACTION_MOVE },
+	                              { "moveback", AMMOACTION_MOVEBACK },
+	                              { "removecharge", AMMOACTION_REMOVECHARGE },
+	                              { "removecount", AMMOACTION_REMOVECOUNT } };
+
+MagicEffectClasses getMagicEffect(const std::string &strValue)
 {
-	std::string action;
-
-	if (actionId == ACTION_NOTATION)
-		action = "Notation";
-	else if (actionId == ACTION_NAMEREPORT)
-		action = "Name Report";
-	else if (actionId == ACTION_BANREPORT)
-		action = "Name Report + Banishment";
-	else if (actionId == ACTION_BANFINAL)
-		action = "Banishment + Final Warning";
-	else if (actionId == ACTION_BANREPORTFINAL)
-		action = "Name Report + Banishment + Final Warning";
-	else if (actionId == ACTION_STATEMENT)
-		action = "Statement Report";
-	else if (actionId == ACTION_DELETION)
-		action = "Deletion";
-	else if (actionId == ACTION_BANISHMENT)
-		action = "Banishment";
-
-	if (ipBanishment) action += " + IP Banishment";
-
-	return action;
+	for (uint32_t i = 0; i < sizeof(magicEffectNames) / sizeof(MagicEffectNames); ++i) {
+		if (boost::algorithm::iequals(strValue.c_str(), magicEffectNames[i].name)) {
+			return magicEffectNames[i].effect;
+		}
+	}
+	return NM_ME_UNK;
 }
 
-std::string playerSexAdjectiveString(PlayerSex sex)
+ShootType_t getShootType(const std::string &strValue)
 {
-	if (sex.value() % 2 == 0)
-		return "her";
-	else
-		return "his";
+	for (uint32_t i = 0; i < sizeof(shootTypeNames) / sizeof(ShootTypeNames); ++i) {
+		if (boost::algorithm::iequals(strValue.c_str(), shootTypeNames[i].name)) {
+			return shootTypeNames[i].shoot;
+		}
+	}
+	return NM_SHOOT_UNK;
 }
 
-std::string playerSexSubjectString(PlayerSex sex)
+Ammo_t getAmmoType(const std::string &strValue)
 {
-	if (sex.value() % 2 == 0)
-		return "She";
-	else
-		return "He";
-}
-
-std::string combatTypeToString(CombatType type)
-{
-	std::vector<std::string> vector = type.toStrings();
-	if (vector.empty()) {
-		return "";
+	for (uint32_t i = 0; i < sizeof(ammoTypeNames) / sizeof(AmmoTypeNames); ++i) {
+		if (boost::algorithm::iequals(strValue.c_str(), ammoTypeNames[i].name)) {
+			return ammoTypeNames[i].ammoType;
+		}
 	}
 
-	return (vector.size() == 1 ? vector[0] : vector[1]);
+	return AMMO_NONE;
 }
 
-#define MOD_ADLER 65521
-uint32_t adlerChecksum(uint8_t *data, int32_t len)
+AmmoAction_t getAmmoAction(const std::string &strValue)
 {
-	if (len < 0) {
-		std::cout << "[Error] adlerChecksum. len < 0" << std::endl;
-		return 0;
+	for (uint32_t i = 0; i < sizeof(ammoActionNames) / sizeof(AmmoActionNames); ++i) {
+		if (boost::algorithm::iequals(strValue.c_str(), ammoActionNames[i].name)) {
+			return ammoActionNames[i].ammoAction;
+		}
 	}
 
-	uint32_t a = 1, b = 0;
-	while (len > 0) {
-		size_t tlen = len > 5552 ? 5552 : len;
-		len -= tlen;
-		do {
-			a += *data++;
-			b += a;
-		} while (--tlen);
-
-		a %= MOD_ADLER;
-		b %= MOD_ADLER;
-	}
-
-	return (b << 16) | a;
+	return AMMOACTION_NONE;
 }

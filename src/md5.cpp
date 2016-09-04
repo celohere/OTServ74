@@ -1,54 +1,7 @@
-// Free for all implementation of the MD5 hash algorithm
-
-/*
- **********************************************************************
- ** MD5.cpp                                                          **
- **                                                                  **
- ** - Style modified by Tony Ray, January 2001                       **
- **   Added support for randomizing initialization constants         **
- ** - Style modified by Dominik Reichl, April 2003                   **
- **   Optimized code                                                 **
- **                                                                  **
- **********************************************************************
- */
-
-/*
- **********************************************************************
- ** MD5.c                                                            **
- ** RSA Data Security, Inc. MD5 Message Digest Algorithm             **
- ** Created: 2/17/90 RLR                                             **
- ** Revised: 1/91 SRD,AJ,BSK,JT Reference C Version                  **
- **********************************************************************
- */
-
-/*
- **********************************************************************
- ** Copyright (C) 1990, RSA Data Security, Inc. All rights reserved. **
- **                                                                  **
- ** License to copy and use this software is granted provided that   **
- ** it is identified as the "RSA Data Security, Inc. MD5 Message     **
- ** Digest Algorithm" in all material mentioning or referencing this **
- ** software or this function.                                       **
- **                                                                  **
- ** License is also granted to make and use derivative works         **
- ** provided that such works are identified as "derived from the RSA **
- ** Data Security, Inc. MD5 Message Digest Algorithm" in all         **
- ** material mentioning or referencing the derived work.             **
- **                                                                  **
- ** RSA Data Security, Inc. makes no representations concerning      **
- ** either the merchantability of this software or the suitability   **
- ** of this software for any particular purpose.  It is provided "as **
- ** is" without express or implied warranty of any kind.             **
- **                                                                  **
- ** These notices must be retained in any copies of any part of this **
- ** documentation and/or software.                                   **
- **********************************************************************
- */
-
 #include "otpch.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "md5.h"
 
@@ -61,8 +14,7 @@ static unsigned char MD5_PADDING[64] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0
 	                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	                                 0x00, 0x00, 0x00, 0x00 };
 
-/* MD5_F, MD5_G and MD5_H are basic MD5 functions: selection, majority, parity
- */
+/* MD5_F, MD5_G and MD5_H are basic MD5 functions: selection, majority, parity */
 #define MD5_F(x, y, z) (((x) & (y)) | ((~x) & (z)))
 #define MD5_G(x, y, z) (((x) & (z)) | ((y) & (~z)))
 #define MD5_H(x, y, z) ((x) ^ (y) ^ (z))
@@ -73,8 +25,7 @@ static unsigned char MD5_PADDING[64] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0
 #define ROTATE_LEFT(x, n) ((((x) << (n)) & 0xffffffffU) | ((x) >> (32 - (n))))
 #endif
 
-/* MD5_FF, MD5_GG, MD5_HH, and MD5_II transformations for rounds 1, 2, 3, and 4
- */
+/* MD5_FF, MD5_GG, MD5_HH, and MD5_II transformations for rounds 1, 2, 3, and 4 */
 /* Rotation is separate from addition to prevent recomputation */
 #define MD5_FF(a, b, c, d, x, s, ac)                             \
 	{                                                        \

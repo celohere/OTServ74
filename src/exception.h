@@ -20,8 +20,10 @@
 
 #if defined __EXCEPTION_TRACER__
 
-#ifndef __OTSERV_EXCEPTION_H__
-#define __OTSERV_EXCEPTION_H__
+#include "definitions.h"
+
+#ifndef __EXCEPTION_H__
+#define __EXCEPTION_H__
 
 class ExceptionHandler
 {

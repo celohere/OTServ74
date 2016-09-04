@@ -21,10 +21,17 @@
 #ifndef __OTSERV_FILELOADER_H__
 #define __OTSERV_FILELOADER_H__
 
-#include "classes.h"
+#include "definitions.h"
+
 #include <cstdio>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstring>
 #include <string>
+
+
+struct NodeStruct;
+
+typedef NodeStruct *NODE;
 
 struct NodeStruct {
 	NodeStruct()
@@ -79,6 +86,8 @@ private:
 	}
 };
 
+#define NO_NODE 0
+
 enum FILELOADER_ERRORS {
 	ERROR_NONE,
 	ERROR_INVALID_FILE_VERSION,
@@ -91,8 +100,10 @@ enum FILELOADER_ERRORS {
 	ERROR_INVALID_FORMAT,
 	ERROR_TELL_ERROR,
 	ERROR_COULDNOTWRITE,
-	ERROR_CACHE_ERROR
+	ERROR_CACHE_ERROR,
 };
+
+class PropStream;
 
 class FileLoader
 {
@@ -101,16 +112,16 @@ public:
 	virtual ~FileLoader();
 
 	bool openFile(const char *filename, bool write, bool caching = false);
-	const unsigned char *getProps(const NodeStruct *node, unsigned long &size);
-	bool getProps(const NodeStruct *, PropStream &props);
-	NodeStruct *getChildNode(const NodeStruct *parent, unsigned long &type);
-	NodeStruct *getNextNode(const NodeStruct *prev, unsigned long &type);
+	const unsigned char *getProps(const NODE, unsigned long &size);
+	bool getProps(const NODE, PropStream &props);
+	const NODE getChildNode(const NODE parent, unsigned long &type);
+	const NODE getNextNode(const NODE prev, unsigned long &type);
 
 	void startNode(unsigned char type);
 	void endNode();
 	int setProps(void *data, unsigned short size);
 
-	int getError() const
+	int getError()
 	{
 		return m_lastError;
 	}
@@ -120,13 +131,17 @@ public:
 	}
 
 protected:
-	enum SPECIAL_BYTES { NODE_START = 0xFE, NODE_END = 0xFF, ESCAPE_CHAR = 0xFD };
+	enum SPECIAL_BYTES {
+		NODE_START = 0xFE,
+		NODE_END = 0xFF,
+		ESCAPE_CHAR = 0xFD,
+	};
 
-	bool parseNode(NodeStruct *node);
+	bool parseNode(NODE node);
 
 	inline bool readByte(int &value);
-	inline bool readBytes(unsigned char *buffer, unsigned int size, long pos);
-	inline bool checks(const NodeStruct *node);
+	inline bool readBytes(unsigned char *buffer, int size, long pos);
+	inline bool checks(const NODE node);
 	inline bool safeSeek(unsigned long pos);
 	inline bool safeTell(long &pos);
 
@@ -156,7 +171,7 @@ public:
 protected:
 	FILE *m_file;
 	FILELOADER_ERRORS m_lastError;
-	NodeStruct *m_root;
+	NODE m_root;
 	unsigned long m_buffer_size;
 	unsigned char *m_buffer;
 
@@ -193,43 +208,85 @@ public:
 		end = a + size;
 	}
 
-	int64_t size() const
+	int64_t size()
 	{
 		return end - p;
 	}
 
-	template <typename T> inline bool GET_STRUCT(T *&ret)
-	{
-		if (size() < (long)sizeof(T)) {
-			ret = NULL;
-			return false;
-		}
-		ret = (T *)p;
-		p = p + sizeof(T);
-		return true;
-	}
-
-	template <typename T> inline bool GET_VALUE(T &ret)
-	{
-		if (size() < (long)sizeof(T)) {
-			return false;
-		}
-		ret = *((T *)p);
-		p = p + sizeof(T);
-		return true;
-	}
-
-	inline bool GET_ULONG(uint32_t &ret)
+#ifndef __SWAP_ENDIAN__
+	inline bool GET_UINT32(uint32_t &ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_USHORT(uint16_t &ret)
+	inline bool GET_INT32(int32_t &ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_UCHAR(uint8_t &ret)
+	inline bool GET_UINT16(uint16_t &ret)
+	{
+		return GET_VALUE(ret);
+	}
+
+	inline bool GET_INT16(int16_t &ret)
+	{
+		return GET_VALUE(ret);
+	}
+
+	inline bool GET_FLOAT(float &ret)
+	{
+		return GET_VALUE(ret);
+	}
+
+#else
+	inline bool GET_UINT32(uint32_t &ret)
+	{
+		bool b = GET_VALUE(ret);
+		swap_uint32(ret);
+		return b;
+	}
+
+	inline bool GET_INT32(int32_t &ret)
+	{
+		bool b = GET_VALUE(ret);
+		swap_int32(ret);
+		return b;
+	}
+
+	inline bool GET_UINT16(uint16_t &ret)
+	{
+		bool b = GET_VALUE(ret);
+		swap_uint16(ret);
+		return b;
+	}
+
+	inline bool GET_INT16(int16_t &ret)
+	{
+		bool b = GET_VALUE(ret);
+		swap_int16(ret);
+		return b;
+	}
+
+	inline bool GET_FLOAT(float &ret)
+	{
+		bool b = GET_VALUE(ret);
+		swap_float(ret);
+		return b;
+	}
+#endif
+
+	inline bool GET_UINT8(uint8_t &ret)
+	{
+		return GET_VALUE(ret);
+	}
+
+	inline bool GET_INT8(int8_t &ret)
+	{
+		return GET_VALUE(ret);
+	}
+
+	inline bool GET_CHAR(int8_t &ret)
 	{
 		return GET_VALUE(ret);
 	}
@@ -239,7 +296,7 @@ public:
 		char *str;
 		uint16_t str_len;
 
-		if (!GET_USHORT(str_len)) {
+		if (!GET_VALUE(str_len)) {
 			return false;
 		}
 		if (size() < (int32_t)str_len) {
@@ -259,7 +316,7 @@ public:
 		char *str;
 		uint32_t str_len;
 
-		if (!GET_ULONG(str_len)) {
+		if (!GET_VALUE(str_len)) {
 			return false;
 		}
 		if (size() < (int32_t)str_len) {
@@ -274,7 +331,7 @@ public:
 		return true;
 	}
 
-	inline bool GET_NSTRING(unsigned short str_len, std::string &ret)
+	inline bool GET_NSTRING(std::string &ret, unsigned short str_len)
 	{
 		char *str;
 
@@ -290,6 +347,16 @@ public:
 		return true;
 	}
 
+	inline bool GET_RAWSTRING(char *buffer, unsigned short str_len)
+	{
+		if (size() < (int32_t)str_len) {
+			return false;
+		}
+		memcpy(&buffer[0], p, str_len);
+		p = p + str_len;
+		return true;
+	}
+
 	inline bool SKIP_N(int32_t n)
 	{
 		if (size() < n) {
@@ -300,6 +367,16 @@ public:
 	}
 
 protected:
+	template <typename T> inline bool GET_VALUE(T &ret)
+	{
+		if (size() < (long)sizeof(T)) {
+			return false;
+		}
+		ret = *((T *)p);
+		p = p + sizeof(T);
+		return true;
+	}
+
 	const char *p;
 	const char *end;
 };
@@ -325,41 +402,66 @@ public:
 		return buffer;
 	}
 
-	// TODO: might need temp buffer and zero fill the memory chunk allocated by
-	// realloc
-	template <typename T> inline void ADD_TYPE(T *add)
-	{
-		if ((buffer_size - size) < sizeof(T)) {
-			buffer_size = buffer_size + ((sizeof(T) + 0x1F) & 0xFFFFFFE0);
-			buffer = (char *)realloc(buffer, buffer_size);
-		}
-
-		memcpy(&buffer[size], (char *)add, sizeof(T));
-		size = size + sizeof(T);
-	}
-
-	template <typename T> inline void ADD_VALUE(T add)
-	{
-		if ((buffer_size - size) < sizeof(T)) {
-			buffer_size = buffer_size + ((sizeof(T) + 0x1F) & 0xFFFFFFE0);
-			buffer = (char *)realloc(buffer, buffer_size);
-		}
-
-		memcpy(&buffer[size], &add, sizeof(T));
-		size = size + sizeof(T);
-	}
-
-	inline void ADD_ULONG(uint32_t ret)
+#ifndef __SWAP_ENDIAN__
+	inline void ADD_UINT32(uint32_t ret)
 	{
 		ADD_VALUE(ret);
 	}
 
-	inline void ADD_USHORT(uint16_t ret)
+	inline void ADD_INT32(int32_t ret)
 	{
 		ADD_VALUE(ret);
 	}
 
-	inline void ADD_UCHAR(uint8_t ret)
+	inline void ADD_UINT16(uint16_t ret)
+	{
+		ADD_VALUE(ret);
+	}
+
+	inline void ADD_INT16(int16_t ret)
+	{
+		ADD_VALUE(ret);
+	}
+
+	inline void ADD_FLOAT(float ret)
+	{
+		ADD_VALUE(ret);
+	}
+
+#else
+	inline void ADD_UINT32(uint32_t ret)
+	{
+		ADD_VALUE(swap_uint32(ret));
+	}
+
+	inline void ADD_INT32(int32_t ret)
+	{
+		ADD_VALUE(swap_int32(ret));
+	}
+
+	inline void ADD_UINT16(uint16_t ret)
+	{
+		ADD_VALUE(swap_uint16(ret));
+	}
+
+	inline void ADD_INT16(int16_t ret)
+	{
+		ADD_VALUE(swap_int16(ret));
+	}
+
+	inline void ADD_FLOAT(float ret)
+	{
+		ADD_VALUE(swap_float(ret));
+	}
+
+#endif
+
+	inline void ADD_UINT8(uint8_t ret)
+	{
+		ADD_VALUE(ret);
+	}
+
+	inline void ADD_INT8(int8_t ret)
 	{
 		ADD_VALUE(ret);
 	}
@@ -368,10 +470,10 @@ public:
 	{
 		uint16_t str_len = (uint16_t)add.size();
 
-		ADD_USHORT(str_len);
+		ADD_VALUE(str_len);
 
 		if ((buffer_size - size) < str_len) {
-			buffer_size = buffer_size + ((str_len + 0x1F) & 0xFFFFFFE0);
+			buffer_size = buffer_size + str_len + 0x1F;
 			buffer = (char *)realloc(buffer, buffer_size);
 		}
 
@@ -383,10 +485,10 @@ public:
 	{
 		uint32_t str_len = (uint32_t)add.size();
 
-		ADD_ULONG(str_len);
+		ADD_VALUE(str_len);
 
 		if ((buffer_size - size) < str_len) {
-			buffer_size = buffer_size + ((str_len + 0x1F) & 0xFFFFFFE0);
+			buffer_size = buffer_size + str_len + 0x1F;
 			buffer = (char *)realloc(buffer, buffer_size);
 		}
 
@@ -395,6 +497,17 @@ public:
 	}
 
 protected:
+	template <typename T> inline void ADD_VALUE(T add)
+	{
+		if ((buffer_size - size) < sizeof(T)) {
+			buffer_size = buffer_size + sizeof(T) + 0x1F;
+			buffer = (char *)realloc(buffer, buffer_size);
+		}
+
+		memcpy(&buffer[size], &add, sizeof(T));
+		size = size + sizeof(T);
+	}
+
 	char *buffer;
 	uint32_t buffer_size;
 	uint32_t size;

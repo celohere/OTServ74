@@ -18,25 +18,50 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_TOWN_H__
-#define __OTSERV_TOWN_H__
 
+#ifndef __TOWN_H__
+#define __TOWN_H__
+
+#include "definitions.h"
 #include "position.h"
+
+#include <list>
 #include <map>
-#include <stdint.h>
 #include <string>
+
+#include <boost/algorithm/string/predicate.hpp>
 
 class Town
 {
 public:
-	Town(uint32_t _townid);
+	Town(uint32_t _townid)
+	{
+		townid = _townid;
+	}
 
-	const Position &getTemplePosition() const;
-	const std::string &getName() const;
+	~Town(){};
 
-	void setTemplePos(const Position &pos);
-	void setName(const std::string &_townName);
-	uint32_t getTownID() const;
+	const Position &getTemplePosition() const
+	{
+		return posTemple;
+	}
+	const std::string &getName() const
+	{
+		return townName;
+	}
+
+	void setTemplePos(const Position &pos)
+	{
+		posTemple = pos;
+	}
+	void setName(std::string _townName)
+	{
+		townName = _townName;
+	}
+	uint32_t getTownID() const
+	{
+		return townid;
+	}
 
 private:
 	uint32_t townid;
@@ -49,15 +74,54 @@ typedef std::map<uint32_t, Town *> TownMap;
 class Towns
 {
 public:
-	static Towns *getInstance();
+	static Towns &getInstance()
+	{
+		static Towns instance;
+		return instance;
+	}
 
-	bool addTown(uint32_t _townid, Town *town);
+	bool addTown(uint32_t _townid, Town *town)
+	{
+		TownMap::iterator it = townMap.find(_townid);
 
-	Town *getTown(const std::string &townname);
-	Town *getTown(uint32_t _townid);
+		if (it != townMap.end()) {
+			return false;
+		}
 
-	TownMap::const_iterator getTownBegin() const;
-	TownMap::const_iterator getTownEnd() const;
+		townMap[_townid] = town;
+		return true;
+	}
+
+	Town *getTown(std::string &townname)
+	{
+		for (TownMap::iterator it = townMap.begin(); it != townMap.end(); ++it) {
+			if (boost::algorithm::iequals(it->second->getName(), townname)) {
+				return it->second;
+			}
+		}
+
+		return NULL;
+	}
+
+	Town *getTown(uint32_t _townid)
+	{
+		TownMap::iterator it = townMap.find(_townid);
+
+		if (it != townMap.end()) {
+			return it->second;
+		}
+
+		return NULL;
+	}
+
+	TownMap::const_iterator getTownBegin() const
+	{
+		return townMap.begin();
+	}
+	TownMap::const_iterator getTownEnd() const
+	{
+		return townMap.end();
+	}
 
 private:
 	TownMap townMap;

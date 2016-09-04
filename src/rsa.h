@@ -23,17 +23,18 @@
 
 #include "definitions.h"
 #include "gmp.h"
+
 #include <boost/thread.hpp>
+#include <cstring>
 
 class RSA
 {
 public:
 	RSA();
 	~RSA();
-	void setKey(const char *p, const char *q);
+	void setKey(const char *p, const char *q, const char *d);
 	bool setKey(const std::string &file);
-	bool decrypt(char *msg);
-	bool encrypt(char *msg);
+	bool decrypt(char *msg, int32_t size);
 
 	int32_t getKeySize();
 	void getPublicKey(char *buffer);
@@ -44,7 +45,7 @@ protected:
 	boost::recursive_mutex rsaLock;
 
 	// use only GMP
-	mpz_t m_p, m_q, m_n, m_d, m_e;
+	mpz_t m_p, m_q, m_u, m_d, m_dp, m_dq, m_mod;
 };
 
 #endif

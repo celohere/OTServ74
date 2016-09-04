@@ -1,23 +1,23 @@
 /*
- *  sha1.h
+ *	sha1.h
  *
- *  Copyright (C) 1998
- *  Paul E. Jones <paulej@arid.us>
- *  All Rights Reserved.
+ *	Copyright (C) 1998
+ *	Paul E. Jones <paulej@arid.us>
+ *	All Rights Reserved.
  *
  *****************************************************************************
- *  $Id: sha1.h,v 1.6 2004/03/27 18:02:26 paulej Exp $
+ *	$Id: sha1.h,v 1.6 2004/03/27 18:02:26 paulej Exp $
  *****************************************************************************
  *
- *  Description:
- *     This class implements the Secure Hashing Standard as defined
- *     in FIPS PUB 180-1 published April 17, 1995.
+ *	Description:
+ * 		This class implements the Secure Hashing Standard as defined
+ * 		in FIPS PUB 180-1 published April 17, 1995.
  *
- *    Many of the variable names in this class, especially the single
- *    character names, were used because those were the names used
- *    in the publication.
+ *		Many of the variable names in this class, especially the single
+ *		character names, were used because those were the names used
+ *		in the publication.
  *
- *     Please read the file sha1.cpp for more information.
+ * 		Please read the file sha1.cpp for more information.
  *
  */
 
@@ -32,17 +32,17 @@ public:
 	virtual ~SHA1();
 
 	/*
-	 *  Re-initialize the class
+	 *	Re-initialize the class
 	 */
 	void Reset();
 
 	/*
-	 *  Returns the message digest
+	 *	Returns the message digest
 	 */
 	bool Result(unsigned *message_digest_array);
 
 	/*
-	 *  Provide input to SHA1
+	 *	Provide input to SHA1
 	 */
 	void Input(const unsigned char *message_array, unsigned length);
 	void Input(const char *message_array, unsigned length);
@@ -55,17 +55,17 @@ public:
 
 private:
 	/*
-	 *  Process the next 512 bits of the message
+	 *	Process the next 512 bits of the message
 	 */
 	void ProcessMessageBlock();
 
 	/*
-	 *  Pads the current message block to 512 bits
+	 *	Pads the current message block to 512 bits
 	 */
 	void PadMessage();
 
 	/*
-	 *  Performs a circular left shift operation
+	 *	Performs a circular left shift operation
 	 */
 	inline unsigned CircularShift(int bits, unsigned word);
 

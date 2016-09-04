@@ -18,46 +18,54 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
+
 #ifndef __OTSERV_IOMAPSERIALIZE_H__
 #define __OTSERV_IOMAPSERIALIZE_H__
 
-#include "classes.h"
-#include "database_driver.h"
+class Map;
+
+#include "database.h"
+#include "definitions.h"
+#include "iomapserialize.h"
+#include "map.h"
+
+#include <string>
 
 class IOMapSerialize
 {
 public:
-	static IOMapSerialize *getInstance();
+	static IOMapSerialize *getInstance()
+	{
+		static IOMapSerialize instance;
+		return &instance;
+	}
 
-	/** Load the map from a data storage
+	IOMapSerialize()
+	{
+	}
+	~IOMapSerialize()
+	{
+	}
+
+	/** Load the map from a file/database
 	  * \param map pointer to the Map class
 	  * \return Returns true if the map was loaded successfully
 	*/
 	bool loadMap(Map *map);
 
-	/** Save the map to a data storage
+	/** Save the map to a file/database
 	  * \param map pointer to the Map class
 	  * \return Returns true if the map was saved successfully
 	*/
 	bool saveMap(Map *map);
 
-	/** Synchronize the house information from the map
-	  * \return Returns true if all houses where updated correctly
-	*/
-	bool updateHouseInfo();
-
-	/** Checks if any house auctions has ended and update to the new owner
-	  * \return Returns true if all houses where updated successfully
-	*/
-	bool processHouseAuctions();
-
-	/** Load the house access list from a data storage
+	/** Load the house access list to a file/database
 	  * \param map pointer to the Map class
 	  * \return Returns true if the house access list was opened successfully
 	*/
 	bool loadHouseInfo(Map *map);
 
-	/** Save the house access list to a data storage
+	/** Save the house access list to a file/database
 	  * \param map pointer to the Map class
 	  * \return Returns true if the house access list was saved successfully
 	*/
@@ -68,8 +76,8 @@ protected:
 	bool loadMapRelational(Map *map);
 	bool saveMapRelational(Map *map);
 
-	bool saveItems(DatabaseDriver *db, uint32_t houseId, const Tile *tile);
-	bool loadItems(DatabaseDriver *db, DBResult *result, Cylinder *parent, bool depotTransfer = false);
+	bool saveItems(Database *db, uint32_t tileId, uint32_t houseId, const Tile *tile);
+	bool loadItems(Database *db, DBResult *result, Cylinder *parent);
 
 	// Binary storage uses a giant BLOB field for storing everything
 	bool loadMapBinary(Map *map);
@@ -77,7 +85,7 @@ protected:
 
 	bool saveItem(PropWriteStream &stream, const Item *item);
 	bool saveTile(PropWriteStream &stream, const Tile *tile);
-	bool loadItem(PropStream &propStream, Cylinder *parent, bool depotTransfer = false);
+	bool loadItem(PropStream &propStream, Cylinder *parent);
 	bool loadContainer(PropStream &propStream, Container *container);
 };
 

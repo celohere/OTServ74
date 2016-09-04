@@ -17,111 +17,81 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
+
 #include "otpch.h"
 
 #include "configmanager.h"
-#include "database_driver.h"
-#include "game.h"
+#include "database.h"
 #include "ioaccount.h"
 
-extern Game g_game;
+#include <algorithm>
+#include <functional>
+#include <iostream>
+#include <sstream>
+
 extern ConfigManager g_config;
 
-bool predicateAccountCharactersByName(const AccountCharacter &a, const AccountCharacter &b)
-{
-	return a.name < b.name;
-}
-
-Account IOAccount::loadAccount(const std::string &accountName, bool preLoad /* = false*/)
+Account IOAccount::loadAccount(uint32_t accno)
 {
 	Account acc;
-	acc.name = accountName;
 
-	if (g_game.onAccountLogin(acc.name, acc.number, acc.password, acc.premiumEnd, acc.warnings,
-	                          acc.charList)) {
-		// handled by script
-		return acc;
-	}
-
-	DatabaseDriver *db = DatabaseDriver::instance();
+	Database *db = Database::instance();
 	DBQuery query;
-	DBResult_ptr result;
+	DBResult *result;
 
-	query << "SELECT `id`, `name`, `password`, `premend`, `warnings` FROM "
-	         "`accounts` WHERE `name` = "
-	      << db->escapeString(accountName);
-	if (!(result = db->storeQuery(query))) {
-		return acc;
+	query << "SELECT `id`, `password`, `premend`, `warnings` FROM `accounts` WHERE `id` = " << accno;
+	if ((result = db->storeQuery(query.str()))) {
+		acc.accnumber = result->getDataInt("id");
+		acc.password = result->getDataString("password");
+		acc.premEnd = result->getDataInt("premend");
+		acc.warnings = result->getDataInt("warnings");
+		db->freeResult(result);
+
+		query.str("");
+		query << "SELECT `name` FROM `players` WHERE `account_id` = " << accno;
+		if ((result = db->storeQuery(query.str()))) {
+			do {
+				std::string ss = result->getDataString("name");
+				acc.charList.push_back(ss.c_str());
+			} while (result->next());
+
+			acc.charList.sort();
+			db->freeResult(result);
+		}
 	}
 
-	acc.number = result->getDataInt("id");
-	acc.password = result->getDataString("password");
-	acc.premiumEnd = result->getDataInt("premend");
-	acc.name = result->getDataString("name");
-	acc.warnings = result->getDataInt("warnings");
-
-	if (preLoad) return acc;
-
-	query.reset();
-	query << "SELECT "
-	      << "`players`.`name` AS `name`, `worlds`.`name` AS `world`, "
-	      << "`worlds`.`port` AS `port`, `worlds`.`ip` AS `ip`, `worlds`.`id` AS "
-	         "`world_id`"
-	      << "FROM `players` "
-	      << "LEFT JOIN `worlds` ON `worlds`.`id` = `players`.`world_id` "
-	      << "WHERE `account_id` = " << acc.number;
-
-	for (result = db->storeQuery(query); result; result = result->advance()) {
-		AccountCharacter c;
-		c.name = result->getDataString("name");
-		c.world_name = result->getDataString("world");
-		c.world_id = (uint16_t)result->getDataInt("world_id");
-		c.port = (uint16_t)result->getDataInt("port");
-		c.ip = (uint32_t)result->getDataLong("ip");
-
-		acc.charList.push_back(c);
-	}
-
-	acc.charList.sort(predicateAccountCharactersByName);
 	return acc;
 }
 
-bool IOAccount::saveAccount(const Account &acc)
+bool IOAccount::saveAccount(Account acc)
 {
-	DatabaseDriver *db = DatabaseDriver::instance();
+	Database *db = Database::instance();
 	DBQuery query;
 
-	query << "UPDATE `accounts` SET `premend` = " << acc.premiumEnd
-	      << ", `warnings` = " << acc.warnings << " WHERE `id` = " << acc.number;
-	return db->executeQuery(query);
+	if (acc.premEnd > 0 && acc.premEnd < std::time(NULL)) {
+		acc.premEnd = 0;
+	}
+
+	query << "UPDATE `accounts` SET `warnings` = " << acc.warnings
+	      << ", premend = " << acc.premEnd << " WHERE `id` = " << acc.accnumber;
+	return db->executeQuery(query.str());
 }
 
-bool IOAccount::getPassword(const std::string &accountName, const std::string &playerName, std::string &password)
+bool IOAccount::getPassword(uint32_t accno, const std::string &name, std::string &password)
 {
-	DatabaseDriver *db = DatabaseDriver::instance();
+	Database *db = Database::instance();
 	DBQuery query;
-	DBResult_ptr result;
+	DBResult *result;
 
-	query << "SELECT `accounts`.`password` AS `password` FROM `accounts`, "
-	         "`players` "
-	      << "WHERE `accounts`.`name` = " << db->escapeString(accountName)
-	      << " AND `accounts`.`id` = `players`.`account_id` AND `players`.`name` = "
-	      << db->escapeString(playerName);
+	query << "SELECT `accounts`.`password` AS `password` FROM `accounts`, `players` WHERE "
+	         "`accounts`.`id` = "
+	      << accno << " AND `accounts`.`id` = `players`.`account_id` AND `players`.`name` = "
+	      << db->escapeString(name);
 	if ((result = db->storeQuery(query.str()))) {
 		password = result->getDataString("password");
+		db->freeResult(result);
 		return true;
 	}
 
 	return false;
-}
-
-uint16_t IOAccount::getPremiumDaysLeft(uint32_t time)
-{
-	uint32_t now = (uint32_t)std::time(NULL) / 86400;
-
-	if (uint32_t(time / 86400) < now) return 0;
-
-	if (uint32_t(time / 86400) - now >= 0xFFFF) return 0xFFFF;
-
-	return uint16_t(uint32_t(time / 86400) - now);
 }

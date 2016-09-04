@@ -21,13 +21,17 @@
 #ifndef __OTSERV_DEFINITIONS_H__
 #define __OTSERV_DEFINITIONS_H__
 
-#define OTSERV_VERSION "0.7.0"
-#define OTSERV_NAME "OTServ"
-#define CURRENT_SCHEMA_VERSION 25
+#define OTSERV_VERSION "0.6.5"
+#define OTSERV_NAME "Avesta"
 
-#define CLIENT_VERSION_MIN 870
-#define CLIENT_VERSION_MAX 870
-#define CLIENT_VERSION_STRING "8.70"
+#if defined(__PROTOCOL_76__)
+#define OTSERV_CLIENT_VERSION "7.60"
+#elif defined(__PROTOCOL_77__)
+#define __PROTOCOL_76__
+#define OTSERV_CLIENT_VERSION "7.70"
+#else
+#define OTSERV_CLIENT_VERSION "7.40"
+#endif
 
 #ifdef __USE_SQLITE__
 #define SINGLE_SQL_DRIVER
@@ -41,32 +45,70 @@
 #endif
 #endif
 
-#ifdef __USE_ODBC__
-#ifdef SINGLE_SQL_DRIVER
-#define MULTI_SQL_DRIVERS
-#else
-#define SINGLE_SQL_DRIVER
-#endif
-#endif
-
-#ifdef __USE_PGSQL__
-#ifdef SINGLE_SQL_DRIVER
-#define MULTI_SQL_DRIVERS
-#else
-#define SINGLE_SQL_DRIVER
-#endif
-#endif
-
 // Default sql driver
 #if !defined(SINGLE_SQL_DRIVER) && !defined(MULTI_SQL_DRIVERS)
+#define __USE_SQLITE__
 #define SINGLE_SQL_DRIVER
 #endif
 
 enum passwordType_t { PASSWORD_TYPE_PLAIN = 0, PASSWORD_TYPE_MD5, PASSWORD_TYPE_SHA1 };
 
+#ifndef __FUNCTION__
+#define __FUNCTION__ __func__
+#endif
+
+/*
+        Compiler setup
+*/
+#if defined __GNUC__
+#include "compiler/gcc.h"
+#elif defined(_MSC_VER)
+#include "compiler/msvc.h"
+#endif
+
+/*
+        If the compiler supports the upcoming standard,
+        call some of the useful headers.
+*/
+#ifdef __OTSERV_CXX0X__
+#include <cstdint>
+#include <unordered_map>
+#include <unordered_set>
+#else
+#include "compiler/workarounds.h"
+#endif
+
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+// Windows 2000	0x0500
+// Windows Xp	0x0501
+// Windows 2003	0x0502
+// Windows Vista	0x0600
+// Windows Seven 0x0601
+#define _WIN32_WINNT 0x0501
+
 // OpenTibia configuration
 #if !defined(__NO_SKULLSYSTEM__) && !defined(__SKULLSYSTEM__)
 #define __SKULLSYSTEM__
+#endif
+
+// Boost exception handling must be enabled
+#ifdef BOOST_NO_EXCEPTIONS
+#error "Boost exception handling must be enabled."
+#endif
+
+// Enable multi-byte character set under MSVC
+#ifdef _MSC_VER
+#ifndef _MBCS
+#define _MBCS
+#endif
+#ifdef _UNICODE
+#undef _UNICODE
+#endif
+#ifdef UNICODE
+#undef UNICODE
+#endif
 #endif
 
 #endif

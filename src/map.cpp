@@ -17,15 +17,30 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
+
 #include "otpch.h"
 
 #include "combat.h"
 #include "configmanager.h"
 #include "creature.h"
-#include "housetile.h"
+#include "iomap.h"
 #include "iomapotbm.h"
 #include "iomapserialize.h"
+#include "iomapxml.h"
+#include "items.h"
 #include "map.h"
+#include "player.h"
+#include "tile.h"
+
+#include <algorithm>
+#include <cstdio>
+#include <iomanip>
+#include <map>
+#include <sstream>
+#include <string>
+
+#include <boost/bind.hpp>
+#include <boost/config.hpp>
 
 extern ConfigManager g_config;
 
@@ -40,42 +55,44 @@ Map::~Map()
 	//
 }
 
-bool Map::loadMap(const std::string &identifier)
+bool Map::loadMap(const std::string &identifier, const std::string &type)
 {
-	IOMap *loader = new IOMapOTBM();
+	IOMap *loader;
 
-	if (loader) {
+	if (type == "XML") {
+		loader = new IOMapXML();
+	} else if (type == "OTBM") {
+		loader = new IOMapOTBM();
+	} else {
+		std::cout << "FATAL: Could not determine the map format!" << std::endl;
+		return false;
+	}
 
-		std::cout << ":: Loading map from: " << identifier << " "
-		          << loader->getSourceDescription() << std::endl;
+	std::cout << ":: Loading map from: " << identifier << " " << loader->getSourceDescription()
+	          << std::endl;
 
-		if (!loader->loadMap(this, identifier)) {
-			std::cout << "FATAL: [OTBM loader] " << loader->getLastErrorString() << std::endl;
-			return false;
-		}
+	if (!loader->loadMap(this, identifier)) {
+		std::cout << "FATAL: [OTBM loader] " << loader->getLastErrorString() << std::endl;
+		return false;
+	}
 
-		if (!loader->loadSpawns(this)) {
-			std::cout << "WARNING: could not load spawn data." << std::endl;
-		}
+	if (!loader->loadSpawns(this)) {
+		std::cout << "WARNING: could not load spawn data." << std::endl;
+	}
 
-		if (!loader->loadHouses(this)) {
-			std::cout << "WARNING: could not load house data." << std::endl;
-		}
-
-		delete loader;
-
-		IOMapSerialize *IOMapSerialize = IOMapSerialize::getInstance();
-		IOMapSerialize->updateHouseInfo();
-		IOMapSerialize->processHouseAuctions();
-		IOMapSerialize->loadHouseInfo(this);
-		IOMapSerialize->loadMap(this);
-		return true;
+	if (!loader->loadHouses(this)) {
+		std::cout << "WARNING: could not load house data." << std::endl;
 	}
 
 	delete loader;
 
-	return false;
+	IOMapSerialize *IOMapSerialize = IOMapSerialize::getInstance();
+	IOMapSerialize->loadHouseInfo(this);
+	IOMapSerialize->loadMap(this);
+
+	return true;
 }
+
 
 bool Map::saveMap()
 {
@@ -100,18 +117,18 @@ bool Map::saveMap()
 	return saved;
 }
 
-Tile *Map::getParentTile(int32_t x, int32_t y, int32_t z)
+Tile *Map::getTile(uint16_t x, uint16_t y, uint16_t z)
 {
-	if (x < 0 || x >= 0xFFFF || y < 0 || y >= 0xFFFF || z < 0 || z >= MAP_MAX_LAYERS) {
-		return NULL;
-	}
-
-	// QTreeLeafNode* leaf = getLeaf(x, y);
-	QTreeLeafNode *leaf = QTreeNode::getLeafStatic(&root, x, y);
-	if (leaf) {
-		Floor *floor = leaf->getFloor(z);
-		if (floor) {
-			return floor->tiles[x & FLOOR_MASK][y & FLOOR_MASK];
+	if (z < MAP_MAX_LAYERS) {
+		// QTreeLeafNode* leaf = getLeaf(x, y);
+		QTreeLeafNode *leaf = QTreeNode::getLeafStatic(&root, x, y);
+		if (leaf) {
+			Floor *floor = leaf->getFloor(z);
+			if (floor) {
+				return floor->tiles[x & FLOOR_MASK][y & FLOOR_MASK];
+			} else {
+				return NULL;
+			}
 		} else {
 			return NULL;
 		}
@@ -120,16 +137,16 @@ Tile *Map::getParentTile(int32_t x, int32_t y, int32_t z)
 	}
 }
 
-Tile *Map::getParentTile(const Position &pos)
+Tile *Map::getTile(const Position &pos)
 {
-	return getParentTile(pos.x, pos.y, pos.z);
+	return getTile(pos.x, pos.y, pos.z);
 }
 
-void Map::setTile(int32_t x, int32_t y, int32_t z, Tile *newtile)
+void Map::setTile(uint16_t x, uint16_t y, uint16_t z, Tile *newtile)
 {
-	if (x < 0 || x >= 0xFFFF || y < 0 || y >= 0xFFFF || z < 0 || z >= MAP_MAX_LAYERS) {
-		std::cout << "ERROR: Attempt to set tile on invalid coordinate "
-		          << Position(x, y, z) << "!" << std::endl;
+	if (z >= MAP_MAX_LAYERS) {
+		std::cout << "ERROR: Attempt to set tile on invalid Z coordinate " << int(z) << "!"
+		          << std::endl;
 		return;
 	}
 
@@ -171,78 +188,25 @@ void Map::setTile(int32_t x, int32_t y, int32_t z, Tile *newtile)
 		std::cout << "Error: Map::setTile() already exists." << std::endl;
 	}
 
-	if (newtile->hasFlag(TILEPROP_REFRESH)) {
-		/*
-		RefreshBlock_t rb;
-		rb.lastRefresh = OTSYS_TIME();
-		if(TileItemVector* newtileItems = newtile->getItemList()){
-		  for(TileItemIterator it = newtileItems->getBeginDownItem(); it !=
-		newtileItems->getEndDownItem(); ++it){
-		    rb.list.push_back((*it)->clone());
-		  }
-		}
-		refreshTileMap[newtile] = rb;
-		*/
+	// if(newtile->hasFlag(TILESTATE_REFRESH)){
+	RefreshBlock_t rb;
+	rb.lastRefresh = OTSYS_TIME();
+	for (ItemVector::iterator it = newtile->downItems.begin(); it != newtile->downItems.end(); ++it) {
+		rb.list.push_back((*it)->clone());
 	}
-}
-
-void Map::reAssignTile(int32_t x, int32_t y, int32_t z, Tile *newtile)
-{
-	if (x < 0 || x >= 0xFFFF || y < 0 || y >= 0xFFFF || z < 0 || z >= MAP_MAX_LAYERS) {
-		return;
-	}
-
-	QTreeLeafNode *leaf = QTreeNode::getLeafStatic(&root, x, y);
-	if (leaf) {
-		Floor *floor = leaf->getFloor(z);
-		if (floor) {
-			floor->tiles[x & FLOOR_MASK][y & FLOOR_MASK] = newtile;
-		}
-	}
-}
-
-void Map::makeTileIndexed(const Position &pos)
-{
-	Tile *tile = getParentTile(pos);
-	if (tile && !tile->hasFlag(TILEPROP_INDEXED_TILE)) {
-		const Position &pos = tile->getPosition();
-
-		IndexedTile *indexedTile = new IndexedTile(pos.x, pos.y, pos.z);
-		indexedTile->qt_node = tile->qt_node;
-		indexedTile->downItemCount = tile->downItemCount;
-		indexedTile->m_flags = (tile->m_flags & ~(uint32_t)enums::TILEPROP_DYNAMIC_TILE);
-		indexedTile->setFlag(TILEPROP_INDEXED_TILE);
-
-		if (tile->ground) {
-			tile->ground->setParent(indexedTile);
-			indexedTile->ground = tile->ground;
-			tile->ground = NULL;
-		}
-
-		for (TileItemIterator it = tile->items_begin(); it != tile->items_end(); ++it) {
-			(*it)->setParent(indexedTile);
-			indexedTile->items_push_back(*it);
-		}
-
-		for (CreatureIterator it = tile->creatures_begin(); it != tile->creatures_end(); ++it) {
-			(*it)->setParent(indexedTile);
-			indexedTile->creatures_push_back(*it);
-		}
-
-		reAssignTile(pos.x, pos.y, pos.z, indexedTile);
-		delete tile;
-	}
+	refreshTileMap[newtile] = rb;
+	//}
 }
 
 bool Map::placeCreature(const Position &centerPos, Creature *creature, bool extendedPos /*=false*/, bool forceLogin /*=false*/)
 {
-	Tile *tile = getParentTile(centerPos);
+	Tile *tile = getTile(centerPos);
 
 	bool foundTile = false;
 	bool placeInPZ = false;
 
 	if (tile) {
-		placeInPZ = tile->hasFlag(TILEPROP_PROTECTIONZONE);
+		placeInPZ = tile->hasFlag(TILESTATE_PROTECTIONZONE);
 
 		ReturnValue ret = tile->__queryAdd(0, creature, 1, FLAG_IGNOREBLOCKITEM);
 		if (forceLogin || ret == RET_NOERROR || ret == RET_PLAYERISNOTINVITED) {
@@ -289,8 +253,9 @@ bool Map::placeCreature(const Position &centerPos, Creature *creature, bool exte
 			tryPos.x = tryPos.x + dx;
 			tryPos.y = tryPos.y + dy;
 
-			tile = getParentTile(tryPos);
-			if (!tile || (placeInPZ && !tile->hasFlag(TILEPROP_PROTECTIONZONE)))
+			tile = getTile(tryPos);
+			if (!tile || (placeInPZ && !tile->hasFlag(TILESTATE_PROTECTIONZONE)) ||
+			    tile->hasProperty(BLOCKSOLID))
 				continue;
 
 			if (tile->__queryAdd(0, creature, 1, 0) == RET_NOERROR) {
@@ -313,7 +278,7 @@ bool Map::placeCreature(const Position &centerPos, Creature *creature, bool exte
 		uint32_t flags = 0;
 		Cylinder *toCylinder = tile->__queryDestination(index, creature, &toItem, flags);
 		toCylinder->__internalAddThing(creature);
-		Tile *toTile = toCylinder->getParentTile();
+		Tile *toTile = toCylinder->getTile();
 		toTile->qt_node->addCreature(creature);
 		return true;
 	}
@@ -327,10 +292,10 @@ bool Map::placeCreature(const Position &centerPos, Creature *creature, bool exte
 
 bool Map::removeCreature(Creature *creature)
 {
-	Tile *tile = creature->getParentTile();
+	Tile *tile = creature->getTile();
 	if (tile) {
 		tile->qt_node->removeCreature(creature);
-		tile->__removeThing(NULL, creature, 0);
+		tile->__removeThing(creature, 0);
 		return true;
 	}
 
@@ -416,6 +381,12 @@ void Map::getSpectatorsInternal(SpectatorVec &list,
 			leafS = getLeaf(startx1, ny + FLOOR_SIZE);
 		}
 	}
+
+	/*
+	if(list.size() != oldList.size()){
+	        std::cout << "missmatch size" << std::endl;
+	}
+	*/
 }
 
 void Map::getSpectators(SpectatorVec &list,
@@ -427,88 +398,35 @@ void Map::getSpectators(SpectatorVec &list,
                         int32_t minRangeY /*= 0*/,
                         int32_t maxRangeY /*= 0*/)
 {
-	if (centerPos.z < MAP_MAX_LAYERS) {
-		bool foundCache = false;
-		bool cacheResult = false;
-		if (minRangeX == 0 && maxRangeX == 0 && minRangeY == 0 && maxRangeY == 0 &&
-		    multifloor == true && checkforduplicate == false) {
-			SpectatorCache::iterator it = spectatorCache.find(centerPos);
-			if (it != spectatorCache.end()) {
-				list = *it->second;
-				foundCache = true;
-			} else {
-				cacheResult = true;
-			}
-		}
-
-		if (!foundCache) {
-			minRangeX = (minRangeX == 0 ? -Map_maxViewportX : -minRangeX);
-			maxRangeX = (maxRangeX == 0 ? Map_maxViewportX : maxRangeX);
-			minRangeY = (minRangeY == 0 ? -Map_maxViewportY : -minRangeY);
-			maxRangeY = (maxRangeY == 0 ? Map_maxViewportY : maxRangeY);
-
-			int32_t minRangeZ;
-			int32_t maxRangeZ;
-
-			if (multifloor) {
-				if (centerPos.z > 7) {
-					// underground
-
-					// 8->15
-					minRangeZ = std::max(centerPos.z - 2, (int32_t)0);
-					maxRangeZ = std::min(centerPos.z + 2, (int32_t)MAP_MAX_LAYERS - 1);
-				}
-				// above ground
-				else if (centerPos.z == 6) {
-					minRangeZ = 0;
-					maxRangeZ = 8;
-				} else if (centerPos.z == 7) {
-					minRangeZ = 0;
-					maxRangeZ = 9;
-				} else {
-					minRangeZ = 0;
-					maxRangeZ = 7;
-				}
-			} else {
-				minRangeZ = centerPos.z;
-				maxRangeZ = centerPos.z;
-			}
-
-			getSpectatorsInternal(list, centerPos, true, minRangeX, maxRangeX,
-			                      minRangeY, maxRangeY, minRangeZ, maxRangeZ);
-
-			if (cacheResult) {
-				spectatorCache[centerPos].reset(new SpectatorVec(list));
-			}
-		}
-	}
-}
-
-const SpectatorVec &Map::getSpectators(const Position &centerPos)
-{
-	if (centerPos.z < MAP_MAX_LAYERS) {
+	bool foundCache = false;
+	bool cacheResult = false;
+	if (minRangeX == 0 && maxRangeX == 0 && minRangeY == 0 && maxRangeY == 0 &&
+	    multifloor == true && checkforduplicate == false) {
 		SpectatorCache::iterator it = spectatorCache.find(centerPos);
 		if (it != spectatorCache.end()) {
-			return *it->second;
+			list = *it->second;
+			foundCache = true;
 		} else {
-			boost::shared_ptr<SpectatorVec> p(new SpectatorVec());
-			spectatorCache[centerPos] = p;
-			SpectatorVec &list = *p;
+			cacheResult = true;
+		}
+	}
 
-			int32_t minRangeX = -Map_maxViewportX;
-			int32_t maxRangeX = Map_maxViewportX;
-			int32_t minRangeY = -Map_maxViewportY;
-			int32_t maxRangeY = Map_maxViewportY;
+	if (!foundCache) {
+		minRangeX = (minRangeX == 0 ? -maxViewportX : -minRangeX);
+		maxRangeX = (maxRangeX == 0 ? maxViewportX : maxRangeX);
+		minRangeY = (minRangeY == 0 ? -maxViewportY : -minRangeY);
+		maxRangeY = (maxRangeY == 0 ? maxViewportY : maxRangeY);
 
-			int32_t minRangeZ;
-			int32_t maxRangeZ;
+		int32_t minRangeZ;
+		int32_t maxRangeZ;
 
+		if (multifloor) {
 			if (centerPos.z > 7) {
 				// underground
 
 				// 8->15
-				minRangeZ = std::max(centerPos.z - 2, (int32_t)0);
-				maxRangeZ = std::min(centerPos.z + 2, (int32_t)MAP_MAX_LAYERS - 1);
+				minRangeZ = std::max(centerPos.z - 2, 0);
+				maxRangeZ = std::min(centerPos.z + 2, MAP_MAX_LAYERS - 1);
 			}
 			// above ground
 			else if (centerPos.z == 6) {
@@ -521,15 +439,60 @@ const SpectatorVec &Map::getSpectators(const Position &centerPos)
 				minRangeZ = 0;
 				maxRangeZ = 7;
 			}
-
-			getSpectatorsInternal(list, centerPos, false, minRangeX, maxRangeX,
-			                      minRangeY, maxRangeY, minRangeZ, maxRangeZ);
-
-			return list;
+		} else {
+			minRangeZ = centerPos.z;
+			maxRangeZ = centerPos.z;
 		}
+
+		getSpectatorsInternal(list, centerPos, true, minRangeX, maxRangeX, minRangeY,
+		                      maxRangeY, minRangeZ, maxRangeZ);
+
+		if (cacheResult) {
+			spectatorCache[centerPos].reset(new SpectatorVec(list));
+		}
+	}
+}
+
+const SpectatorVec &Map::getSpectators(const Position &centerPos)
+{
+	SpectatorCache::iterator it = spectatorCache.find(centerPos);
+	if (it != spectatorCache.end()) {
+		return *it->second;
 	} else {
 		boost::shared_ptr<SpectatorVec> p(new SpectatorVec());
+		spectatorCache[centerPos] = p;
 		SpectatorVec &list = *p;
+
+		int32_t minRangeX = -maxViewportX;
+		int32_t maxRangeX = maxViewportX;
+		int32_t minRangeY = -maxViewportY;
+		int32_t maxRangeY = maxViewportY;
+
+		int32_t minRangeZ;
+		int32_t maxRangeZ;
+
+		if (centerPos.z > 7) {
+			// underground
+
+			// 8->15
+			minRangeZ = std::max(centerPos.z - 2, 0);
+			maxRangeZ = std::min(centerPos.z + 2, MAP_MAX_LAYERS - 1);
+		}
+		// above ground
+		else if (centerPos.z == 6) {
+			minRangeZ = 0;
+			maxRangeZ = 8;
+		} else if (centerPos.z == 7) {
+			minRangeZ = 0;
+			maxRangeZ = 9;
+		} else {
+			minRangeZ = 0;
+			maxRangeZ = 7;
+		}
+
+		getSpectatorsInternal(list, centerPos, false, minRangeX, maxRangeX, minRangeY,
+		                      maxRangeY, minRangeZ, maxRangeZ);
+
 		return list;
 	}
 }
@@ -542,8 +505,8 @@ void Map::clearSpectatorCache()
 bool Map::canThrowObjectTo(const Position &fromPos,
                            const Position &toPos,
                            bool checkLineOfSight /*= true*/,
-                           int32_t rangex /*= Map_maxClientViewportX*/,
-                           int32_t rangey /*= Map_maxClientViewportY*/)
+                           int32_t rangex /*= Map::maxClientViewportX*/,
+                           int32_t rangey /*= Map::maxClientViewportY*/)
 {
 	// z checks
 	// underground 8->15
@@ -578,16 +541,16 @@ bool Map::checkSightLine(const Position &fromPos, const Position &toPos) const
 	Position start = fromPos;
 	Position end = toPos;
 
-	int32_t x, y, z;
-	int32_t dx, dy, dz;
-	int32_t sx, sy, sz;
-	int32_t ey, ez;
+	int x, y, z;
+	int dx, dy, dz;
+	int sx, sy, sz;
+	int ey, ez;
 
 	dx = abs(start.x - end.x);
 	dy = abs(start.y - end.y);
 	dz = abs(start.z - end.z);
 
-	int32_t max = dx, dir = 0;
+	int max = dx, dir = 0;
 	if (dy > max) {
 		max = dy;
 		dir = 1;
@@ -630,10 +593,10 @@ bool Map::checkSightLine(const Position &fromPos, const Position &toPos) const
 	y = start.y;
 	z = start.z;
 
-	int32_t lastrx = 0, lastry = 0, lastrz = 0;
+	int lastrx = x, lastry = y, lastrz = z;
 
 	for (; x != end.x + sx; x += sx) {
-		int32_t rx, ry, rz;
+		int rx, ry, rz;
 		switch (dir) {
 		case 1:
 			rx = y;
@@ -652,18 +615,10 @@ bool Map::checkSightLine(const Position &fromPos, const Position &toPos) const
 			break;
 		}
 
-		if (lastrx == 0 && lastry == 0 && lastrz == 0) {
-			// first time initialization
-			lastrx = rx;
-			lastry = ry;
-			lastrz = rz;
-		}
-
-		if (lastrz != rz || (!(toPos.x == rx && toPos.y == ry && toPos.z == rz) &&
-		                     !(fromPos.x == rx && fromPos.y == ry && fromPos.z == rz))) {
-
+		if (!(toPos.x == rx && toPos.y == ry && toPos.z == rz) &&
+		    !(fromPos.x == rx && fromPos.y == ry && fromPos.z == rz)) {
 			if (lastrz != rz) {
-				if (const_cast<Map *>(this)->getParentTile(lastrx, lastry, std::min(lastrz, rz))) {
+				if (const_cast<Map *>(this)->getTile(lastrx, lastry, std::min(lastrz, rz))) {
 					return false;
 				}
 			}
@@ -671,9 +626,9 @@ bool Map::checkSightLine(const Position &fromPos, const Position &toPos) const
 			lastry = ry;
 			lastrz = rz;
 
-			const Tile *tile = const_cast<Map *>(this)->getParentTile(rx, ry, rz);
+			const Tile *tile = const_cast<Map *>(this)->getTile(rx, ry, rz);
 			if (tile) {
-				if (tile->blockProjectile()) {
+				if (tile->hasProperty(BLOCKPROJECTILE)) {
 					return false;
 				}
 			}
@@ -690,7 +645,6 @@ bool Map::checkSightLine(const Position &fromPos, const Position &toPos) const
 			ez -= dx;
 		}
 	}
-
 	return true;
 }
 
@@ -710,13 +664,13 @@ const Tile *Map::canWalkTo(const Creature *creature, const Position &pos)
 	case 0:
 		return NULL;
 	case 1:
-		return getParentTile(pos);
+		return getTile(pos);
 		break;
 	}
 
 	// used for none-cached tiles
-	Tile *tile = getParentTile(pos);
-	if (creature->getParentTile() != tile) {
+	Tile *tile = getTile(pos);
+	if (creature->getTile() != tile) {
 		if (!tile || tile->__queryAdd(0, creature, 1, FLAG_PATHFINDING | FLAG_IGNOREFIELDDAMAGE) != RET_NOERROR) {
 			return NULL;
 		}
@@ -799,8 +753,7 @@ bool Map::getPathTo(const Creature *creature, const Position &destPos, std::list
 
 					// Check if the node is already in the closed/open list
 					// If it exists and the nodes already on them has a lower
-					// cost (g)
-					// then we can ignore this neighbour node
+					// cost (g) then we can ignore this neighbour node
 
 					AStarNode *neighbourNode = nodes.getNodeInList(pos.x, pos.y);
 					if (neighbourNode) {
@@ -960,8 +913,7 @@ bool Map::getPathMatching(const Creature *creature,
 
 				// Check if the node is already in the closed/open list
 				// If it exists and the nodes already on them has a lower cost (g)
-				// then
-				// we can ignore this neighbour node
+				// then we can ignore this neighbour node
 
 				AStarNode *neighbourNode = nodes.getNodeInList(pos.x, pos.y);
 				if (neighbourNode) {
@@ -1168,7 +1120,7 @@ int32_t AStarNodes::getMapWalkCost(const Creature *creature, AStarNode *node, co
 int32_t AStarNodes::getTileWalkCost(const Creature *creature, const Tile *tile)
 {
 	int cost = 0;
-	if (tile->getTopVisibleCreature(creature) != NULL) {
+	if (!tile->creatures.empty()) {
 		// destroy creature cost
 		cost += MAP_NORMALWALKCOST * 3;
 	}
@@ -1182,10 +1134,10 @@ int32_t AStarNodes::getTileWalkCost(const Creature *creature, const Tile *tile)
 	return cost;
 }
 
-int32_t AStarNodes::getEstimatedDistance(int32_t x, int32_t y, int32_t xGoal, int32_t yGoal)
+int AStarNodes::getEstimatedDistance(int32_t x, int32_t y, int32_t xGoal, int32_t yGoal)
 {
-	int32_t h_diagonal = std::min(std::abs(x - xGoal), std::abs(y - yGoal));
-	int32_t h_straight = (std::abs(x - xGoal) + std::abs(y - yGoal));
+	int h_diagonal = std::min(std::abs(x - xGoal), std::abs(y - yGoal));
+	int h_straight = (std::abs(x - xGoal) + std::abs(y - yGoal));
 
 	return MAP_DIAGONALWALKCOST * h_diagonal + MAP_NORMALWALKCOST * (h_straight - 2 * h_diagonal);
 	// return (std::abs(x - xGoal) + std::abs(y - yGoal)) * MAP_NORMALWALKCOST;
@@ -1223,7 +1175,11 @@ QTreeNode::~QTreeNode()
 QTreeLeafNode *QTreeNode::getLeaf(uint32_t x, uint32_t y)
 {
 	if (!isLeaf()) {
+#ifndef __SWAP_ENDIAN__
 		uint32_t index = ((x & 0x8000) >> 15) | ((y & 0x8000) >> 14);
+#else
+		uint32_t index = ((swap_uint32(x) & 0x8000) >> 15) | ((swap_uint32(y) & 0x8000) >> 14);
+#endif
 		if (m_child[index]) {
 			return m_child[index]->getLeaf(x * 2, y * 2);
 		} else {
@@ -1240,7 +1196,12 @@ QTreeLeafNode *QTreeNode::getLeafStatic(QTreeNode *root, uint32_t x, uint32_t y)
 	uint32_t currentX = x, currentY = y;
 	while (currentNode) {
 		if (!currentNode->isLeaf()) {
+#ifndef __SWAP_ENDIAN__
 			uint32_t index = ((currentX & 0x8000) >> 15) | ((currentY & 0x8000) >> 14);
+#else
+			uint32_t index = ((swap_uint32(currentX) & 0x8000) >> 15) |
+			                 ((swap_uint32(currentY) & 0x8000) >> 14);
+#endif
 			if (currentNode->m_child[index]) {
 				currentNode = currentNode->m_child[index];
 				currentX = currentX * 2;
@@ -1258,7 +1219,11 @@ QTreeLeafNode *QTreeNode::getLeafStatic(QTreeNode *root, uint32_t x, uint32_t y)
 QTreeLeafNode *QTreeNode::createLeaf(uint32_t x, uint32_t y, uint32_t level)
 {
 	if (!isLeaf()) {
+#ifndef __SWAP_ENDIAN__
 		uint32_t index = ((x & 0x8000) >> 15) | ((y & 0x8000) >> 14);
+#else
+		uint32_t index = ((swap_uint32(x) & 0x8000) >> 15) | ((swap_uint32(y) & 0x8000) >> 14);
+#endif
 		if (!m_child[index]) {
 			if (level != FLOOR_BITS) {
 				m_child[index] = new QTreeNode();
@@ -1273,11 +1238,12 @@ QTreeLeafNode *QTreeNode::createLeaf(uint32_t x, uint32_t y, uint32_t level)
 	}
 }
 
+
 //************ LeafNode  ************************
 bool QTreeLeafNode::newLeaf = false;
 QTreeLeafNode::QTreeLeafNode()
 {
-	for (uint32_t i = 0; i < MAP_MAX_LAYERS; ++i) {
+	for (unsigned int i = 0; i < MAP_MAX_LAYERS; ++i) {
 		m_array[i] = NULL;
 	}
 	m_isLeaf = true;
@@ -1287,7 +1253,7 @@ QTreeLeafNode::QTreeLeafNode()
 
 QTreeLeafNode::~QTreeLeafNode()
 {
-	for (uint32_t i = 0; i < MAP_MAX_LAYERS; ++i) {
+	for (unsigned int i = 0; i < MAP_MAX_LAYERS; ++i) {
 		delete m_array[i];
 	}
 }

@@ -18,29 +18,26 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_IOPLAYER_H__
-#define __OTSERV_IOPLAYER_H__
+#ifndef __IOPLAYER_H
+#define __IOPLAYER_H
 
-#include "const.h"
-#include "database_driver.h"
-#include <boost/algorithm/string/predicate.hpp>
-#include <list>
-#include <map>
-#include <stdint.h>
+#include "database.h"
+#include "definitions.h"
+#include "player.h"
+
 #include <string>
-#include <vector>
 
-class Item;
-class Player;
-class Creature;
-struct DeathEntry;
+class PlayerGroup
+{
+public:
+	PlayerGroup(){};
+	~PlayerGroup(){};
 
-typedef std::vector<DeathEntry> DeathList;
-
-enum UnjustKillPeriod_t {
-	UNJUST_KILL_PERIOD_DAY,
-	UNJUST_KILL_PERIOD_WEEK,
-	UNJUST_KILL_PERIOD_MONTH
+	std::string m_name;
+	uint64_t m_flags;
+	uint32_t m_access;
+	uint32_t m_maxDepotItems;
+	uint32_t m_maxVip;
 };
 
 typedef std::pair<int32_t, Item *> itemBlock;
@@ -50,13 +47,24 @@ typedef std::list<itemBlock> ItemBlockList;
 class IOPlayer
 {
 public:
-	static IOPlayer *instance();
+	IOPlayer()
+	{
+	}
+	~IOPlayer()
+	{
+	}
+
+	static IOPlayer *instance()
+	{
+		static IOPlayer instance;
+		return &instance;
+	}
 
 	/** Load a player
 	  * \param player Player structure to load to
 	  * \param name Name of the player
-	  * \param preload if set to true only group, guid and account id will be
-	 * loaded, default: false
+	  * \param preload if set to true only group, guid and account id will be loaded, default:
+	 * false
 	  * \return returns true if the player was successfully loaded
 	  */
 	bool loadPlayer(Player *player, const std::string &name, bool preload = false);
@@ -65,35 +73,32 @@ public:
 	  * \param player the player to save
 	  * \return true if the player was successfully saved
 	  */
-	bool savePlayer(Player *player, bool shallow = false);
+	bool savePlayer(Player *player);
 
-	bool addPlayerDeath(Player *dying_player, const DeathList &dl);
-	int32_t getPlayerUnjustKillCount(const Player *player, UnjustKillPeriod_t period);
-	bool sendMail(Creature *actor, const std::string name, uint32_t depotId, Item *item);
+	// bool loadDepot(Player* player, unsigned long depotId);
 
-	bool getGuidByName(uint32_t &guid, std::string &player_name);
-	bool getGuidByNameEx(uint32_t &guid, bool &specialVip, const std::string &player_name);
-	bool getAccountByName(uint32_t &acc, const std::string &name);
-	bool getWorldByName(uint32_t &world_id, std::string &name);
-	bool getAccountByName(std::string &acc, const std::string &player_name);
-	bool getDefaultTown(std::string &name, uint32_t &townId);
+	bool getGuidByName(uint32_t &guid, std::string &name);
+	uint32_t getAccountIdByName(std::string &name);
+	bool getGuidByNameEx(uint32_t &guid, bool &specialVip, std::string &name);
 	bool getNameByGuid(uint32_t guid, std::string &name);
 	bool getGuildIdByName(uint32_t &guildId, const std::string &guildName);
 	bool playerExists(std::string name);
-	bool getLastIP(uint32_t &ip, uint32_t guid);
-	bool hasFlag(PlayerFlags flag, uint32_t guid);
-	void updateLoginInfo(Player *player);
-	void updateLogoutInfo(Player *player);
-	bool isPlayerOnlineByAccount(uint32_t acc);
-	bool cleanOnlineInfo();
+	uint32_t getLastIP(std::string name) const;
+	void saveDeath(std::string name, uint32_t time, uint16_t level, std::string killer, std::string altKiller);
+
+	bool hasFlag(std::string name, PlayerFlags value);
+	uint32_t getAccessByName(std::string name);
 
 protected:
-	bool storeNameByGuid(DatabaseDriver &mysql, uint32_t guid);
+	bool storeNameByGuid(Database &mysql, uint32_t guid);
+
+	const PlayerGroup *getPlayerGroup(uint32_t groupid);
+	bool internalHasFlag(uint32_t groupId, PlayerFlags value);
 
 	struct StringCompareCase {
 		bool operator()(const std::string &l, const std::string &r) const
 		{
-			return boost::algorithm::ilexicographical_compare(l, r);
+			return asLowerCaseString(l).compare(asLowerCaseString(r)) < 0;
 		}
 	};
 
@@ -104,42 +109,11 @@ protected:
 
 	typedef std::map<uint32_t, std::string> NameCacheMap;
 	typedef std::map<std::string, uint32_t, StringCompareCase> GuidCacheMap;
+	typedef std::map<uint32_t, PlayerGroup *> PlayerGroupMap;
 
-	struct UnjustKillBlock {
-		uint32_t dayUnjustCount;
-		int64_t dayQueryTime; // the time which was used to query the database
-		int64_t dayExpireTime; // the time when the cached value expires (lowest
-		// date that the query returned)
-
-		uint32_t weekUnjustCount;
-		int64_t weekQueryTime;
-		int64_t weekExpireTime;
-
-		uint32_t monthUnjustCount;
-		int64_t monthQueryTime;
-		int64_t monthExpireTime;
-
-		UnjustKillBlock()
-		{
-			dayUnjustCount = 0;
-			dayQueryTime = 0;
-			dayExpireTime = 0;
-
-			weekUnjustCount = 0;
-			weekQueryTime = 0;
-			weekExpireTime = 0;
-
-			monthUnjustCount = 0;
-			monthQueryTime = 0;
-			monthExpireTime = 0;
-		}
-	};
-
-	typedef std::map<uint32_t, UnjustKillBlock> UnjustCacheMap;
-
+	PlayerGroupMap playerGroupMap;
 	NameCacheMap nameCacheMap;
 	GuidCacheMap guidCacheMap;
-	UnjustCacheMap unjustKillCacheMap;
 };
 
 #endif

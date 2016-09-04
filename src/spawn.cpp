@@ -19,17 +19,18 @@
 //////////////////////////////////////////////////////////////////////
 #include "otpch.h"
 
-#include "actor.h"
 #include "configmanager.h"
-#include "creature_manager.h"
 #include "game.h"
+#include "npc.h"
 #include "player.h"
-#include "scheduler.h"
-#include "singleton.h"
 #include "spawn.h"
+#include "tools.h"
+
+#include <libxml/parser.h>
+#include <libxml/xmlmemory.h>
 
 extern ConfigManager g_config;
-extern CreatureManager g_creature_types;
+extern Monsters g_monsters;
 extern Game g_game;
 
 #define MINSPAWN_INTERVAL 10000
@@ -45,12 +46,6 @@ Spawns::Spawns()
 Spawns::~Spawns()
 {
 	clear();
-}
-
-Spawns *Spawns::getInstance()
-{
-	static Singleton<Spawns> instance;
-	return instance.get();
 }
 
 bool Spawns::loadFromXml(const std::string &_filename)
@@ -177,11 +172,14 @@ bool Spawns::loadFromXml(const std::string &_filename)
 						}
 					} else if (xmlStrcmp(tmpNode->name,
 					                     (const xmlChar *)"npc") == 0) {
-						std::string name;
-						Direction direction = NORTH;
-						Position pos = centerPos;
 
-						if (!readXMLString(tmpNode, "name", name)) {
+						Direction direction = NORTH;
+						std::string name = "";
+						Position placePos = centerPos;
+
+						if (readXMLString(tmpNode, "name", strValue)) {
+							name = strValue;
+						} else {
 							tmpNode = tmpNode->next;
 							continue;
 						}
@@ -204,20 +202,28 @@ bool Spawns::loadFromXml(const std::string &_filename)
 						}
 
 						if (readXMLInteger(tmpNode, "x", intValue)) {
-							pos.x += intValue;
+							placePos.x += intValue;
 						} else {
 							tmpNode = tmpNode->next;
 							continue;
 						}
 
 						if (readXMLInteger(tmpNode, "y", intValue)) {
-							pos.y += intValue;
+							placePos.y += intValue;
 						} else {
 							tmpNode = tmpNode->next;
 							continue;
 						}
 
-						spawn->addNPC(name, pos, direction);
+						Npc *npc = Npc::createNpc(name);
+						if (!npc) {
+							tmpNode = tmpNode->next;
+							continue;
+						}
+
+						npc->setDirection(direction);
+						npc->setMasterPos(placePos, radius);
+						npcList.push_back(npc);
 					}
 
 					tmpNode = tmpNode->next;
@@ -239,6 +245,11 @@ void Spawns::startup()
 {
 	if (!isLoaded() || isStarted()) return;
 
+	for (NpcList::iterator it = npcList.begin(); it != npcList.end(); ++it) {
+		g_game.placeCreature((*it), (*it)->getMasterPos(), false, true);
+	}
+	npcList.clear();
+
 	for (SpawnList::iterator it = spawnList.begin(); it != spawnList.end(); ++it) {
 		(*it)->startup();
 	}
@@ -259,16 +270,6 @@ void Spawns::clear()
 	filename = "";
 }
 
-bool Spawns::isLoaded() const
-{
-	return loaded;
-}
-
-bool Spawns::isStarted() const
-{
-	return started;
-}
-
 bool Spawns::isInZone(const Position &centerPos, int32_t radius, const Position &pos)
 {
 	if (radius == -1) {
@@ -282,7 +283,7 @@ bool Spawns::isInZone(const Position &centerPos, int32_t radius, const Position 
 void Spawn::startSpawnCheck()
 {
 	if (checkSpawnEvent == 0) {
-		checkSpawnEvent = g_scheduler.addEvent(
+		checkSpawnEvent = Scheduler::getScheduler().addEvent(
 		createSchedulerTask(getInterval(), boost::bind(&Spawn::checkSpawn, this)));
 	}
 }
@@ -293,13 +294,11 @@ Spawn::Spawn(const Position &_pos, int32_t _radius)
 	radius = _radius;
 	interval = DEFAULTSPAWN_INTERVAL;
 	checkSpawnEvent = 0;
-	despawnRange = 0;
-	despawnRadius = 0;
 }
 
 Spawn::~Spawn()
 {
-	Actor *monster;
+	Monster *monster;
 	for (SpawnedMap::iterator it = spawnedMap.begin(); it != spawnedMap.end(); ++it) {
 		monster = it->second;
 		it->second = NULL;
@@ -320,6 +319,7 @@ bool Spawn::findPlayer(const Position &pos)
 {
 	SpectatorVec list;
 	SpectatorVec::iterator it;
+
 	g_game.getSpectators(list, pos);
 
 	Player *tmpPlayer = NULL;
@@ -337,16 +337,16 @@ bool Spawn::isInSpawnZone(const Position &pos)
 	return Spawns::getInstance()->isInZone(centerPos, radius, pos);
 }
 
-bool Spawn::spawnMonster(uint32_t spawnId, CreatureType *mType, const Position &pos, Direction dir, bool startup /*= false*/)
+bool Spawn::spawnMonster(uint32_t spawnId, MonsterType *mType, const Position &pos, Direction dir, bool startup /*= false*/)
 {
-	Actor *monster = Actor::create(*mType);
+	Monster *monster = Monster::createMonster(mType);
 	if (!monster) {
 		return false;
 	}
 
 	if (startup) {
-		// No need to send out events to the surrounding since there is no one out
-		// there to listen!
+		// No need to send out events to the surrounding since there is no one out there to
+		// listen!
 		if (!g_game.internalPlaceCreature(monster, pos, false, true)) {
 			delete monster;
 			return false;
@@ -361,13 +361,7 @@ bool Spawn::spawnMonster(uint32_t spawnId, CreatureType *mType, const Position &
 	monster->setDirection(dir);
 	monster->setSpawn(this);
 	monster->setMasterPos(pos, radius);
-
-	if (g_game.onSpawn(monster)) {
-		// If event was handled, don't spawn
-		g_game.removeCreature(monster);
-		return false;
-	}
-	monster->addRef();
+	monster->useThing2();
 
 	spawnedMap.insert(spawned_pair(spawnId, monster));
 	spawnMap[spawnId].lastSpawn = OTSYS_TIME();
@@ -391,11 +385,29 @@ void Spawn::checkSpawn()
 #endif
 	checkSpawnEvent = 0;
 
+	Monster *monster;
 	uint32_t spawnId;
+
+	for (SpawnedMap::iterator it = spawnedMap.begin(); it != spawnedMap.end();) {
+		spawnId = it->first;
+		monster = it->second;
+
+		if (monster->isRemoved()) {
+			if (spawnId != 0) {
+				spawnMap[spawnId].lastSpawn = OTSYS_TIME();
+			}
+
+			monster->releaseThing2();
+			spawnedMap.erase(it++);
+		} else if (!isInSpawnZone(monster->getPosition()) && spawnId != 0) {
+			spawnedMap.insert(spawned_pair(0, monster));
+			spawnedMap.erase(it++);
+		} else {
+			++it;
+		}
+	}
+
 	uint32_t spawnCount = 0;
-
-	cleanup();
-
 	for (SpawnMap::iterator it = spawnMap.begin(); it != spawnMap.end(); ++it) {
 		spawnId = it->first;
 		spawnBlock_t &sb = it->second;
@@ -419,7 +431,7 @@ void Spawn::checkSpawn()
 	}
 
 	if (spawnedMap.size() < spawnMap.size()) {
-		checkSpawnEvent = g_scheduler.addEvent(
+		checkSpawnEvent = Scheduler::getScheduler().addEvent(
 		createSchedulerTask(getInterval(), boost::bind(&Spawn::checkSpawn, this)));
 	}
 #ifdef __DEBUG_SPAWN__
@@ -429,34 +441,9 @@ void Spawn::checkSpawn()
 #endif
 }
 
-void Spawn::cleanup()
-{
-	Actor *monster;
-	uint32_t spawnId;
-
-	for (SpawnedMap::iterator it = spawnedMap.begin(); it != spawnedMap.end();) {
-		spawnId = it->first;
-		monster = it->second;
-
-		if (monster->isRemoved()) {
-			if (spawnId != 0) {
-				spawnMap[spawnId].lastSpawn = OTSYS_TIME();
-			}
-
-			monster->unRef();
-			spawnedMap.erase(it++);
-		} else if (!isInSpawnZone(monster->getPosition()) && spawnId != 0) {
-			spawnedMap.insert(spawned_pair(0, monster));
-			spawnedMap.erase(it++);
-		} else {
-			++it;
-		}
-	}
-}
-
 bool Spawn::addMonster(const std::string &_name, const Position &_pos, Direction _dir, uint32_t _interval)
 {
-	CreatureType *mType = g_creature_types.getMonsterType(_name);
+	MonsterType *mType = g_monsters.getMonsterType(_name);
 	if (!mType) {
 		std::cout << "[Spawn::addMonster] Can not find " << _name << std::endl;
 		return false;
@@ -479,53 +466,21 @@ bool Spawn::addMonster(const std::string &_name, const Position &_pos, Direction
 	return true;
 }
 
-bool Spawn::addNPC(const std::string &name, const Position &pos, Direction dir)
-{
-	CreatureType ct;
-	OutfitType ot;
-	ot.lookType = 130;
-	ct.outfit(ot);
-
-	Actor *actor = Actor::create(ct);
-	actor->getType().name(name);
-
-	if (!g_game.placeCreature(actor, pos, false, true)) {
-		delete actor;
-		return false;
-	}
-
-	if (g_game.onSpawn(actor)) {
-		// If event was handled, don't spawn
-		g_game.removeCreature(actor);
-		return false;
-	}
-
-	return true;
-}
-
-void Spawn::removeMonster(Actor *monster)
+void Spawn::removeMonster(Monster *monster)
 {
 	for (SpawnedMap::iterator it = spawnedMap.begin(); it != spawnedMap.end(); ++it) {
 		if (it->second == monster) {
-			monster->unRef();
+			monster->releaseThing2();
 			spawnedMap.erase(it);
 			break;
 		}
 	}
-
-	/* The check might have been removed from scheduler */
-	startSpawnCheck();
-}
-
-uint32_t Spawn::getInterval() const
-{
-	return interval;
 }
 
 void Spawn::stopEvent()
 {
 	if (checkSpawnEvent != 0) {
-		g_scheduler.stopEvent(checkSpawnEvent);
+		Scheduler::getScheduler().stopEvent(checkSpawnEvent);
 		checkSpawnEvent = 0;
 	}
 }

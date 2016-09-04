@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 // OpenTibia - an opensource roleplaying game
 //////////////////////////////////////////////////////////////////////
-//
-//
+// a Tile represents a single field on the map.
+// it is a list of Items
 //////////////////////////////////////////////////////////////////////
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,11 +26,10 @@
 #include "house.h"
 #include "ioplayer.h"
 #include "player.h"
-#include "scheduler.h"
-#include "tile.h"
 
 extern Game g_game;
 extern ConfigManager g_config;
+
 
 BedItem::BedItem(uint16_t _id) : Item(_id)
 {
@@ -40,17 +39,7 @@ BedItem::BedItem(uint16_t _id) : Item(_id)
 
 BedItem::~BedItem()
 {
-	Beds::instance().setBedSleeper(NULL, sleeperGUID);
-}
-
-BedItem *BedItem::getBed()
-{
-	return this;
-}
-
-const BedItem *BedItem::getBed() const
-{
-	return this;
+	//
 }
 
 Attr_ReadValue BedItem::readAttr(AttrTypes_t attr, PropStream &propStream)
@@ -58,7 +47,7 @@ Attr_ReadValue BedItem::readAttr(AttrTypes_t attr, PropStream &propStream)
 	switch (attr) {
 	case ATTR_SLEEPERGUID: {
 		uint32_t _guid;
-		if (!propStream.GET_ULONG(_guid)) {
+		if (!propStream.GET_UINT32(_guid)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -76,7 +65,7 @@ Attr_ReadValue BedItem::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 	case ATTR_SLEEPSTART: {
 		uint32_t sleep_start;
-		if (!propStream.GET_ULONG(sleep_start)) {
+		if (!propStream.GET_UINT32(sleep_start)) {
 			return ATTR_READ_ERROR;
 		}
 		sleepStart = (time_t)sleep_start;
@@ -92,71 +81,36 @@ Attr_ReadValue BedItem::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 bool BedItem::serializeAttr(PropWriteStream &propWriteStream) const
 {
-	propWriteStream.ADD_UCHAR(ATTR_SLEEPERGUID);
-	propWriteStream.ADD_ULONG(sleeperGUID);
-	propWriteStream.ADD_UCHAR(ATTR_SLEEPSTART);
-	propWriteStream.ADD_ULONG((int32_t)sleepStart);
+	propWriteStream.ADD_UINT8(ATTR_SLEEPERGUID);
+	propWriteStream.ADD_UINT32(sleeperGUID);
+	propWriteStream.ADD_UINT8(ATTR_SLEEPSTART);
+	propWriteStream.ADD_UINT32((int32_t)sleepStart);
 
 	return true;
 }
 
-bool BedItem::canRemove() const
-{
-	return (house == NULL);
-}
-
-uint32_t BedItem::getSleeper() const
-{
-	return sleeperGUID;
-}
-
-void BedItem::setSleeper(uint32_t guid)
-{
-	sleeperGUID = guid;
-}
-
-time_t BedItem::getSleepStart() const
-{
-	return sleepStart;
-}
-
-void BedItem::setSleepStart(time_t now)
-{
-	sleepStart = now;
-}
-
-House *BedItem::getHouse() const
-{
-	return house;
-}
-
-void BedItem::setHouse(House *h)
-{
-	house = h;
-}
-
 BedItem *BedItem::getNextBedItem()
 {
-	Direction dir = Item::items[getID()].bedPartnerDirection;
+	Direction dir = Item::items[getID()].bedPartnerDir;
 	Position targetPos = getPosition();
-	switch (dir.value()) {
-	case enums::NORTH:
+	switch (dir) {
+	case NORTH:
 		targetPos.y--;
 		break;
-	case enums::SOUTH:
+	case SOUTH:
 		targetPos.y++;
 		break;
-	case enums::EAST:
+	case EAST:
 		targetPos.x++;
 		break;
-	case enums::WEST:
+	case WEST:
 		targetPos.x--;
 		break;
 	default:
 		break;
 	}
 
-	Tile *tile = g_game.getMap()->getParentTile(targetPos);
+	Tile *tile = g_game.getMap()->getTile(targetPos);
 	if (tile != NULL) {
 		return tile->getBedItem();
 	}
@@ -166,27 +120,36 @@ BedItem *BedItem::getNextBedItem()
 
 bool BedItem::canUse(Player *player)
 {
-	if (house == NULL || (g_config.getNumber(ConfigManager::PREMIUM_ONLY_BEDS) && !player->isPremium())) {
+	if (house == NULL || (g_config.getBoolean(ConfigManager::PREMIUM_ONLY_BEDS) && !player->isPremium())) {
 		return false;
 	} else if (sleeperGUID != 0) {
 		if (house->getHouseAccessLevel(player) != HOUSE_OWNER) {
+			std::string name;
 
-			Player *sleeper = g_game.getPlayerByGuidEx(sleeperGUID);
+			if (IOPlayer::instance()->getNameByGuid(sleeperGUID, name)) {
+				Player *sleeper = new Player(name, NULL);
 
-			bool result = false;
-			// compares house access of the kicker (player) to the sleeper
-			// kicker can only kick if he has greater or equal access to the house
-			// IE: Guest cannot kick sub-owner, sub-owner can kick guest; sub-owner
-			// cannot kick owner, owner can kick sub-owner
-			if (house->getHouseAccessLevel(sleeper) <= house->getHouseAccessLevel(player)) {
-				result = true;
-			}
+				if (IOPlayer::instance()->loadPlayer(sleeper, name)) {
+					// compares house access of the kicker (player) to the
+					// sleeper
+					// kicker can only kick if he has greater or equal access to
+					// the house
+					// IE: Guest cannot kick sub-owner, sub-owner can kick
+					// guest; sub-owner cannot kick owner, owner can kick
+					// sub-owner
+					if (house->getHouseAccessLevel(sleeper) <=
+					    house->getHouseAccessLevel(player)) {
+						delete sleeper;
+						sleeper = NULL;
+						return isBed();
+					}
+				}
 
-			if (sleeper->isOffline()) {
 				delete sleeper;
+				sleeper = NULL;
 			}
 
-			return result;
+			return false;
 		}
 	}
 
@@ -200,8 +163,8 @@ void BedItem::sleep(Player *player)
 	}
 
 	if (sleeperGUID != 0) {
-		g_game.addMagicEffect(this->getPosition(), MAGIC_EFFECT_PUFF);
-		wakeUp();
+		g_game.addMagicEffect(this->getPosition(), NM_ME_PUFF);
+		wakeUp(g_game.getPlayerByID(sleeperGUID));
 	} else {
 		internalSetSleeper(player);
 
@@ -214,8 +177,8 @@ void BedItem::sleep(Player *player)
 		Beds::instance().setBedSleeper(this, player->getGUID());
 
 		// make the player walk onto the bed and kick him
-		player->getParentTile()->moveCreature(NULL, player, getParentTile());
-		g_scheduler.addEvent(
+		player->getTile()->moveCreature(player, getTile());
+		Scheduler::getScheduler().addEvent(
 		createSchedulerTask(SCHEDULER_MINTICKS,
 		                    boost::bind(&Game::kickPlayer, &g_game, player->getID())));
 
@@ -227,25 +190,29 @@ void BedItem::sleep(Player *player)
 	}
 }
 
-void BedItem::wakeUp()
+void BedItem::wakeUp(Player *player)
 {
 	if (house == NULL) {
 		return;
 	}
 
 	if (sleeperGUID != 0) {
-		Player *player = g_game.getPlayerByGuidEx(sleeperGUID);
+		if ((player == NULL)) {
+			std::string name;
+			if (IOPlayer::instance()->getNameByGuid(sleeperGUID, name)) {
+				Player *_player = new Player(name, NULL);
 
-		if (player) {
-			regeneratePlayer(player);
+				if (IOPlayer::instance()->loadPlayer(_player, name)) {
+					regeneratePlayer(_player);
+					IOPlayer::instance()->savePlayer(_player);
+				}
 
-			if (player->isOffline()) {
-				IOPlayer::instance()->savePlayer(player);
-				delete player;
-				player = NULL;
-			} else {
-				g_game.addCreatureHealth(player);
+				delete _player;
+				_player = NULL;
 			}
+		} else {
+			regeneratePlayer(player);
+			g_game.addCreatureHealth(player);
 		}
 	}
 
@@ -268,32 +235,36 @@ void BedItem::wakeUp()
 
 void BedItem::regeneratePlayer(Player *player) const
 {
-	int32_t sleepDuration = int32_t(std::time(NULL) - sleepStart);
+	// Note: time_t is in seconds
+	int32_t sleptTime = int32_t(std::time(NULL) - sleepStart);
 
-	Condition *condition = player->getCondition(CONDITION_REGENERATION);
-	int32_t regenAmount = 0;
+	Condition *condition = player->getCondition(CONDITION_REGENERATION, CONDITIONID_DEFAULT);
 	if (condition) {
-		// regenerate 1 health and 1 mana every 30 seconds that the player had food
-		// for
-		int32_t regenDuration = std::min(player->getFood(), sleepDuration);
-		regenAmount = regenDuration / 30;
+		// regenerate 1 health and 1 mana every 30 seconds that the player had food for
+		int32_t regen;
 
-		int32_t newTicks = condition->getTicks() - regenDuration * 1000;
-		if (newTicks <= 0) {
-			player->removeCondition(condition);
+		if (condition->getTicks() != -1) {
+			regen = std::min((condition->getTicks() / 1000), sleptTime) / 30;
+			int32_t newRegenTicks = condition->getTicks() - (regen * 30000);
+			if (newRegenTicks <= 0) {
+				player->removeCondition(condition);
+				condition = NULL;
+			} else {
+				condition->setTicks(newRegenTicks);
+			}
 		} else {
-			condition->setTicks(newTicks);
+			regen = sleptTime / 30;
 		}
-	} else {
-		regenAmount = sleepDuration / 30;
+
+		player->changeHealth(regen);
+		player->changeMana(regen);
 	}
 
-	player->changeHealth(regenAmount);
-	player->changeMana(regenAmount);
-
+#ifdef __PROTOCOL_76__
 	// regenerate 1 soul every 15 minutes
-	int32_t soulRegen = (int32_t)(((float)sleepDuration) / 60 * 15);
+	int32_t soulRegen = (int32_t)std::max((float)0, ((float)sleptTime / (60 * 15)));
 	player->changeSoul(soulRegen);
+#endif // __PROTOCOL_76__
 }
 
 void BedItem::updateAppearance(const Player *player)
@@ -304,21 +275,21 @@ void BedItem::updateAppearance(const Player *player)
 			if (it.noSleeperID != 0) {
 				const ItemType &newType = Item::items[it.noSleeperID];
 				if (newType.type == ITEM_TYPE_BED) {
-					g_game.transformItem(NULL, this, it.noSleeperID);
+					g_game.transformItem(this, it.noSleeperID);
 				}
 			}
-		} else if (player->isFemale()) {
+		} else if (player->getSex() == PLAYERSEX_FEMALE) {
 			if (it.femaleSleeperID != 0) {
 				const ItemType &newType = Item::items[it.femaleSleeperID];
 				if (newType.type == ITEM_TYPE_BED) {
-					g_game.transformItem(NULL, this, it.femaleSleeperID);
+					g_game.transformItem(this, it.femaleSleeperID);
 				}
 			}
 		} else {
 			if (it.maleSleeperID != 0) {
 				const ItemType &newType = Item::items[it.maleSleeperID];
 				if (newType.type == ITEM_TYPE_BED) {
-					g_game.transformItem(NULL, this, it.maleSleeperID);
+					g_game.transformItem(this, it.maleSleeperID);
 				}
 			}
 		}
@@ -339,14 +310,6 @@ void BedItem::internalRemoveSleeper()
 	setSleeper(0);
 	setSleepStart(0);
 	setSpecialDescription("Nobody is sleeping there.");
-}
-
-Beds::Beds()
-{
-}
-
-Beds::~Beds()
-{
 }
 
 Beds &Beds::instance()

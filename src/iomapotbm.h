@@ -22,13 +22,7 @@
 #define __OTSERV_IOMAPOTBM_H__
 
 #include "iomap.h"
-
-enum OTBM_Version {
-	OTBM_1 = 0,
-	OTBM_2 = 1,
-	OTBM_3 = 2,
-	OTBM_4 = 3,
-};
+#include "item.h"
 
 enum OTBM_AttrTypes_t {
 	OTBM_ATTR_DESCRIPTION = 1,
@@ -48,11 +42,10 @@ enum OTBM_AttrTypes_t {
 	OTBM_ATTR_COUNT = 15,
 	OTBM_ATTR_DURATION = 16,
 	OTBM_ATTR_DECAYING_STATE = 17,
-	OTBM_ATTR_WRITTENDATE = 18,
+	// OTBM_ATTR_WRITTENDATE = 18,
 	OTBM_ATTR_WRITTENBY = 19,
 	OTBM_ATTR_SLEEPERGUID = 20,
-	OTBM_ATTR_SLEEPSTART = 21,
-	OTBM_ATTR_CHARGES = 22
+	OTBM_ATTR_SLEEPSTART = 21
 };
 
 enum OTBM_NodeTypes_t {
@@ -117,8 +110,6 @@ struct OTBM_HouseTile_coords {
 
 class IOMapOTBM : public IOMap
 {
-	static Tile *createTile(Item *&ground, Item *item, const Position &p);
-
 public:
 	IOMapOTBM(){};
 	~IOMapOTBM(){};
@@ -129,5 +120,6 @@ public:
 	}
 	virtual bool loadMap(Map *map, const std::string &identifier);
 };
+
 
 #endif

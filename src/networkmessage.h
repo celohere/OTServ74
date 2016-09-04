@@ -18,53 +18,177 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_NETWORKMESSAGE_H__
-#define __OTSERV_NETWORKMESSAGE_H__
+#ifndef __OTSERV_NETWORK_MESSAGE_H__
+#define __OTSERV_NETWORK_MESSAGE_H__
 
-#include "protocolconst.h"
+#include "const.h"
+#include "definitions.h"
+#include "otsystem.h"
+
 #include <boost/shared_ptr.hpp>
-#include <stdint.h>
-#include <string>
 
-class Position;
 class Item;
 class Creature;
+class Player;
+class Position;
 
 class NetworkMessage
 {
 public:
 	enum { header_length = 2 };
-	enum { crypto_length = 4 };
-	enum { xtea_multiple = 8 };
-	enum { max_body_length = NETWORKMESSAGE_MAXSIZE - header_length - crypto_length - xtea_multiple };
+	enum { max_body_length = NETWORKMESSAGE_MAXSIZE - header_length };
 
 	// constructor/destructor
-	NetworkMessage();
-	virtual ~NetworkMessage();
+	NetworkMessage()
+	{
+		Reset();
+	}
+	virtual ~NetworkMessage(){};
 
+	// resets the internal buffer to an empty message
+protected:
+	void Reset()
+	{
+		m_overrun = false;
+		m_MsgSize = 0;
+		m_ReadPos = 4;
+	}
+
+public:
 	// simply read functions for incoming message
-	uint8_t GetByte();
-	uint16_t GetU16();
-	uint16_t GetSpriteId();
-	uint32_t GetU32();
-	uint32_t PeekU32() const;
-	uint64_t GetU64() const;
+	uint8_t GetByte()
+	{
+		return m_MsgBuf[m_ReadPos++];
+	}
+
+#ifndef __SWAP_ENDIAN__
+	uint16_t GetU16()
+	{
+		if (!expectRead(2)) {
+			return 0;
+		}
+
+		uint16_t v = *(uint16_t *)(m_MsgBuf + m_ReadPos);
+		m_ReadPos += 2;
+		return v;
+	}
+	uint32_t GetU32()
+	{
+		if (!expectRead(4)) {
+			return 0;
+		}
+
+		uint32_t v = *(uint32_t *)(m_MsgBuf + m_ReadPos);
+		m_ReadPos += 4;
+		return v;
+	}
+	uint32_t PeekU32()
+	{
+		if (!expectRead(4)) {
+			return 0;
+		}
+
+		uint32_t v = *(uint32_t *)(m_MsgBuf + m_ReadPos);
+		return v;
+	}
+#else
+	uint16_t GetU16()
+	{
+		if (!expectRead(2)) {
+			return 0;
+		}
+
+		uint16_t v = *(uint16_t *)(m_MsgBuf + m_ReadPos);
+		m_ReadPos += 2;
+		return swap_uint16(v);
+	}
+	uint32_t GetU32()
+	{
+		if (!expectRead(4)) {
+			return 0;
+		}
+
+		uint32_t v = *(uint32_t *)(m_MsgBuf + m_ReadPos);
+		m_ReadPos += 4;
+		return swap_uint32(v);
+	}
+	uint32_t PeekU32()
+	{
+		if (!expectRead(4)) {
+			return 0;
+		}
+
+		uint32_t v = *(uint32_t *)(m_MsgBuf + m_ReadPos);
+		return swap_uint32(v);
+	}
+#endif
+
+	uint16_t GetSpriteId()
+	{
+		return GetU16();
+	}
+
 	std::string GetString();
 	std::string GetRaw();
 	Position GetPosition();
 
 	// skips count unknown/unused bytes in an incoming message
-	void SkipBytes(int count);
+	void SkipBytes(int count)
+	{
+		m_ReadPos += count;
+	}
 
 	// simply write functions for outgoing message
-	void AddByte(uint8_t value);
-	void AddU16(uint16_t value);
-	void AddU32(uint32_t value);
-	void AddU64(uint64_t value);
+	void AddByte(uint8_t value)
+	{
+		if (canAdd(1)) {
+			m_MsgBuf[m_ReadPos++] = value;
+			m_MsgSize++;
+		}
+	}
+
+#ifndef __SWAP_ENDIAN__
+	void AddU16(uint16_t value)
+	{
+		if (canAdd(2)) {
+			*(uint16_t *)(m_MsgBuf + m_ReadPos) = value;
+			m_ReadPos += 2;
+			m_MsgSize += 2;
+		}
+	}
+	void AddU32(uint32_t value)
+	{
+		if (canAdd(4)) {
+			*(uint32_t *)(m_MsgBuf + m_ReadPos) = value;
+			m_ReadPos += 4;
+			m_MsgSize += 4;
+		}
+	}
+#else
+	void AddU16(uint16_t value)
+	{
+		if (canAdd(2)) {
+			*(uint16_t *)(m_MsgBuf + m_ReadPos) = swap_uint16(value);
+			m_ReadPos += 2;
+			m_MsgSize += 2;
+		}
+	}
+	void AddU32(uint32_t value)
+	{
+		if (canAdd(4)) {
+			*(uint32_t *)(m_MsgBuf + m_ReadPos) = swap_uint32(value);
+			m_ReadPos += 4;
+			m_MsgSize += 4;
+		}
+	}
+#endif
 	void AddBytes(const char *bytes, uint32_t size);
 	void AddPaddingBytes(uint32_t n);
 
-	void AddString(const std::string &value);
+	void AddString(const std::string &value)
+	{
+		AddString(value.c_str());
+	}
 	void AddString(const char *value);
 
 	// write functions for complex types
@@ -73,16 +197,41 @@ public:
 	void AddItem(const Item *item);
 	void AddItemId(const Item *item);
 	void AddItemId(uint16_t itemId);
+	void AddCreature(const Creature *creature, bool known, unsigned int remove);
 
-	int32_t getMessageLength() const;
-	void setMessageLength(int32_t newSize);
-	int32_t getReadPos() const;
-	void setReadPos(int32_t pos);
+	int32_t getMessageLength() const
+	{
+		return m_MsgSize;
+	}
+	void setMessageLength(int32_t newSize)
+	{
+		m_MsgSize = newSize;
+	}
+	int32_t getReadPos() const
+	{
+		return m_ReadPos;
+	}
+	void setReadPos(int32_t pos)
+	{
+		m_ReadPos = pos;
+	}
 
 	int32_t decodeHeader();
 
-	char *getBuffer();
-	char *getBodyBuffer();
+	bool isOverrun()
+	{
+		return m_overrun;
+	};
+
+	char *getBuffer()
+	{
+		return (char *)&m_MsgBuf[0];
+	}
+	char *getBodyBuffer()
+	{
+		m_ReadPos = 2;
+		return (char *)&m_MsgBuf[header_length];
+	}
 
 #ifdef __TRACK_NETWORK__
 	virtual void Track(std::string file, long line, std::string func){};
@@ -90,11 +239,25 @@ public:
 #endif
 
 protected:
-	void Reset();
-	bool canAdd(uint32_t size) const;
+	inline bool canAdd(int size)
+	{
+		return (size + m_ReadPos < NETWORKMESSAGE_MAXSIZE - 16);
+	};
+
+	inline bool expectRead(int32_t size)
+	{
+		if (size >= (NETWORKMESSAGE_MAXSIZE - m_ReadPos)) {
+			m_overrun = true;
+			return false;
+		}
+
+		return true;
+	};
 
 	int32_t m_MsgSize;
 	int32_t m_ReadPos;
+
+	bool m_overrun;
 
 	uint8_t m_MsgBuf[NETWORKMESSAGE_MAXSIZE];
 };

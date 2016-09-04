@@ -18,33 +18,37 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_STATUS_H__
-#define __OTSERV_STATUS_H__
+#ifndef __OTSERV_STATUS_H
+#define __OTSERV_STATUS_H
 
+#include "definitions.h"
+#include "networkmessage.h"
 #include "protocol.h"
-#include <boost/noncopyable.hpp>
-#include <map>
-#include <stdint.h>
+
 #include <string>
 
 class ProtocolStatus : public Protocol
 {
 public:
-	// static protocol information
-	enum { server_sends_first = false };
-	enum { protocol_identifier = 0xFF };
-	enum { use_checksum = false };
-
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 	static uint32_t protocolStatusCount;
 #endif
 
-	ProtocolStatus(Connection_ptr connection);
-	virtual ~ProtocolStatus();
+	ProtocolStatus(Connection *connection) : Protocol(connection)
+	{
+#ifdef __ENABLE_SERVER_DIAGNOSTIC__
+		protocolStatusCount++;
+#endif
+	}
+
+	virtual ~ProtocolStatus()
+	{
+#ifdef __ENABLE_SERVER_DIAGNOSTIC__
+		protocolStatusCount--;
+#endif
+	}
 
 	virtual void onRecvFirstMessage(NetworkMessage &msg);
-
-	static const char *protocol_name();
 
 protected:
 	static std::map<uint32_t, int64_t> ipConnectMap;
@@ -54,12 +58,15 @@ protected:
 #endif
 };
 
-class Status : boost::noncopyable
+class Status
 {
 public:
-	Status();
-
-	static Status *instance();
+	// procs
+	static Status *instance()
+	{
+		static Status status;
+		return &status;
+	}
 
 	void addPlayer();
 	void removePlayer();
@@ -68,12 +75,24 @@ public:
 	std::string getStatusString() const;
 	void getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMessage &msg) const;
 
-	uint32_t getPlayersOnline() const;
-	uint32_t getMaxPlayersOnline() const;
+	uint32_t getPlayersOnline() const
+	{
+		return m_playersonline;
+	}
+	uint32_t getMaxPlayersOnline() const
+	{
+		return m_playersmax;
+	}
 
-	void setMaxPlayersOnline(int max);
+	void setMaxPlayersOnline(int max)
+	{
+		m_playersmax = max;
+	}
 
-	uint64_t getUpTime() const;
+	uint64_t getUptime() const;
+
+protected:
+	Status();
 
 private:
 	uint64_t m_start;

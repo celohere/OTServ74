@@ -22,10 +22,13 @@
 #include "configmanager.h"
 #include "connection.h"
 #include "game.h"
+#include "networkmessage.h"
 #include "outputmessage.h"
-#include "player.h"
-#include "singleton.h"
 #include "status.h"
+#include "tools.h"
+#include <libxml/parser.h>
+#include <libxml/xmlmemory.h>
+#include <sstream>
 
 #ifndef WIN32
 #define SOCKET_ERROR -1
@@ -35,6 +38,10 @@
 extern ConfigManager g_config;
 extern Game g_game;
 
+#ifdef __ENABLE_SERVER_DIAGNOSTIC__
+uint32_t ProtocolStatus::protocolStatusCount = 0;
+#endif
+
 enum RequestedInfo_t {
 	REQUEST_BASIC_SERVER_INFO = 0x01,
 	REQUEST_OWNER_SERVER_INFO = 0x02,
@@ -43,27 +50,10 @@ enum RequestedInfo_t {
 	REQUEST_MAP_INFO = 0x10,
 	REQUEST_EXT_PLAYERS_INFO = 0x20,
 	REQUEST_PLAYER_STATUS_INFO = 0x40,
-	REQUEST_SERVER_SOFTWARE_INFORMATION = 0x80
+	REQUEST_SERVER_SOFTWARE_INFORMATION = 0x80,
 };
 
-#ifdef __ENABLE_SERVER_DIAGNOSTIC__
-uint32_t ProtocolStatus::protocolStatusCount = 0;
-#endif
 std::map<uint32_t, int64_t> ProtocolStatus::ipConnectMap;
-
-ProtocolStatus::ProtocolStatus(Connection_ptr connection) : Protocol(connection)
-{
-#ifdef __ENABLE_SERVER_DIAGNOSTIC__
-	protocolStatusCount++;
-#endif
-}
-
-ProtocolStatus::~ProtocolStatus()
-{
-#ifdef __ENABLE_SERVER_DIAGNOSTIC__
-	protocolStatusCount--;
-#endif
-}
 
 void ProtocolStatus::onRecvFirstMessage(NetworkMessage &msg)
 {
@@ -97,8 +87,8 @@ void ProtocolStatus::onRecvFirstMessage(NetworkMessage &msg)
 	}
 	// Another ServerInfo protocol
 	case 0x01: {
-		uint32_t requestedInfo = msg.GetU16(); // Only a Byte is necessary, though
-		// we could add new infos here
+		uint32_t requestedInfo =
+		msg.GetU16(); // Only a Byte is necessary, though we could add new infos here
 
 		OutputMessage_ptr output = OutputMessagePool::getInstance()->getOutputMessage(this, false);
 		if (output) {
@@ -115,11 +105,6 @@ void ProtocolStatus::onRecvFirstMessage(NetworkMessage &msg)
 	getConnection()->closeConnection();
 }
 
-const char *ProtocolStatus::protocol_name()
-{
-	return "status protocol";
-}
-
 #ifdef __DEBUG_NET_DETAIL__
 void ProtocolStatus::deleteProtocolTask()
 {
@@ -134,12 +119,6 @@ Status::Status()
 	m_playersmax = 0;
 	m_playerspeak = 0;
 	m_start = OTSYS_TIME();
-}
-
-Status *Status::instance()
-{
-	static Singleton<Status> status;
-	return status.get();
 }
 
 void Status::addPlayer()
@@ -168,15 +147,16 @@ std::string Status::getStatusString() const
 
 	xmlSetProp(root, (const xmlChar *)"version", (const xmlChar *)"1.0");
 
+
 	p = xmlNewNode(NULL, (const xmlChar *)"serverinfo");
-	ss << getUpTime();
+	ss << getUptime();
 	xmlSetProp(p, (const xmlChar *)"uptime", (const xmlChar *)ss.str().c_str());
 	ss.str("");
 	xmlSetProp(p, (const xmlChar *)"ip", (const xmlChar *)g_config.getString(ConfigManager::IP).c_str());
 	xmlSetProp(p, (const xmlChar *)"servername",
 	           (const xmlChar *)g_config.getString(ConfigManager::SERVER_NAME).c_str());
 
-	ss << g_config.getNumber(ConfigManager::LOGIN_PORT);
+	ss << g_config.getNumber(ConfigManager::PORT);
 	xmlSetProp(p, (const xmlChar *)"port", (const xmlChar *)ss.str().c_str());
 	ss.str("");
 
@@ -186,7 +166,7 @@ std::string Status::getStatusString() const
 	           (const xmlChar *)g_config.getString(ConfigManager::URL).c_str());
 	xmlSetProp(p, (const xmlChar *)"server", (const xmlChar *)OTSERV_NAME);
 	xmlSetProp(p, (const xmlChar *)"version", (const xmlChar *)OTSERV_VERSION);
-	xmlSetProp(p, (const xmlChar *)"client", (const xmlChar *)CLIENT_VERSION_STRING);
+	xmlSetProp(p, (const xmlChar *)"client", (const xmlChar *)OTSERV_CLIENT_VERSION);
 	xmlAddChild(root, p);
 
 	p = xmlNewNode(NULL, (const xmlChar *)"owner");
@@ -255,7 +235,7 @@ void Status::getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMe
 	// sent back, so we'll save some bandwidth and
 	// make many
 	std::stringstream ss;
-	uint64_t running = getUpTime();
+	uint64_t running = getUptime();
 	// since we haven't all the things on the right place like map's
 	// creator/info and other things, i'll put the info chunked into
 	// operators, so the httpd server will only receive the existing
@@ -265,7 +245,7 @@ void Status::getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMe
 		output->AddByte(0x10); // server info
 		output->AddString(g_config.getString(ConfigManager::SERVER_NAME).c_str());
 		output->AddString(g_config.getString(ConfigManager::IP).c_str());
-		ss << g_config.getNumber(ConfigManager::LOGIN_PORT);
+		ss << g_config.getNumber(ConfigManager::PORT);
 		output->AddString(ss.str().c_str());
 		ss.str("");
 	}
@@ -284,6 +264,7 @@ void Status::getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMe
 		output->AddU32(
 		(uint32_t)(running >> 32)); // this method prevents a big number parsing
 		output->AddU32((uint32_t)(running)); // since servers can be online for months ;)
+		output->AddString(OTSERV_VERSION);
 	}
 
 	if (requestedInfo & REQUEST_PLAYERS_INFO) {
@@ -328,25 +309,10 @@ void Status::getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMe
 		output->AddByte(0x23); // server software info
 		output->AddString(OTSERV_NAME);
 		output->AddString(OTSERV_VERSION);
-		output->AddString(CLIENT_VERSION_STRING);
+		output->AddString(OTSERV_CLIENT_VERSION);
 	}
 
 	return;
-}
-
-uint32_t Status::getPlayersOnline() const
-{
-	return m_playersonline;
-}
-
-uint32_t Status::getMaxPlayersOnline() const
-{
-	return m_playersmax;
-}
-
-void Status::setMaxPlayersOnline(int max)
-{
-	m_playersmax = max;
 }
 
 bool Status::hasSlot() const
@@ -354,7 +320,7 @@ bool Status::hasSlot() const
 	return m_playersonline < m_playersmax;
 }
 
-uint64_t Status::getUpTime() const
+uint64_t Status::getUptime() const
 {
 	return (OTSYS_TIME() - m_start) / 1000;
 }

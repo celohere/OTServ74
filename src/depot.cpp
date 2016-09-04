@@ -20,8 +20,9 @@
 #include "otpch.h"
 
 #include "depot.h"
-#include "position.h"
 #include "tools.h"
+
+#include <sstream>
 
 Depot::Depot(uint16_t _type) : Container(_type)
 {
@@ -35,21 +36,11 @@ Depot::~Depot()
 	//
 }
 
-Depot *Depot::getDepot()
-{
-	return this;
-}
-
-const Depot *Depot::getDepot() const
-{
-	return this;
-}
-
 Attr_ReadValue Depot::readAttr(AttrTypes_t attr, PropStream &propStream)
 {
 	if (ATTR_DEPOT_ID == attr) {
 		uint16_t _depotId;
-		if (!propStream.GET_USHORT(_depotId)) {
+		if (!propStream.GET_UINT16(_depotId)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -59,71 +50,6 @@ Attr_ReadValue Depot::readAttr(AttrTypes_t attr, PropStream &propStream)
 		return Item::readAttr(attr, propStream);
 }
 
-uint32_t Depot::getDepotId() const
-{
-	return depotId;
-}
-
-void Depot::setMaxDepotLimit(uint32_t maxitems)
-{
-	maxDepotLimit = maxitems;
-}
-
-void Depot::setDepotId(uint32_t id)
-{
-	depotId = id;
-}
-
-Cylinder *Depot::getParent()
-{
-	return Item::getParent();
-}
-
-const Cylinder *Depot::getParent() const
-{
-	return Item::getParent();
-}
-
-bool Depot::isRemoved() const
-{
-	return Item::isRemoved();
-}
-
-Position Depot::getPosition() const
-{
-	return Item::getPosition();
-}
-
-Tile *Depot::getParentTile()
-{
-	return Item::getParentTile();
-}
-
-const Tile *Depot::getParentTile() const
-{
-	return Item::getParentTile();
-}
-
-Item *Depot::getItem()
-{
-	return this;
-}
-
-const Item *Depot::getItem() const
-{
-	return this;
-}
-
-Creature *Depot::getCreature()
-{
-	return NULL;
-}
-
-const Creature *Depot::getCreature() const
-{
-	return NULL;
-}
-
 ReturnValue Depot::__queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const
 {
 	const Item *item = thing->getItem();
@@ -131,7 +57,9 @@ ReturnValue Depot::__queryAdd(int32_t index, const Thing *thing, uint32_t count,
 		return RET_NOTPOSSIBLE;
 	}
 
-	if (!hasBitSet(FLAG_IGNORECAPACITY, flags)) {
+	bool skipLimit = ((flags & FLAG_NOLIMIT) == FLAG_NOLIMIT);
+
+	if (!skipLimit) {
 		int addCount = 0;
 
 		if ((item->isStackable() && item->getItemCount() != count)) {
@@ -160,26 +88,20 @@ Depot::__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32
 	return Container::__queryMaxCount(index, thing, count, maxQueryCount, flags);
 }
 
-void Depot::postAddNotification(Creature *actor, Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link /*= LINK_OWNER*/)
+void Depot::postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link /*= LINK_OWNER*/)
 {
 	if (getParent() != NULL) {
-		getParent()->postAddNotification(actor, thing, oldParent, index, LINK_PARENT);
+		getParent()->postAddNotification(thing, oldParent, index, LINK_PARENT);
 	}
 }
 
-void Depot::postRemoveNotification(Creature *actor,
-                                   Thing *thing,
+void Depot::postRemoveNotification(Thing *thing,
                                    const Cylinder *newParent,
                                    int32_t index,
                                    bool isCompleteRemoval,
                                    cylinderlink_t link /*= LINK_OWNER*/)
 {
 	if (getParent() != NULL) {
-		getParent()->postRemoveNotification(actor, thing, newParent, index, isCompleteRemoval, LINK_PARENT);
+		getParent()->postRemoveNotification(thing, newParent, index, isCompleteRemoval, LINK_PARENT);
 	}
-}
-
-bool Depot::canRemove() const
-{
-	return false;
 }

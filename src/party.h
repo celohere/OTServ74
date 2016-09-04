@@ -22,10 +22,15 @@
 #define __OTSERV_PARTY_H__
 
 #include "const.h"
+#include "definitions.h"
+
+#include <list>
 #include <map>
 #include <vector>
 
 class Player;
+class Party;
+class Creature;
 
 typedef std::vector<Player *> PlayerVector;
 
@@ -35,8 +40,14 @@ public:
 	Party(Player *_leader);
 	~Party();
 
-	Player *getLeader() const;
-	void setLeader(Player *_leader);
+	Player *getLeader() const
+	{
+		return leader;
+	}
+	void setLeader(Player *_leader)
+	{
+		leader = _leader;
+	}
 
 	void disband();
 	bool invitePlayer(Player *player);
@@ -49,46 +60,23 @@ public:
 
 	bool isPlayerMember(const Player *player) const;
 	bool isPlayerInvited(const Player *player) const;
-	void updateAllPartyIcons();
-	void updatePartyIcons(Player *player);
-	void broadcastPartyMessage(MessageClass msgClass, const std::string &msg, bool sendToInvitations = false);
-	bool disbandParty() const;
-	bool canOpenCorpse(uint32_t ownerId);
+	void updatePartyIcons(Player *player, PartyShields_t shield);
+	void updateInvitationIcons(Player *player, PartyShields_t shield);
+	void broadcastPartyMessage(MessageClasses msgClass, const std::string &msg, bool sendToInvitations = false);
+	bool disbandParty()
+	{
+		return (memberList.empty() && inviteList.empty());
+	}
 
-	void shareExperience(uint64_t experience, bool fromMonster);
-	bool setSharedExperience(Player *player, bool _sharedExpActive);
-	bool isSharedExperienceActive() const;
-	bool isSharedExperienceEnabled() const;
-	bool canUseSharedExperience(const Player *player) const;
-	void updateSharedExperience();
+	const PlayerVector &getMemberList()
+	{
+		return memberList;
+	}
 
-	void addPlayerHealedMember(Player *player, uint32_t points);
-	void addPlayerDamageMonster(Player *player, uint32_t points);
-	void clearPlayerPoints(Player *player);
-
-	const PlayerVector &getMemberList() const;
-
-private:
-	bool sharedExpActive;
-	bool sharedExpEnabled;
-
+protected:
 	Player *leader;
 	PlayerVector memberList;
 	PlayerVector inviteList;
-
-	struct CountBlock_t {
-		int32_t totalHeal;
-		int32_t totalDamage;
-		int64_t ticks;
-	};
-	typedef std::map<uint32_t, CountBlock_t> CountMap;
-	CountMap pointMap;
-
-	bool canEnableSharedExperience();
-	/*
-	void hasAttackedMonster(Player* player);
-	void hasHealedMember(Player* player);
-	*/
 };
 
 #endif

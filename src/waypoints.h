@@ -16,13 +16,13 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_WAYPOINTS_H__
-#define __OTSERV_WAYPOINTS_H__
+#include "definitions.h"
 
-#include "tools.h"
-#include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
+#include <map>
+#include <string>
 
-class Waypoint : public boost::enable_shared_from_this<Waypoint>
+class Waypoint
 {
 public:
 	Waypoint(const std::string &name, const Position &pos) : name(name), pos(pos)
@@ -48,19 +48,17 @@ protected:
 	WaypointMap waypoints;
 };
 
+
 inline void Waypoints::addWaypoint(Waypoint_ptr wp)
 {
-	waypoints.insert(std::make_pair(asUpperCaseString(wp->name), wp));
+	waypoints.insert(std::make_pair(wp->name, wp));
 }
 
 inline Waypoint_ptr Waypoints::getWaypointByName(const std::string &name) const
 {
-	std::string s = asUpperCaseString(name);
-	WaypointMap::const_iterator f = waypoints.find(s);
+	WaypointMap::const_iterator f = waypoints.find(name);
 	if (f == waypoints.end()) {
 		return Waypoint_ptr();
 	}
 	return f->second;
 }
-
-#endif

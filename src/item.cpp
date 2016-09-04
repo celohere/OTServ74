@@ -17,34 +17,37 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
+
 #include "otpch.h"
 
+#include "actions.h"
 #include "beds.h"
+#include "combat.h"
 #include "container.h"
-#include "creature.h"
 #include "depot.h"
+#include "game.h"
 #include "house.h"
 #include "item.h"
+#include "luascript.h"
+#include "mailbox.h"
 #include "teleport.h"
-#include "tile.h"
 #include "trashholder.h"
+#include "weapons.h"
+
 #include <iomanip>
+#include <iostream>
+#include <sstream>
+
+extern Game g_game;
+extern Weapons *g_weapons;
 
 Items Item::items;
 
-Item *Item::CreateItem(const uint16_t _type, uint16_t _count /*= 0*/)
+Item *Item::CreateItem(const uint16_t _type, uint16_t _count /*= 1*/)
 {
 	Item *newItem = NULL;
 
 	const ItemType &it = Item::items[_type];
-
-	if (it.group == ITEM_GROUP_DEPRECATED) {
-#ifdef __DEBUG__
-		std::cout << "Error: [Item::CreateItem] Item id " << it.id
-		          << " has been declared deprecated." << std::endl;
-#endif
-		return NULL;
-	}
 
 	if (it.id != 0) {
 		if (it.isDepot()) {
@@ -59,13 +62,19 @@ Item *Item::CreateItem(const uint16_t _type, uint16_t _count /*= 0*/)
 			newItem = new Door(_type);
 		} else if (it.isTrashHolder()) {
 			newItem = new TrashHolder(_type, it.magicEffect);
-		} else if (it.isBed()) {
+		} else if (it.isMailbox()) {
+			newItem = new Mailbox(_type);
+		}
+		//[ added for beds system
+		else if (it.isBed()) {
 			newItem = new BedItem(_type);
-		} else {
+		}
+		//]
+		else {
 			newItem = new Item(_type, _count);
 		}
 
-		newItem->addRef();
+		newItem->useThing2();
 	}
 	return newItem;
 }
@@ -73,74 +82,20 @@ Item *Item::CreateItem(const uint16_t _type, uint16_t _count /*= 0*/)
 Item *Item::CreateItem(PropStream &propStream)
 {
 	uint16_t _id;
-	if (!propStream.GET_USHORT(_id)) {
+	if (!propStream.GET_UINT16(_id)) {
 		return NULL;
 	}
 
-	return Item::CreateItem(_id, 0);
-}
+	const ItemType &iType = Item::items[_id];
+	uint8_t _count = 0;
 
-bool Item::loadItem(xmlNodePtr node, Container *parent)
-{
-	int32_t intValue;
-	std::string strValue;
-
-	if (xmlStrcmp(node->name, (const xmlChar *)"item") == 0) {
-		Item *item = NULL;
-		if (readXMLInteger(node, "id", intValue)) {
-			item = Item::CreateItem(intValue);
+	if (iType.stackable || iType.isSplash() || iType.isFluidContainer()) {
+		if (!propStream.GET_UINT8(_count)) {
+			return NULL;
 		}
-
-		if (!item) {
-			return false;
-		}
-
-		// optional
-		if (readXMLInteger(node, "subtype", intValue)) {
-			item->setSubType(intValue);
-		}
-
-		if (readXMLInteger(node, "actionid", intValue)) {
-			item->setActionId(intValue);
-		}
-
-		if (readXMLString(node, "text", strValue)) {
-			item->setText(strValue);
-		}
-
-		if (item->getContainer()) {
-			loadContainer(node, item->getContainer());
-		}
-
-		if (parent) {
-			parent->addItem(item);
-		}
-
-		return true;
 	}
 
-	return false;
-}
-
-bool Item::loadContainer(xmlNodePtr parentNode, Container *parent)
-{
-	xmlNodePtr node = parentNode->children;
-	while (node) {
-		if (node->type != XML_ELEMENT_NODE) {
-			node = node->next;
-			continue;
-		}
-
-		if (xmlStrcmp(node->name, (const xmlChar *)"item") == 0) {
-			if (!loadItem(node, parent)) {
-				return false;
-			}
-		}
-
-		node = node->next;
-	}
-
-	return true;
+	return Item::CreateItem(_id, _count);
 }
 
 Item::Item(const uint16_t _type, uint16_t _count /*= 0*/) : ItemAttributes()
@@ -149,38 +104,43 @@ Item::Item(const uint16_t _type, uint16_t _count /*= 0*/) : ItemAttributes()
 
 	const ItemType &it = items[id];
 
-	setItemCount(1);
+	count = 1;
+	if (it.charges != 0) {
+		setCharges(it.charges);
+	}
 
 	if (it.isFluidContainer() || it.isSplash()) {
 		setFluidType(_count);
-	} else if (it.stackable) {
-		if (_count != 0) {
-			setItemCount(_count);
-		} else if (it.charges != 0) {
-			setItemCount(it.charges);
-		}
-	} else if (it.charges != 0) {
-		if (_count != 0) {
-			setCharges(_count);
-		}
+	} else if (it.stackable && _count != 0) {
+		count = _count;
+	} else if (it.charges != 0 && _count != 0) {
+		setCharges(_count);
 	}
 
 	setDefaultDuration();
+	loadedOnMap = false;
 }
 
-Item::Item(const Item &i) : Thing(), ItemAttributes(i)
+Item::Item(const Item &i) : Thing(), ItemAttributes()
 {
 	// std::cout << "Item copy constructor " << this << std::endl;
 	id = i.id;
 	count = i.count;
+
+	m_attributes = i.m_attributes;
+	if (i.m_firstAttr) {
+		m_firstAttr = new Attribute(*i.m_firstAttr);
+	}
+
+	loadedOnMap = false;
 }
 
 Item *Item::clone() const
 {
 	Item *_item = Item::CreateItem(id, count);
-	if (attributes) {
-		_item->attributes = new AttributeMap();
-		*_item->attributes = *attributes;
+	_item->m_attributes = m_attributes;
+	if (m_firstAttr) {
+		_item->m_firstAttr = new Attribute(*m_firstAttr);
 	}
 
 	return _item;
@@ -188,35 +148,32 @@ Item *Item::clone() const
 
 void Item::copyAttributes(Item *item)
 {
-	if (item->attributes) {
-		attributes = new AttributeMap();
-		*attributes = *item->attributes;
+	m_attributes = item->m_attributes;
+	if (item->m_firstAttr) {
+		m_firstAttr = new Attribute(*item->m_firstAttr);
 	}
 
-	eraseAttribute("decaying");
-	eraseAttribute("duration");
+	removeAttribute(ATTR_ITEM_DECAYING);
+	removeAttribute(ATTR_ITEM_DURATION);
 }
 
 Item::~Item()
 {
+	// std::cout << "Item destructor " << this << std::endl;
+
+	if (getUniqueId() != 0) {
+		ScriptEnviroment::removeUniqueThing(this);
+	}
 }
 
 void Item::setDefaultSubtype()
 {
 	const ItemType &it = items[id];
 
-	setItemCount(1);
+	count = 1;
 	if (it.charges != 0) {
-		if (it.stackable) {
-			setItemCount(it.charges);
-		} else {
-			setCharges(it.charges);
-		}
+		setCharges(it.charges);
 	}
-}
-
-void Item::onRemoved()
-{
 }
 
 void Item::setID(uint16_t newid)
@@ -228,32 +185,13 @@ void Item::setID(uint16_t newid)
 	uint32_t newDuration = it.decayTime * 1000;
 
 	if (newDuration == 0 && !it.stopTime && it.decayTo == -1) {
-		eraseAttribute("decaying");
-		eraseAttribute("duration");
+		removeAttribute(ATTR_ITEM_DECAYING);
+		removeAttribute(ATTR_ITEM_DURATION);
 	}
 
-	eraseAttribute("corpseowner");
-
-	if (newDuration > 0 && (!prevIt.stopTime || getIntegerAttribute("duration") == NULL)) {
+	if (newDuration > 0 && (!prevIt.stopTime || !hasAttribute(ATTR_ITEM_DURATION))) {
 		setDecaying(DECAYING_FALSE);
 		setDuration(newDuration);
-	}
-
-	if (getParent()) {
-		if (Tile *tile = getParent()->getParentTile()) {
-			tile->items_onItemModified(this);
-		}
-	}
-}
-
-void Item::setActionId(int32_t n)
-{
-	setAttribute("aid", n);
-
-	if (getParent()) {
-		if (Tile *tile = getParent()->getTile()) {
-			tile->items_onItemModified(this);
-		}
 	}
 }
 
@@ -269,13 +207,11 @@ uint16_t Item::getSubType() const
 
 	if (it.isFluidContainer() || it.isSplash()) {
 		return getFluidType();
-	} else if (it.stackable) {
-		return getItemCount();
 	} else if (it.charges != 0) {
 		return getCharges();
 	}
 
-	return getItemCount();
+	return count;
 }
 
 Player *Item::getHoldingPlayer()
@@ -287,6 +223,7 @@ Player *Item::getHoldingPlayer()
 			return p->getCreature()->getPlayer();
 		p = p->getParent();
 	}
+
 	return NULL;
 }
 
@@ -301,12 +238,10 @@ void Item::setSubType(uint16_t n)
 
 	if (it.isFluidContainer() || it.isSplash()) {
 		setFluidType(n);
-	} else if (it.stackable) {
-		setItemCount(n);
 	} else if (it.charges != 0) {
 		setCharges(n);
 	} else {
-		setItemCount(n);
+		count = n;
 	}
 }
 
@@ -315,7 +250,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 	switch (attr) {
 	case ATTR_COUNT: {
 		uint8_t _count = 0;
-		if (!propStream.GET_UCHAR(_count)) {
+		if (!propStream.GET_UINT8(_count)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -325,7 +260,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 	case ATTR_ACTION_ID: {
 		uint16_t _actionid = 0;
-		if (!propStream.GET_USHORT(_actionid)) {
+		if (!propStream.GET_UINT16(_actionid)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -335,11 +270,11 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 	case ATTR_UNIQUE_ID: {
 		uint16_t _uniqueid;
-		if (!propStream.GET_USHORT(_uniqueid)) {
+		if (!propStream.GET_UINT16(_uniqueid)) {
 			return ATTR_READ_ERROR;
 		}
 
-		setAttribute("uid", (int32_t)_uniqueid);
+		setUniqueId(_uniqueid);
 		break;
 	}
 
@@ -350,16 +285,6 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 		}
 
 		setText(_text);
-		break;
-	}
-
-	case ATTR_WRITTENDATE: {
-		uint32_t _writtenDate;
-		if (!propStream.GET_ULONG(_writtenDate)) {
-			return ATTR_READ_ERROR;
-		}
-
-		setWrittenDate(_writtenDate);
 		break;
 	}
 
@@ -385,17 +310,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 	case ATTR_RUNE_CHARGES: {
 		uint8_t _charges = 1;
-		if (!propStream.GET_UCHAR(_charges)) {
-			return ATTR_READ_ERROR;
-		}
-
-		setSubType(_charges);
-		break;
-	}
-
-	case ATTR_CHARGES: {
-		uint16_t _charges = 1;
-		if (!propStream.GET_USHORT(_charges)) {
+		if (!propStream.GET_UINT8(_charges)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -405,7 +320,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 	case ATTR_DURATION: {
 		uint32_t duration = 0;
-		if (!propStream.GET_ULONG(duration)) {
+		if (!propStream.GET_UINT32(duration)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -418,7 +333,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 	case ATTR_DECAYING_STATE: {
 		uint8_t state = 0;
-		if (!propStream.GET_UCHAR(state)) {
+		if (!propStream.GET_UINT8(state)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -429,14 +344,13 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 	}
 
 	// these should be handled through derived classes
-	// If these are called then something has changed in the items.xml since the
-	// map was saved
+	// If these are called then something has changed in the items.otb since the map was saved
 	// just read the values
 
 	// Depot class
 	case ATTR_DEPOT_ID: {
 		uint16_t _depotId;
-		if (!propStream.GET_USHORT(_depotId)) {
+		if (!propStream.GET_UINT16(_depotId)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -446,7 +360,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 	// Door class
 	case ATTR_HOUSEDOORID: {
 		uint8_t _doorId;
-		if (!propStream.GET_UCHAR(_doorId)) {
+		if (!propStream.GET_UINT8(_doorId)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -456,7 +370,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 	// Bed class
 	case ATTR_SLEEPERGUID: {
 		uint32_t _guid;
-		if (!propStream.GET_ULONG(_guid)) {
+		if (!propStream.GET_UINT32(_guid)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -465,7 +379,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 	case ATTR_SLEEPSTART: {
 		uint32_t sleep_start;
-		if (!propStream.GET_ULONG(sleep_start)) {
+		if (!propStream.GET_UINT32(sleep_start)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -474,8 +388,9 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 	// Teleport class
 	case ATTR_TELE_DEST: {
-		TeleportDest *tele_dest;
-		if (!propStream.GET_STRUCT(tele_dest)) {
+		TeleportDest tele_dest;
+		if (!propStream.GET_UINT16(tele_dest._x) || !propStream.GET_UINT16(tele_dest._y) ||
+		    !propStream.GET_UINT8(tele_dest._z)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -485,7 +400,7 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 	// Container class
 	case ATTR_CONTAINER_ITEMS: {
 		uint32_t count;
-		if (!propStream.GET_ULONG(count)) {
+		if (!propStream.GET_UINT32(count)) {
 			return ATTR_READ_ERROR;
 		}
 
@@ -495,8 +410,8 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 	}
 
 	default:
+		std::cout << "attr=" << attr << "\n";
 		return ATTR_READ_ERROR;
-		break;
 	}
 
 	return ATTR_READ_CONTINUE;
@@ -504,196 +419,149 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 bool Item::unserializeAttr(PropStream &propStream)
 {
-	// Backwards-compatible reading of attributes
 	uint8_t attr_type;
-	while (propStream.GET_UCHAR(attr_type) && attr_type != 0) {
-		if (attr_type == ATTR_ATTRIBUTE_MAP) {
-			if (!ItemAttributes::unserializeAttributeMap(propStream)) return false;
-		} else {
-			Attr_ReadValue ret = readAttr((AttrTypes_t)attr_type, propStream);
-			if (ret == ATTR_READ_ERROR) {
-				return false;
-			} else if (ret == ATTR_READ_END) {
-				return true;
-			}
+	while (propStream.GET_UINT8(attr_type) && attr_type != 0) {
+		Attr_ReadValue ret = readAttr((AttrTypes_t)attr_type, propStream);
+		if (ret == ATTR_READ_ERROR) {
+			return false;
+		} else if (ret == ATTR_READ_END) {
+			return true;
 		}
 	}
 
 	return true;
 }
 
-bool Item::unserializeItemNode(FileLoader &f, NodeStruct *node, PropStream &propStream)
+bool Item::unserializeItemNode(FileLoader &f, NODE node, PropStream &propStream)
 {
 	return unserializeAttr(propStream);
 }
 
 bool Item::serializeAttr(PropWriteStream &propWriteStream) const
 {
-	if (isStackable() || isFluidContainer() || isSplash()) {
+	if (isStackable() || isSplash() || isFluidContainer()) {
 		uint8_t _count = getSubType();
-		propWriteStream.ADD_UCHAR(ATTR_COUNT);
-		propWriteStream.ADD_UCHAR(_count);
+		propWriteStream.ADD_UINT8(ATTR_COUNT);
+		propWriteStream.ADD_UINT8(_count);
 	}
 
-	if (attributes && attributes->size()) {
-		propWriteStream.ADD_UCHAR(ATTR_ATTRIBUTE_MAP);
-		serializeAttributeMap(propWriteStream);
+	if (hasCharges()) {
+		uint8_t _count = getCharges();
+		propWriteStream.ADD_UINT8(ATTR_RUNE_CHARGES);
+		propWriteStream.ADD_UINT8(_count);
+	}
+
+	if (!isNotMoveable() /*moveable*/) {
+		uint16_t _actionId = getActionId();
+		if (_actionId) {
+			propWriteStream.ADD_UINT8(ATTR_ACTION_ID);
+			propWriteStream.ADD_UINT16(_actionId);
+		}
+	}
+
+	const std::string &_text = getText();
+	if (_text.length() > 0) {
+		propWriteStream.ADD_UINT8(ATTR_TEXT);
+		propWriteStream.ADD_STRING(_text);
+	}
+
+	const std::string &_writer = getWriter();
+	if (_writer.length() > 0) {
+		propWriteStream.ADD_UINT8(ATTR_WRITTENBY);
+		propWriteStream.ADD_STRING(_writer);
+	}
+
+	const std::string &_specialDesc = getSpecialDescription();
+	if (_specialDesc.length() > 0) {
+		propWriteStream.ADD_UINT8(ATTR_DESC);
+		propWriteStream.ADD_STRING(_specialDesc);
+	}
+
+	uint32_t duration = getDuration();
+	if (duration != 0) {
+		propWriteStream.ADD_UINT8(ATTR_DURATION);
+		propWriteStream.ADD_UINT32(duration);
+	}
+
+	uint32_t decayState = getDecaying();
+	if (decayState == DECAYING_TRUE || decayState == DECAYING_PENDING) {
+		propWriteStream.ADD_UINT8(ATTR_DECAYING_STATE);
+		propWriteStream.ADD_UINT8(decayState);
 	}
 
 	return true;
 }
 
-bool Item::hasProperty(uint32_t props) const
+bool Item::hasProperty(enum ITEMPROPERTY prop) const
 {
 	const ItemType &it = items[id];
 
-	if (hasBitSet(ITEMPROP_BLOCKSOLID, props) && !it.blockSolid) {
+	switch (prop) {
+	case BLOCKSOLID:
+		if (it.blockSolid) return true;
+		break;
+
+	case MOVEABLE:
+		if (it.moveable && getUniqueId() == 0) return true;
+		break;
+
+	case HASHEIGHT:
+		if (it.hasHeight) return true;
+		break;
+
+	case BLOCKPROJECTILE:
+		if (it.blockProjectile) return true;
+		break;
+
+	case BLOCKPATH:
+		if (it.blockPathFind) return true;
+		break;
+
+	case ISVERTICAL:
+		if (it.isVertical) return true;
+		break;
+
+	case ISHORIZONTAL:
+		if (it.isHorizontal) return true;
+		break;
+
+	case IMMOVABLEBLOCKSOLID:
+		if (it.blockSolid && (!it.moveable || getUniqueId() != 0)) return true;
+		break;
+
+	case IMMOVABLEBLOCKPATH:
+		if (it.blockPathFind && (!it.moveable || getUniqueId() != 0)) return true;
+		break;
+
+	case SUPPORTHANGABLE:
+		if (it.isHorizontal || it.isVertical) return true;
+		break;
+
+	case IMMOVABLENOFIELDBLOCKPATH:
+		if (!it.isMagicField() && it.blockPathFind && (!it.moveable || getUniqueId() != 0))
+			return true;
+		break;
+
+	case NOFIELDBLOCKPATH:
+		if (!it.isMagicField() && it.blockPathFind) return true;
+		break;
+
+	default:
 		return false;
 	}
-
-	if (hasBitSet(ITEMPROP_BLOCKPATHFIND, props) && !it.blockPathFind) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_BLOCKPROJECTILE, props) && !it.blockProjectile) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_ALLOWPICKUPABLE, props) && !it.allowPickupable) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_HASHEIGHT, props) && !it.hasHeight) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_ISVERTICAL, props) && !it.isVertical) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_ISHORIZONTAL, props) && !it.isHorizontal) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_LOOKTHROUGH, props) && !it.lookThrough) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_PICKUPABLE, props) && !it.pickupable) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_ROTATEABLE, props) && !it.rotateable) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_STACKABLE, props) && !it.stackable) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_USEABLE, props) && !it.useable) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_MOVEABLE, props) && !it.moveable) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_ALWAYSONTOP, props) && !it.alwaysOnTop) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_CANREADTEXT, props) && !it.canReadText) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_CANWRITETEXT, props) && !it.canWriteText) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_FLOORCHANGEDOWN, props) && !it.floorChangeDown) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_FLOORCHANGENORTH, props) && !it.floorChangeNorth) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_FLOORCHANGESOUTH, props) && !it.floorChangeSouth) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_FLOORCHANGEEAST, props) && !it.floorChangeEast) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_FLOORCHANGEWEST, props) && !it.floorChangeWest) {
-		return false;
-	}
-
-	if (hasBitSet(ITEMPROP_ALLOWDISTREAD, props) && !it.allowDistRead) {
-		return false;
-	}
-
-	return true;
+	return false;
 }
 
 double Item::getWeight() const
 {
 	if (isStackable()) {
-		return items[id].weight * std::max((int32_t)1, (int32_t)getItemCount());
+		return items[id].weight * std::max((int32_t)1, (int32_t)count);
 	}
 
 	return items[id].weight;
 }
 
-std::string Item::getLongName(const ItemType &it,
-                              int32_t lookDistance,
-                              const Item *item /*= NULL*/,
-                              int32_t subType /*= -1*/,
-                              bool addArticle /*= true*/)
-{
-	std::ostringstream s;
-
-	if (item) {
-		subType = item->getSubType();
-	}
-
-	const std::string &name = (item ? item->getName() : it.name);
-	const std::string &plural = (item ? item->getPluralName() : it.pluralName);
-	const std::string &article = (item ? item->getArticle() : it.article);
-
-	if (name.length()) {
-		if (it.stackable && subType > 1) {
-			if (it.showCount) {
-				s << subType << " ";
-			}
-
-			s << plural;
-		} else {
-			if (addArticle && !article.empty()) {
-				s << article << " ";
-			}
-			s << name;
-		}
-	} else {
-		s << "an item of type " << it.id;
-	}
-
-	return s.str();
-}
-
-std::string Item::getLongName() const
-{
-	const ItemType &it = items[id];
-	return getLongName(it, 0, this);
-}
-
-std::string Item::getDescription(const ItemType &it,
-                                 int32_t lookDistance,
-                                 const Item *item /*= NULL*/,
-                                 int32_t subType /*= -1*/,
-                                 bool addArticle /*= true*/)
+std::string Item::getDescription(const ItemType &it, int32_t lookDistance, const Item *item /*= NULL*/, int32_t subType /*= -1*/)
 {
 	std::stringstream s;
 
@@ -701,72 +569,67 @@ std::string Item::getDescription(const ItemType &it,
 		subType = item->getSubType();
 	}
 
-	s << getLongName(it, lookDistance, item, subType, addArticle);
+	if (it.name.length()) {
+		if (it.stackable && item && item->getItemCount() > 1) {
+			if (it.showCount) {
+				s << (int)item->getItemCount() << " ";
+			}
 
-	int armor = (item ? item->getArmor() : it.armor);
+			s << it.pluralName;
+		} else {
+			if (!it.article.empty()) {
+				s << it.article << " ";
+			}
+			s << it.name;
+		}
+	} else {
+		s << "an item of type " << it.id;
+	}
 
 	if (it.isRune()) {
-		s << " (\"" << it.runeSpellName << "\").";
-		if (it.runeLevel > 0 || it.runeMagicLevel > 0) {
-			s << std::endl << "It can only be used with";
+		uint32_t charges =
+		std::max((uint32_t)1, (uint32_t)(item == NULL ? it.charges : item->getCharges()));
+
+		if (it.runeLevel > 0 || it.runeMagLevel > 0) {
 			if (it.runeLevel > 0) {
-				s << " level " << it.runeLevel;
+				s << " for level " << it.runeLevel;
 			}
-			if (it.runeMagicLevel > 0) {
+			if (it.runeMagLevel > 0) {
 				if (it.runeLevel > 0) {
 					s << " and";
 				}
-				s << " magic level " << it.runeMagicLevel;
+				s << " for magic level " << it.runeMagLevel;
 			}
-			s << " or higher.";
 		}
+		s << ". It's " << it.article << " \"" << it.runeSpellName << "\"-spell (" << charges << "x). ";
 	} else if (it.weaponType != WEAPON_NONE) {
-		if (it.weaponType == WEAPON_DIST && it.ammoType != AMMO_NONE) {
-			s << " (Range:" << it.shootRange;
+		if (it.weaponType == WEAPON_DIST && it.amuType != AMMO_NONE) {
 			if (it.attack != 0) {
 				s << ", Atk" << std::showpos << it.attack << std::noshowpos;
 			}
-			if (it.hitChance != 0) {
-				s << ", Hit%" << std::showpos << it.hitChance << std::noshowpos;
-			}
-			s << ")";
 		} else if (it.weaponType != WEAPON_AMMO &&
 		           it.weaponType != WEAPON_WAND) { // Arrows and Bolts doesn't show atk
 			s << " (";
-			int attack = (item ? item->getAttack() : it.attack);
-			if (attack != 0) s << "Atk:" << attack;
-
-			int defense = (item ? item->getDefense() : it.defense);
-			int extraDefense = (item ? item->getExtraDef() : it.extraDefense);
-			if (defense != 0 || extraDefense != 0) {
-				if (attack != 0) s << " ";
-
-				s << "Def:" << (int32_t)defense;
-				if (extraDefense != 0) {
-					s << " " << std::showpos << (int)extraDefense << std::noshowpos;
-				}
+			if (it.attack != 0) {
+				s << "Atk:" << (int)it.attack;
 			}
 
-			if (it.abilities.stats[*STAT_MAGICPOINTS] != 0) {
-				if (it.attack != 0 || it.defense != 0 || it.extraDefense != 0)
-					s << ", ";
+			if (it.defense != 0) {
+				if (it.attack != 0) s << " ";
+
+				s << "Def:" << (int)it.defense;
+			}
+
+			if (it.abilities.stats[STAT_MAGICPOINTS] != 0) {
+				if (it.attack != 0 || it.defense != 0) s << ", ";
 
 				s << "magic level " << std::showpos
-				  << (int32_t)it.abilities.stats[*STAT_MAGICPOINTS] << std::noshowpos;
+				  << (int)it.abilities.stats[STAT_MAGICPOINTS] << std::noshowpos;
 			}
 			s << ")";
 		}
-
-		if (it.showCharges) {
-			if (subType > 1) {
-				s << " that has " << (int32_t)subType << " charges left";
-			} else {
-				s << " that has 1 charge left";
-			}
-		}
-
 		s << ".";
-	} else if (armor != 0 || it.abilities.absorb.any()) {
+	} else if (it.armor != 0 || it.abilities.absorb.any()) {
 		if (it.showCharges) {
 			if (subType > 1) {
 				s << " that has " << (int32_t)subType << " charges left";
@@ -775,33 +638,27 @@ std::string Item::getDescription(const ItemType &it,
 			}
 		}
 
-		s << " (Arm:" << armor;
-
-		if (it.abilities.absorb.any()) {
-			s << ", protection";
-			it.abilities.absorb.getDescription(s);
-		}
-		s << ").";
+		s << " (Arm:" << it.armor << ").";
 	} else if (it.isFluidContainer()) {
-		if (subType > 0) {
-			s << " of " << items[subType].name << ".";
+		if (item && item->getFluidType() != 0) {
+			s << " of " << items[item->getFluidType()].name << ".";
 		} else {
 			s << ". It is empty.";
 		}
 	} else if (it.isSplash()) {
 		s << " of ";
-		if (subType > 0) {
-			s << items[subType].name << ".";
+		if (item && item->getFluidType() != 0) {
+			s << items[item->getFluidType()].name;
 		} else {
-			s << items[1].name << ".";
+			s << items[1].name;
 		}
 	} else if (it.isContainer()) {
-		s << " (Vol:" << (int32_t)it.maxItems << ").";
+		s << " (Vol:" << (int)it.maxItems << ").";
 	} else if (it.isKey()) {
 		if (item) {
-			s << " (Key:" << (int32_t)item->getActionId() << ").";
+			s << " (Key:" << (int)item->getActionId() << ").";
 		} else {
-			s << " (Key:0).";
+			s << " (Key:" << (int)0 << ").";
 		}
 	} else if (it.allowDistRead) {
 		s << std::endl;
@@ -809,15 +666,7 @@ std::string Item::getDescription(const ItemType &it,
 		if (item && item->getText() != "") {
 			if (lookDistance <= 4) {
 				if (item->getWriter().length()) {
-					s << item->getWriter() << " wrote";
-
-					time_t wDate = item->getWrittenDate();
-					if (wDate > 0) {
-						char date[16];
-						formatDateShort(wDate, date);
-						s << " on " << date;
-					}
-					s << ": ";
+					s << item->getWriter() << " wrote: ";
 				} else {
 					s << "You read: ";
 				}
@@ -830,13 +679,14 @@ std::string Item::getDescription(const ItemType &it,
 			s << "Nothing is written on it.";
 		}
 	} else if (it.showCharges) {
-		if (subType > 1) {
-			s << " that has " << (int32_t)subType << " charges left.";
+		uint32_t charges = (item == NULL ? it.charges : item->getCharges());
+		if (charges > 1) {
+			s << " that has " << (int)charges << " charges left.";
 		} else {
 			s << " that has 1 charge left.";
 		}
 	} else if (it.showDuration) {
-		if (item && item->hasIntegerAttribute("duration")) {
+		if (item && item->hasAttribute(ATTR_ITEM_DURATION)) {
 			int32_t duration = item->getDuration() / 1000;
 			s << " that has energy for ";
 
@@ -845,7 +695,7 @@ std::string Item::getDescription(const ItemType &it,
 			} else if (duration > 60) {
 				s << "1 minute left.";
 			} else {
-				s << "less than a minute left.";
+				s << " less than a minute left.";
 			}
 		} else {
 			s << " that is brand-new.";
@@ -867,7 +717,7 @@ std::string Item::getDescription(const ItemType &it,
 		}
 
 		if (it.wieldInfo & WIELDINFO_LEVEL) {
-			s << " of level " << (int)it.minRequiredLevel << " or higher";
+			s << " of level " << (int)it.minReqLevel << " or higher";
 		}
 
 		if (it.wieldInfo & WIELDINFO_MAGLV) {
@@ -876,7 +726,7 @@ std::string Item::getDescription(const ItemType &it,
 			} else {
 				s << " of";
 			}
-			s << " magic level " << (int)it.minRequiredMagicLevel << " or higher";
+			s << " magic level " << (int)it.minReqMagicLevel << " or higher";
 		}
 
 		s << ".";
@@ -887,14 +737,6 @@ std::string Item::getDescription(const ItemType &it,
 		if (weight > 0) {
 			s << std::endl << getWeightDescription(it, weight);
 		}
-	}
-
-	if (it.abilities.elementType != COMBAT_NONE && it.charges != 0) {
-		s << " It is temporarily enchanted with ";
-		std::string strElement = combatTypeToString(it.abilities.elementType);
-		int32_t elementDamage = it.abilities.elementDamage;
-		s << strElement << " (" << it.attack - elementDamage << " physical + "
-		  << elementDamage << " " << strElement << " damage).";
 	}
 
 	if (item && item->getSpecialDescription() != "") {
@@ -915,6 +757,24 @@ std::string Item::getDescription(int32_t lookDistance) const
 	return s.str();
 }
 
+std::string Item::getXRayDescription() const
+{
+	std::stringstream ret;
+
+	ret << "ID: " << getID() << std::endl;
+	uint16_t actionId = getActionId();
+	uint16_t uniqueId = getUniqueId();
+	if (actionId > 0) ret << "Action ID: " << actionId << std::endl;
+	if (uniqueId > 0) ret << "Unique ID: " << uniqueId << std::endl;
+#ifdef __DEBUG__
+	if (getContainer())
+		ret << "There are " << getContainer()->getTotalAmountOfItemsInside() - 1
+		    << " things inside of this." << std::endl;
+#endif
+	ret << Thing::getXRayDescription();
+	return ret.str();
+}
+
 std::string Item::getWeightDescription() const
 {
 	double weight = getWeight();
@@ -928,7 +788,7 @@ std::string Item::getWeightDescription() const
 std::string Item::getWeightDescription(double weight) const
 {
 	const ItemType &it = Item::items[id];
-	return getWeightDescription(it, weight, getItemCount());
+	return getWeightDescription(it, weight, count);
 }
 
 std::string Item::getWeightDescription(const ItemType &it, double weight, uint32_t count /*= 1*/)
@@ -942,30 +802,39 @@ std::string Item::getWeightDescription(const ItemType &it, double weight, uint32
 	return ss.str();
 }
 
+void Item::setUniqueId(uint16_t n)
+{
+	if (getUniqueId() != 0) return;
+
+	ItemAttributes::setUniqueId(n);
+	ScriptEnviroment::addUniqueThing(this);
+}
+
 bool Item::canDecay()
 {
 	if (isRemoved()) {
 		return false;
 	}
 
-	const bool *candecay = getBooleanAttribute("canDecay");
-
-	if (candecay && *candecay == false) {
+	if (getUniqueId() != 0 || getActionId() != 0) {
 		return false;
 	}
 
-	const ItemType &it = Item::items[id];
-	if (it.decayTo == -1 || it.decayTime == 0) {
-		return false;
-	}
-
-	return true;
+	return (items[id].decayTo != -1);
 }
 
-uint32_t Item::getWorth() const
+int Item::getWorth() const
 {
-	const ItemType &it = Item::items[id];
-	return getItemCount() * it.currency;
+	switch (getID()) {
+	case ITEM_COINS_GOLD:
+		return getItemCount();
+	case ITEM_COINS_PLATINUM:
+		return getItemCount() * 100;
+	case ITEM_COINS_CRYSTAL:
+		return getItemCount() * 10000;
+	default:
+		return 0;
+	}
 }
 
 void Item::getLight(LightInfo &lightInfo)
@@ -973,4 +842,244 @@ void Item::getLight(LightInfo &lightInfo)
 	const ItemType &it = items[id];
 	lightInfo.color = it.lightColor;
 	lightInfo.level = it.lightLevel;
+}
+
+std::string ItemAttributes::emptyString("");
+
+const std::string &ItemAttributes::getStrAttr(itemAttrTypes type) const
+{
+	if (!validateStrAttrType(type)) return emptyString;
+
+	// this will *NOT* create the attribute if it does not exist
+	Attribute *attr = getAttrConst(type);
+	if (attr) {
+		return *(std::string *)attr->value;
+	} else {
+		return emptyString;
+	}
+}
+
+void ItemAttributes::setStrAttr(itemAttrTypes type, const std::string &value)
+{
+	if (!validateStrAttrType(type)) return;
+
+	if (value.length() == 0) return;
+
+	// this will create the attribute if it does not exist
+	Attribute *attr = getAttr(type);
+	if (attr) {
+		// if has a previous value delete it
+		if (attr->value) {
+			delete (std::string *)attr->value;
+		}
+		// create the new value as string
+		attr->value = (void *)new std::string(value);
+	}
+}
+
+bool ItemAttributes::hasAttribute(itemAttrTypes type) const
+{
+	if (!validateIntAttrType(type)) return false;
+
+	Attribute *attr = getAttrConst(type);
+	if (attr) {
+		return true;
+	}
+
+	return false;
+}
+
+void ItemAttributes::removeAttribute(itemAttrTypes type)
+{
+	// check if we have it
+	if ((type & m_attributes) != 0) {
+		// go trough the linked list until find it
+		Attribute *prevAttr = NULL;
+		Attribute *curAttr = m_firstAttr;
+		while (curAttr != NULL) {
+			if (curAttr->type == type) {
+				// found so remove it from the linked list
+				if (prevAttr) {
+					prevAttr->next = curAttr->next;
+				} else {
+					m_firstAttr = curAttr->next;
+				}
+				// remove it from flags
+				m_attributes = m_attributes & ~type;
+
+				// delete string if it is string type
+				if (validateStrAttrType(type)) {
+					delete (std::string *)curAttr->value;
+				}
+				// finally delete the attribute and return
+				delete curAttr;
+				return;
+			}
+
+			// advance in the linked list
+			prevAttr = curAttr;
+			curAttr = curAttr->next;
+		}
+	}
+}
+
+uint32_t ItemAttributes::getIntAttr(itemAttrTypes type) const
+{
+	if (!validateIntAttrType(type)) return 0;
+
+	Attribute *attr = getAttrConst(type);
+	if (attr) {
+		return static_cast<uint32_t>(0xFFFFFFFF & reinterpret_cast<ptrdiff_t>(attr->value));
+	} else {
+		return 0;
+	}
+}
+
+void ItemAttributes::setIntAttr(itemAttrTypes type, int32_t value)
+{
+	if (!validateIntAttrType(type)) return;
+
+	Attribute *attr = getAttr(type);
+	if (attr) {
+		attr->value = reinterpret_cast<void *>(static_cast<ptrdiff_t>(value));
+	}
+}
+
+void ItemAttributes::increaseIntAttr(itemAttrTypes type, int32_t value)
+{
+	if (!validateIntAttrType(type)) return;
+
+	Attribute *attr = getAttr(type);
+	if (attr) {
+		attr->value = reinterpret_cast<void *>(static_cast<ptrdiff_t>(
+		static_cast<uint32_t>(0xFFFFFFFF & reinterpret_cast<ptrdiff_t>(attr->value)) + value));
+	}
+}
+
+bool ItemAttributes::validateIntAttrType(itemAttrTypes type)
+{
+	// list of numeric type attributes
+	switch (type) {
+	case ATTR_ITEM_ACTIONID:
+	case ATTR_ITEM_UNIQUEID:
+	case ATTR_ITEM_OWNER:
+	case ATTR_ITEM_DURATION:
+	case ATTR_ITEM_DECAYING:
+	// case ATTR_ITEM_WRITTENDATE:
+	case ATTR_ITEM_CHARGES:
+	case ATTR_ITEM_FLUIDTYPE:
+	case ATTR_ITEM_DOORID:
+		return true;
+
+	default:
+		return false;
+	}
+
+	return false;
+}
+
+bool ItemAttributes::validateStrAttrType(itemAttrTypes type)
+{
+	// list of text type attributes
+	switch (type) {
+	case ATTR_ITEM_DESC:
+	case ATTR_ITEM_TEXT:
+	case ATTR_ITEM_WRITTENBY:
+		return true;
+
+	default:
+		break;
+	}
+
+	return false;
+}
+
+void ItemAttributes::addAttr(Attribute *attr)
+{
+	// add an attribute to the linked list
+	if (m_firstAttr) {
+		// is not the first, so look for the end of the list
+		Attribute *curAttr = m_firstAttr;
+		while (curAttr->next) {
+			curAttr = curAttr->next;
+		}
+		// and add it at the end
+		curAttr->next = attr;
+	} else {
+		// is the first
+		m_firstAttr = attr;
+	}
+	// add it to flags
+	m_attributes = m_attributes | attr->type;
+}
+
+ItemAttributes::Attribute *ItemAttributes::getAttrConst(itemAttrTypes type) const
+{
+	// check flags
+	if ((type & m_attributes) == 0) {
+		return NULL;
+	}
+	// it is here, so search it in the linked list
+	Attribute *curAttr = m_firstAttr;
+	while (curAttr) {
+		if (curAttr->type == type) {
+			// found
+			return curAttr;
+		}
+		curAttr = curAttr->next;
+	}
+	// not found?
+	std::cout << "Warning: [ItemAttributes::getAttrConst] (type & m_attributes) != 0 but "
+	             "attribute not found"
+	          << std::endl;
+	return NULL;
+}
+
+ItemAttributes::Attribute *ItemAttributes::getAttr(itemAttrTypes type)
+{
+	Attribute *curAttr;
+	if ((type & m_attributes) == 0) {
+		// if that type was not present add it
+		curAttr = new Attribute(type);
+		addAttr(curAttr);
+		return curAttr;
+	} else {
+		// was present, search and return it
+		curAttr = m_firstAttr;
+		while (curAttr) {
+			if (curAttr->type == type) {
+				return curAttr;
+			}
+			curAttr = curAttr->next;
+		}
+	}
+	std::cout
+	<< "Warning: [ItemAttributes::getAttr] (type & m_attributes) != 0 but attribute not found"
+	<< std::endl;
+	curAttr = new Attribute(type);
+	addAttr(curAttr);
+	return curAttr;
+}
+
+void ItemAttributes::deleteAttrs(Attribute *attr)
+{
+	// deletes all attributes recursively
+	if (attr) {
+		// if is string type, delete the allocated string
+		if (validateStrAttrType(attr->type)) {
+			delete (std::string *)attr->value;
+		}
+		Attribute *next_attr = attr->next;
+		attr->next = NULL;
+		// delete next while it was not NULL
+		if (next_attr) {
+			deleteAttrs(next_attr);
+		}
+		delete attr;
+	}
+}
+
+void Item::__startDecaying()
+{
+	g_game.startDecay(this);
 }

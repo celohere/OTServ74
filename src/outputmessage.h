@@ -18,34 +18,54 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_OUTPUTMESSAGE_H__
-#define __OTSERV_OUTPUTMESSAGE_H__
+#ifndef __OTSERV_OUTPUT_MESSAGE_H__
+#define __OTSERV_OUTPUT_MESSAGE_H__
 
+#include "definitions.h"
 #include "networkmessage.h"
-#include <boost/thread/recursive_mutex.hpp>
-#include <cstddef>
+#include "tools.h"
+
 #include <list>
-#include <stdint.h>
 
-class Connection;
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
+#include <boost/utility.hpp>
+
 class Protocol;
-
-typedef boost::shared_ptr<Connection> Connection_ptr;
+class Connection;
 
 #define OUTPUT_POOL_SIZE 100
 
 class OutputMessage : public NetworkMessage, boost::noncopyable
 {
-	friend class OutputMessagePool;
-
+private:
 	OutputMessage();
 
 public:
-	~OutputMessage();
+	~OutputMessage()
+	{
+	}
 
-	char *getOutputBuffer();
-	void writeMessageLength();
-	void addCryptoHeader(bool addChecksum);
+	char *getOutputBuffer()
+	{
+		return (char *)&m_MsgBuf[m_outputBufferStart];
+	}
+
+	void writeMessageLength()
+	{
+		*(uint16_t *)(m_MsgBuf + 2) = m_MsgSize;
+		// added header size to the message size
+		m_MsgSize = m_MsgSize + 2;
+		m_outputBufferStart = 2;
+	}
+
+	void addCryptoHeader()
+	{
+		*(uint16_t *)(m_MsgBuf) = m_MsgSize;
+		m_MsgSize = m_MsgSize + 2;
+		m_outputBufferStart = 0;
+	}
 
 	enum OutputMessageState {
 		STATE_FREE,
@@ -54,9 +74,21 @@ public:
 		STATE_WAITING
 	};
 
-	Protocol *getProtocol();
-	Connection_ptr getConnection();
-	uint64_t getFrame() const;
+	Protocol *getProtocol()
+	{
+		return m_protocol;
+	}
+	Connection *getConnection()
+	{
+		return m_connection;
+	}
+	uint64_t getFrame() const
+	{
+		return m_frame;
+	}
+
+// void setOutputBufferStart(uint32_t pos) {m_outputBufferStart = pos;}
+// uint32_t getOutputBufferStart() const {return m_outputBufferStart;}
 
 #ifdef __TRACK_NETWORK__
 	virtual void Track(std::string file, long line, std::string func)
@@ -68,12 +100,10 @@ public:
 		os << /*file << ":"*/ "line " << line << " " << func;
 		last_uses.push_back(os.str());
 	}
-
 	virtual void clearTrack()
 	{
 		last_uses.clear();
 	}
-
 	void PrintTrace()
 	{
 		int n = 1;
@@ -89,31 +119,43 @@ protected:
 	std::list<std::string> last_uses;
 #endif
 
-	template <typename T> inline void add_header(T add)
+	void freeMessage()
 	{
-		if ((int32_t)m_outputBufferStart - (int32_t)sizeof(T) < 0) {
-			std::cout << "Error: [OutputMessage::add_header] m_outputBufferStart("
-			          << m_outputBufferStart << ") < " << sizeof(T) << std::endl;
-			return;
-		}
-		m_outputBufferStart = m_outputBufferStart - sizeof(T);
-		*(T *)(m_MsgBuf + m_outputBufferStart) = add;
-		// added header size to the message size
-		m_MsgSize = m_MsgSize + sizeof(T);
+		setConnection(NULL);
+		setProtocol(NULL);
+		m_frame = 0;
+		m_outputBufferStart = 4;
+		// setState have to be the last one
+		setState(OutputMessage::STATE_FREE);
 	}
 
-	void freeMessage();
+	friend class OutputMessagePool;
 
-	void setProtocol(Protocol *protocol);
-	void setConnection(Connection_ptr connection);
+	void setProtocol(Protocol *protocol)
+	{
+		m_protocol = protocol;
+	}
+	void setConnection(Connection *connection)
+	{
+		m_connection = connection;
+	}
 
-	void setState(OutputMessageState state);
-	OutputMessageState getState() const;
+	void setState(OutputMessageState state)
+	{
+		m_state = state;
+	}
+	OutputMessageState getState() const
+	{
+		return m_state;
+	}
 
-	void setFrame(uint64_t frame);
+	void setFrame(uint64_t frame)
+	{
+		m_frame = frame;
+	}
 
 	Protocol *m_protocol;
-	Connection_ptr m_connection;
+	Connection *m_connection;
 
 	uint32_t m_outputBufferStart;
 	uint64_t m_frame;
@@ -125,25 +167,39 @@ typedef boost::shared_ptr<OutputMessage> OutputMessage_ptr;
 
 class OutputMessagePool
 {
-public:
+private:
 	OutputMessagePool();
+
+public:
 	~OutputMessagePool();
 
-	static OutputMessagePool *getInstance();
-
-#ifdef __ENABLE_SERVER_DIAGNOSTIC__
-	static uint32_t OutputMessagePoolCount;
-#endif
+	static OutputMessagePool *getInstance()
+	{
+		static OutputMessagePool instance;
+		return &instance;
+	}
 
 	void send(OutputMessage_ptr msg);
 	void sendAll();
-	void stop();
+	void stop()
+	{
+		m_isOpen = false;
+	}
 	OutputMessage_ptr getOutputMessage(Protocol *protocol, bool autosend = true);
 	void startExecutionFrame();
 
-	size_t getTotalMessageCount() const;
-	size_t getAvailableMessageCount() const;
-	size_t getAutoMessageCount() const;
+	size_t getTotalMessageCount() const
+	{
+		return m_allOutputMessages.size();
+	}
+	size_t getAvailableMessageCount() const
+	{
+		return m_outputMessages.size();
+	}
+	size_t getAutoMessageCount() const
+	{
+		return m_autoSendOutputMessages.size();
+	}
 	void addToAutoSend(OutputMessage_ptr msg);
 
 protected:

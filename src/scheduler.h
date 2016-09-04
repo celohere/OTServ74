@@ -21,12 +21,17 @@
 #ifndef __OTSERV_SCHEDULER_H__
 #define __OTSERV_SCHEDULER_H__
 
+#include "definitions.h"
 #include "otsystem.h"
 #include "tasks.h"
+
 #include <queue>
 #include <set>
+#include <vector>
 
-#define SCHEDULER_MINTICKS 20
+#include <boost/bind.hpp>
+
+#define SCHEDULER_MINTICKS 50
 
 class SchedulerTask : public Task
 {
@@ -46,7 +51,7 @@ public:
 
 	boost::system_time getCycle() const
 	{
-		return m_expiration;
+		return m_cycle;
 	}
 
 	bool operator<(const SchedulerTask &other) const
@@ -55,17 +60,19 @@ public:
 	}
 
 protected:
-	SchedulerTask(uint32_t delay, const boost::function<void(void)> &f) : Task(delay, f)
+	SchedulerTask(uint32_t delay, boost::function<void(void)> f) : Task(f)
 	{
+		m_cycle = boost::get_system_time() + boost::posix_time::milliseconds(delay);
 		m_eventid = 0;
 	}
 
+	boost::system_time m_cycle;
 	uint32_t m_eventid;
 
-	friend SchedulerTask *createSchedulerTask(uint32_t, const boost::function<void(void)> &);
+	friend SchedulerTask *createSchedulerTask(uint32_t, boost::function<void(void)>);
 };
 
-inline SchedulerTask *createSchedulerTask(uint32_t delay, const boost::function<void(void)> &f)
+inline SchedulerTask *createSchedulerTask(uint32_t delay, boost::function<void(void)> f)
 {
 	assert(delay != 0);
 	if (delay < SCHEDULER_MINTICKS) {
@@ -86,25 +93,32 @@ public:
 class Scheduler
 {
 public:
-	Scheduler();
 	~Scheduler()
 	{
 	}
 
+	static Scheduler &getScheduler()
+	{
+		static Scheduler scheduler;
+		return scheduler;
+	}
+
 	uint32_t addEvent(SchedulerTask *task);
 	bool stopEvent(uint32_t eventId);
-
-	void start();
 	void stop();
 	void shutdown();
-	void shutdownAndWait();
 
-	enum SchedulerState { STATE_RUNNING, STATE_CLOSING, STATE_TERMINATED };
-
-protected:
 	static void schedulerThread(void *p);
 
-	boost::thread m_thread;
+	enum SchedulerState {
+		STATE_RUNNING,
+		STATE_CLOSING,
+		STATE_TERMINATED,
+	};
+
+protected:
+	Scheduler();
+
 	boost::mutex m_eventLock;
 	boost::condition_variable m_eventSignal;
 
@@ -112,9 +126,8 @@ protected:
 	std::priority_queue<SchedulerTask *, std::vector<SchedulerTask *>, lessSchedTask> m_eventList;
 	typedef std::set<uint32_t> EventIdSet;
 	EventIdSet m_eventIds;
-	SchedulerState m_threadState;
+	static SchedulerState m_threadState;
 };
 
-extern Scheduler g_scheduler;
 
 #endif

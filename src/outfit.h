@@ -21,40 +21,89 @@
 #ifndef __OTSERV_OUTFIT_H__
 #define __OTSERV_OUTFIT_H__
 
+#include "definitions.h"
 #include "enums.h"
+
 #include <list>
-#include <stdint.h>
-
-struct OutfitType {
-	OutfitType()
-	{
-		lookHead = 0;
-		lookBody = 0;
-		lookLegs = 0;
-		lookFeet = 0;
-		lookType = 0;
-		lookTypeEx = 0;
-		lookAddons = 0;
-	}
-
-	uint32_t lookType;
-	uint32_t lookTypeEx;
-	uint32_t lookHead;
-	uint32_t lookBody;
-	uint32_t lookLegs;
-	uint32_t lookFeet;
-	uint32_t lookAddons;
-};
+#include <map>
+#include <string>
+#include <vector>
 
 struct Outfit {
-	Outfit() : lookType(0), addons(0)
-	{
-	}
-	uint32_t lookType;
-	uint32_t addons;
-	std::string name;
+	uint32_t looktype;
+	bool premium;
 };
 
-typedef std::list<Outfit> OutfitList;
+typedef std::list<Outfit *> OutfitListType;
+
+class OutfitList
+{
+public:
+	OutfitList();
+	~OutfitList();
+
+	void addOutfit(const Outfit &outfit);
+	bool remOutfit(const Outfit &outfit);
+	const OutfitListType &getOutfits() const
+	{
+		return m_list;
+	}
+	bool isInList(uint32_t looktype, bool playerPremium) const;
+
+private:
+	OutfitListType m_list;
+};
+
+class Outfits
+{
+public:
+	~Outfits();
+
+	static Outfits *getInstance()
+	{
+		static Outfits instance;
+		return &instance;
+	}
+
+	bool loadFromXml(const std::string &datadir);
+	const OutfitListType &getOutfits(uint32_t type)
+	{
+		return getOutfitList(type).getOutfits();
+	}
+
+	const OutfitList &getOutfitList(uint32_t type)
+	{
+		if (type < m_list.size()) {
+			return *m_list[type];
+		} else {
+			if (type == PLAYERSEX_FEMALE)
+				return m_female_list;
+			else
+				return m_male_list;
+		}
+	}
+
+	const std::string &getOutfitName(uint32_t looktype) const
+	{
+		std::map<uint32_t, std::string>::const_iterator it;
+		it = outfitNamesMap.find(looktype);
+		if (it != outfitNamesMap.end()) {
+			return it->second;
+		} else {
+			static const std::string d = "Outfit";
+			return d;
+		}
+	}
+
+private:
+	Outfits();
+	typedef std::vector<OutfitList *> OutfitsListVector;
+	OutfitsListVector m_list;
+
+	std::map<uint32_t, std::string> outfitNamesMap;
+
+	OutfitList m_female_list;
+	OutfitList m_male_list;
+};
 
 #endif

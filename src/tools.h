@@ -22,8 +22,17 @@
 #define __OTSERV_TOOLS_H__
 
 #include "const.h"
-#include "enums.h"
-#include <libxml/tree.h>
+#include "definitions.h"
+#include "position.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <vector>
+
+#include <libxml/parser.h>
 
 enum DistributionType_t { DISTRO_UNIFORM, DISTRO_SQUARE, DISTRO_NORMAL };
 
@@ -47,49 +56,54 @@ inline int32_t swap_int32(int32_t x)
 	return (int32_t)swap_uint32((uint32_t)x);
 }
 
-inline float swap_float32(float x)
+/*inline float swap_float32(float x)
 {
-	union Alias {
-		float native;
-		uint32_t convert;
-	};
+        uint32_t ui = *((uint32_t *)(void *)&x);
+        ui = swap_uint32(ui);
 
-	Alias asrc;
-	asrc.native = x;
+        return *((float *)(void *)&ui);
+}*/
 
-	Alias adst;
-	adst.convert = swap_uint32(asrc.convert);
-
-	return adst.native;
-}
-
-void replaceString(std::string &str, const std::string &sought, const std::string &replacement);
-void trim_right(std::string &source, const std::string &t = "\n\t ");
-void trim_left(std::string &source, const std::string &t = "\n\t ");
-void trim(std::string &source, const std::string &t = "\n\t ");
+bool fileExists(const char *filename);
+void replaceString(std::string &str, const std::string sought, const std::string replacement);
+void trim_right(std::string &source, const std::string &t);
+void trim_left(std::string &source, const std::string &t);
 void toLowerCaseString(std::string &source);
 void toUpperCaseString(std::string &source);
 std::string asLowerCaseString(const std::string &source);
 std::string asUpperCaseString(const std::string &source);
 bool utf8ToLatin1(char *intext, std::string &outtext);
-bool readXMLInteger(xmlNodePtr node, const char *tag, int32_t &value);
+bool readXMLInteger(xmlNodePtr node, const char *tag, int &value);
 bool readXMLInteger64(xmlNodePtr node, const char *tag, uint64_t &value);
 bool readXMLFloat(xmlNodePtr node, const char *tag, float &value);
 bool readXMLString(xmlNodePtr node, const char *tag, std::string &value);
 bool readXMLContentString(xmlNodePtr node, std::string &value);
 std::vector<std::string> explodeString(const std::string &inString, const std::string &separator);
 bool hasBitSet(uint32_t flag, uint32_t flags);
+
 int random_range(int lowest_number, int highest_number, DistributionType_t type = DISTRO_UNIFORM);
+
 void hexdump(unsigned char *_data, int _len);
 char upchar(char c);
-bool passwordTest(std::string plain, std::string &hash);
-std::string convertIPToString(uint32_t ip);
+
+std::string urlEncode(const char *str);
+std::string urlEncode(const std::string &str);
+
+bool passwordTest(const std::string &plain, std::string &hash);
+
+Position getNextPosition(Direction direction, Position pos);
+
+// buffer should be at least 17 bytes
+void formatIP(uint32_t ip, char *buffer);
+// buffer should have at least 21 bytes. dd/mm/yyyy  hh:mm:ss
 void formatDate(time_t time, char *buffer);
-void formatDateShort(time_t time, char *buffer);
-std::string getViolationReasonString(int32_t reasonId);
-std::string getViolationActionString(ViolationAction actionId, bool ipBanishment);
-std::string playerSexAdjectiveString(PlayerSex sex);
-std::string playerSexSubjectString(PlayerSex sex);
-std::string combatTypeToString(CombatType type);
-uint32_t adlerChecksum(uint8_t *data, int32_t len);
+// buffer should have at least 16 bytes
+void formatDate2(time_t time, char *buffer);
+std::string formatTime(int32_t hours, int32_t minutes);
+
+MagicEffectClasses getMagicEffect(const std::string &strValue);
+ShootType_t getShootType(const std::string &strValue);
+Ammo_t getAmmoType(const std::string &strValue);
+AmmoAction_t getAmmoAction(const std::string &strValue);
+
 #endif

@@ -19,52 +19,24 @@
 //////////////////////////////////////////////////////////////////////
 #include "otpch.h"
 
+#include "creature.h"
 #include "cylinder.h"
-#include "position.h"
+#include "item.h"
+#include "player.h"
 #include "thing.h"
 #include "tile.h"
 
-// Avoid unnecessary includes!
-extern void g_gameUnscriptThing(Thing *thing);
-
-Thing::Thing() : parent(NULL), m_refCount(0)
+Thing::Thing()
 {
-	//
+	parent = NULL;
+	useCount = 0;
 }
+
 
 Thing::~Thing()
 {
 	//
 	// std::cout << "thing destructor " << this << std::endl;
-
-	// Kind of ugly to put it here, but what choice is there?
-	g_gameUnscriptThing(this);
-}
-
-void Thing::addRef()
-{
-	++m_refCount;
-}
-
-void Thing::unRef()
-{
-	--m_refCount;
-	if (m_refCount <= 0) delete this;
-}
-
-Cylinder *Thing::getParent()
-{
-	return parent;
-}
-
-const Cylinder *Thing::getParent() const
-{
-	return parent;
-}
-
-void Thing::setParent(Cylinder *cylinder)
-{
-	parent = cylinder;
 }
 
 Cylinder *Thing::getTopParent()
@@ -107,13 +79,13 @@ const Cylinder *Thing::getTopParent() const
 	return aux;
 }
 
-Tile *Thing::getParentTile()
+Tile *Thing::getTile()
 {
 	Cylinder *cylinder = getTopParent();
 
 #ifdef __DEBUG__MOVESYS__
 	if (!cylinder) {
-		std::cout << "Failure: [Thing::getParentTile()],  NULL tile" << std::endl;
+		std::cout << "Failure: [Thing::getTile()],  NULL tile" << std::endl;
 		DEBUG_REPORT
 		return &(Tile::null_tile);
 	}
@@ -125,13 +97,13 @@ Tile *Thing::getParentTile()
 	return dynamic_cast<Tile *>(cylinder);
 }
 
-const Tile *Thing::getParentTile() const
+const Tile *Thing::getTile() const
 {
 	const Cylinder *cylinder = getTopParent();
 
 #ifdef __DEBUG__MOVESYS__
 	if (!cylinder) {
-		std::cout << "Failure: [Thing::getParentTile() const],  NULL tile" << std::endl;
+		std::cout << "Failure: [Thing::getTile() const],  NULL tile" << std::endl;
 		DEBUG_REPORT
 		return &(Tile::null_tile);
 	}
@@ -143,48 +115,18 @@ const Tile *Thing::getParentTile() const
 	return dynamic_cast<const Tile *>(cylinder);
 }
 
-Position Thing::getPosition() const
+const Position &Thing::getPosition() const
 {
-	const Tile *tile = getParentTile();
+	const Tile *tile = getTile();
 	if (tile) {
-		return tile->getPosition();
+		return tile->getTilePosition();
 	} else {
 #ifdef __DEBUG__MOVESYS__
 		std::cout << "Failure: [Thing::getPosition],  NULL tile" << std::endl;
 		DEBUG_REPORT
 #endif
-		return Tile::null_tile.getPosition();
+		return Tile::null_tile.getTilePosition();
 	}
-}
-
-Item *Thing::getItem()
-{
-	return NULL;
-}
-
-const Item *Thing::getItem() const
-{
-	return NULL;
-}
-
-Tile *Thing::getTile()
-{
-	return NULL;
-}
-
-const Tile *Thing::getTile() const
-{
-	return NULL;
-}
-
-Creature *Thing::getCreature()
-{
-	return NULL;
-}
-
-const Creature *Thing::getCreature() const
-{
-	return NULL;
 }
 
 bool Thing::isRemoved() const

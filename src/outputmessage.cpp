@@ -23,95 +23,12 @@
 #include "outputmessage.h"
 #include "protocol.h"
 #include "scheduler.h"
-#include "singleton.h"
-#include "tools.h"
 
-extern Dispatcher g_dispatcher;
-
-#ifdef __ENABLE_SERVER_DIAGNOSTIC__
-uint32_t OutputMessagePool::OutputMessagePoolCount = OUTPUT_POOL_SIZE;
-#endif
+// extern Dispatcher g_dispatcher;
 
 OutputMessage::OutputMessage()
 {
 	freeMessage();
-}
-
-OutputMessage::~OutputMessage()
-{
-}
-
-char *OutputMessage::getOutputBuffer()
-{
-	return (char *)&m_MsgBuf[m_outputBufferStart];
-}
-
-void OutputMessage::writeMessageLength()
-{
-	add_header((uint16_t)(m_MsgSize));
-}
-
-void OutputMessage::addCryptoHeader(bool addChecksum)
-{
-	if (addChecksum) {
-		add_header((uint32_t)(adlerChecksum((uint8_t *)(m_MsgBuf + m_outputBufferStart), m_MsgSize)));
-	}
-	add_header((uint16_t)(m_MsgSize));
-}
-
-Protocol *OutputMessage::getProtocol()
-{
-	return m_protocol;
-}
-
-Connection_ptr OutputMessage::getConnection()
-{
-	return m_connection;
-}
-
-uint64_t OutputMessage::getFrame() const
-{
-	return m_frame;
-}
-
-void OutputMessage::freeMessage()
-{
-	setConnection(Connection_ptr());
-	setProtocol(NULL);
-	m_frame = 0;
-	// allocate enough size for headers
-	// 2 bytes for unencrypted message size
-	// 4 bytes for checksum
-	// 2 bytes for encrypted message size
-	m_outputBufferStart = 8;
-
-	// setState have to be the last one
-	setState(OutputMessage::STATE_FREE);
-}
-
-void OutputMessage::setProtocol(Protocol *protocol)
-{
-	m_protocol = protocol;
-}
-
-void OutputMessage::setConnection(Connection_ptr connection)
-{
-	m_connection = connection;
-}
-
-void OutputMessage::setState(OutputMessageState state)
-{
-	m_state = state;
-}
-
-OutputMessage::OutputMessageState OutputMessage::getState() const
-{
-	return m_state;
-}
-
-void OutputMessage::setFrame(uint64_t frame)
-{
-	m_frame = frame;
 }
 
 //*********** OutputMessagePool ****************
@@ -128,15 +45,6 @@ OutputMessagePool::OutputMessagePool()
 	m_frameTime = OTSYS_TIME();
 }
 
-OutputMessagePool::~OutputMessagePool()
-{
-	InternalOutputMessageList::iterator it;
-	for (it = m_outputMessages.begin(); it != m_outputMessages.end(); ++it) {
-		delete *it;
-	}
-	m_outputMessages.clear();
-}
-
 void OutputMessagePool::startExecutionFrame()
 {
 	// boost::recursive_mutex::scoped_lock lockClass(m_outputPoolLock);
@@ -144,29 +52,13 @@ void OutputMessagePool::startExecutionFrame()
 	m_isOpen = true;
 }
 
-size_t OutputMessagePool::getTotalMessageCount() const
+OutputMessagePool::~OutputMessagePool()
 {
-#ifdef __ENABLE_SERVER_DIAGNOSTIC__
-	return OutputMessagePoolCount;
-#else
-	return m_allOutputMessages.size();
-#endif
-}
-
-size_t OutputMessagePool::getAvailableMessageCount() const
-{
-	return m_outputMessages.size();
-}
-
-size_t OutputMessagePool::getAutoMessageCount() const
-{
-	return m_autoSendOutputMessages.size();
-}
-
-OutputMessagePool *OutputMessagePool::getInstance()
-{
-	static Singleton<OutputMessagePool> instance;
-	return instance.get();
+	InternalOutputMessageList::iterator it;
+	for (it = m_outputMessages.begin(); it != m_outputMessages.end(); ++it) {
+		delete *it;
+	}
+	m_outputMessages.clear();
 }
 
 void OutputMessagePool::send(OutputMessage_ptr msg)
@@ -187,15 +79,14 @@ void OutputMessagePool::send(OutputMessage_ptr msg)
 				msg->getProtocol()->onSendMessage(msg);
 			}
 		} else {
-#ifdef __DEBUG_NET_DETAIL__
+#ifdef __DEBUG_NET__
 			std::cout << "Error: [OutputMessagePool::send] NULL connection." << std::endl;
 #endif
 		}
 	} else {
-#ifdef __DEBUG_NET_DETAIL__
-		std::cout << "Warning: [OutputMessagePool::send] State != "
-		             "STATE_ALLOCATED_NO_AUTOSEND"
-		          << std::endl;
+#ifdef __DEBUG_NET__
+		std::cout
+		<< "Warning: [OutputMessagePool::send] State != STATE_ALLOCATED_NO_AUTOSEND" << std::endl;
 #endif
 	}
 }
@@ -206,8 +97,8 @@ void OutputMessagePool::sendAll()
 	OutputMessageMessageList::iterator it;
 
 	for (it = m_toAddQueue.begin(); it != m_toAddQueue.end();) {
-		// drop messages that are older than Connection::read_timeout seconds
-		if (OTSYS_TIME() - (*it)->getFrame() > Connection::read_timeout * 1000) {
+		// drop messages that are older than 10 seconds
+		if (OTSYS_TIME() - (*it)->getFrame() > 10000) {
 			(*it)->getProtocol()->onSendMessage(*it);
 			it = m_toAddQueue.erase(it);
 			continue;
@@ -226,8 +117,7 @@ void OutputMessagePool::sendAll()
 		// use this define only for debugging
 		bool v = 1;
 #else
-		// It will send only messages bigger then 1 kb or with a lifetime greater
-		// than 10 ms
+		// It will send only messages bigger then 1 kb or with a lifetime greater than 10 ms
 		bool v = omsg->getMessageLength() > 1024 || (m_frameTime - omsg->getFrame() > 10);
 #endif
 		if (v) {
@@ -255,14 +145,10 @@ void OutputMessagePool::sendAll()
 	}
 }
 
-void OutputMessagePool::stop()
-{
-	m_isOpen = false;
-}
-
 void OutputMessagePool::releaseMessage(OutputMessage *msg)
 {
-	g_dispatcher.addTask(createTask(boost::bind(&OutputMessagePool::internalReleaseMessage, this, msg)), true);
+	Dispatcher::getDispatcher().addTask(
+	createTask(boost::bind(&OutputMessagePool::internalReleaseMessage, this, msg)), true);
 }
 
 void OutputMessagePool::internalReleaseMessage(OutputMessage *msg)
@@ -316,10 +202,6 @@ OutputMessage_ptr OutputMessagePool::getOutputMessage(Protocol *protocol, bool a
 		OutputMessage *msg = new OutputMessage();
 		m_outputMessages.push_back(msg);
 
-#ifdef __ENABLE_SERVER_DIAGNOSTIC__
-		OutputMessagePoolCount++;
-#endif
-
 #ifdef __TRACK_NETWORK__
 		m_allOutputMessages.push_back(msg);
 #endif
@@ -345,7 +227,7 @@ void OutputMessagePool::configureOutputMessage(OutputMessage_ptr msg, Protocol *
 		msg->setState(OutputMessage::STATE_ALLOCATED_NO_AUTOSEND);
 	}
 
-	Connection_ptr connection = protocol->getConnection();
+	Connection *connection = protocol->getConnection();
 	assert(connection != NULL);
 
 	msg->setProtocol(protocol);
@@ -363,7 +245,5 @@ void OutputMessagePool::configureOutputMessage(OutputMessage_ptr msg, Protocol *
 
 void OutputMessagePool::addToAutoSend(OutputMessage_ptr msg)
 {
-	m_outputPoolLock.lock();
 	m_toAddQueue.push_back(msg);
-	m_outputPoolLock.unlock();
 }

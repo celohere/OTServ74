@@ -1,65 +1,44 @@
-// Prefix header = compiler automatically includes this header
-// Then an error should not be emitted on subsequent includes
-#if defined __OTSERV_OTCP_H__ && !defined USE_PREFIX_HEADER
+#ifdef __OTSERV_OTCP_H__
 #error "Precompiled header should only be included once"
 #endif
-
-#ifndef __OTSERV_OTCP_H__
 #define __OTSERV_OTCP_H__
+
+//#undef __USE_OTPCH__
 
 // Definitions should be global.
 #include "definitions.h"
 
+#ifdef __USE_OTPCH__
+
 #ifdef __WINDOWS__
 #include <winerror.h>
-#endif
-
-#ifdef __STATIC__
-#define LIBXML_STATIC
 #endif
 
 // libxml
 #include <libxml/parser.h>
 #include <libxml/threads.h>
 #include <libxml/xmlmemory.h>
-#include <libxml/xmlschemas.h>
 // boost
-#include "boost_common.h"
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/any.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/config.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/foreach.hpp>
 #include <boost/function.hpp>
 #include <boost/regex.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/tokenizer.hpp>
-
 // std
-#include <algorithm>
-#include <fstream>
-#include <iostream>
 #include <list>
 #include <map>
 #include <string>
 #include <vector>
-
 // lua
-#include "lua.hpp"
-
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
 // otserv
-// These files very rarely changes
-#include "exception.h"
-#include "fileloader.h"
-#include "logger.h"
-#include "md5.h"
-#include "position.h"
-#include "rsa.h"
-#include "sha1.h"
-
-// Forward declarations
-#include "classes.h"
+#include "thing.h"
 
 #endif

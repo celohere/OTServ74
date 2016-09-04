@@ -18,16 +18,36 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
+
 #ifndef __OTSERV_MAP_H__
 #define __OTSERV_MAP_H__
 
-#include "classes.h"
-#include "protocolconst.h"
+#include "definitions.h"
+#include "fileloader.h"
+#include "iomapserialize.h"
+#include "item.h"
+#include "position.h"
 #include "tile.h"
+#include "tools.h"
 #include "waypoints.h"
+
 #include <bitset>
+#include <map>
+#include <queue>
+
+#include <boost/shared_ptr.hpp>
+using boost::shared_ptr;
+
+class Creature;
+class Player;
+class Game;
+struct FindPathParams;
 
 #define MAP_MAX_LAYERS 16
+
+class Tile;
+class Map;
+class IOMap;
 
 struct AStarNode {
 	int32_t x, y;
@@ -38,13 +58,7 @@ struct AStarNode {
 #define MAX_NODES 512
 #define GET_NODE_INDEX(a) (a - &nodes[0])
 
-// The cost of a straight step for the pathfinding algorithm
 #define MAP_NORMALWALKCOST 10
-
-// The cost of a vertical step for the pathfinding algorithm, this should be
-// more expensive
-// then two straight step, else the player / monsters will walk diagonally all
-// the time.
 #define MAP_DIAGONALWALKCOST 25
 
 class AStarNodes
@@ -64,7 +78,7 @@ public:
 
 	int32_t getMapWalkCost(const Creature *creature, AStarNode *node, const Tile *neighbourTile, const Position &neighbourPos);
 	static int32_t getTileWalkCost(const Creature *creature, const Tile *tile);
-	int32_t getEstimatedDistance(int32_t x, int32_t y, int32_t xGoal, int32_t yGoal);
+	int getEstimatedDistance(int32_t x, int32_t y, int32_t xGoal, int32_t yGoal);
 
 private:
 	AStarNode nodes[MAX_NODES];
@@ -81,6 +95,10 @@ public:
 	}
 };
 
+typedef std::list<Creature *> SpectatorVec;
+typedef std::list<Player *> PlayerList;
+typedef std::map<Position, boost::shared_ptr<SpectatorVec>> SpectatorCache;
+
 #define FLOOR_BITS 3
 #define FLOOR_SIZE (1 << FLOOR_BITS)
 #define FLOOR_MASK (FLOOR_SIZE - 1)
@@ -91,6 +109,7 @@ struct Floor {
 };
 
 class FrozenPathingConditionCall;
+class QTreeLeafNode;
 
 class QTreeNode
 {
@@ -98,7 +117,7 @@ public:
 	QTreeNode();
 	virtual ~QTreeNode();
 
-	bool isLeaf() const
+	bool isLeaf()
 	{
 		return m_isLeaf;
 	}
@@ -148,6 +167,7 @@ protected:
 	friend class QTreeNode;
 };
 
+
 /**
   * Map class.
   * Holds all the actual map-data
@@ -159,13 +179,18 @@ public:
 	Map();
 	~Map();
 
+	static const int32_t maxViewportX = 11; // min value: maxClientViewportX + 1
+	static const int32_t maxViewportY = 11; // min value: max
+	static const int32_t maxClientViewportX = 8;
+	static const int32_t maxClientViewportY = 6;
+
 	/**
 	* Load a map.
 	* \param identifier file/database to load
 	* \param type map type "OTBM", "XML"
 	* \return true if the map was loaded successfully
 	*/
-	bool loadMap(const std::string &identifier);
+	bool loadMap(const std::string &identifier, const std::string &type);
 
 	/**
 	* Save a map.
@@ -178,8 +203,8 @@ public:
 	* Get a single tile.
 	* \return A pointer to that tile.
 	*/
-	Tile *getParentTile(int32_t x, int32_t y, int32_t z);
-	Tile *getParentTile(const Position &pos);
+	Tile *getTile(uint16_t x, uint16_t y, uint16_t z);
+	Tile *getTile(const Position &pos);
 
 	QTreeLeafNode *getLeaf(uint16_t x, uint16_t y)
 	{
@@ -188,25 +213,21 @@ public:
 
 	/**
 	* Set a single tile.
-	* \param a tile to set for the position
+	* \param a tile to set for the
 	*/
-	void setTile(int32_t _x, int32_t _y, int32_t _z, Tile *newtile);
+	void setTile(uint16_t _x, uint16_t _y, uint16_t _z, Tile *newtile);
 	void setTile(const Position &pos, Tile *newtile)
 	{
 		setTile(pos.x, pos.y, pos.z, newtile);
 	}
-	void reAssignTile(int32_t x, int32_t y, int32_t z, Tile *newtile);
-
-	void makeTileIndexed(const Position &pos);
 
 	/**
 	* Place a creature on the map
 	* \param pos The position to place the creature
 	* \param creature Creature to place on the map
-	* \param extendedPos If true, the creature will in first-hand be placed 2
-	* tiles away
-	* \param forceLogin If true, placing the creature will not fail becase of
-	* obstacles (creatures/chests)
+	* \param extendedPos If true, the creature will in first-hand be placed 2 tiles away
+	* \param forceLogin If true, placing the creature will not fail becase of obstacles
+	* (creatures/chests)
 	*/
 	bool placeCreature(const Position &centerPos, Creature *creature, bool extendedPos = false, bool forceLogin = false);
 
@@ -218,28 +239,28 @@ public:
 
 	/**
 	* Checks if you can throw an object to that position
-	*  \param fromPos from Source point
-	*  \param toPos Destination point
-	*  \param rangex maximum allowed range horizontially
-	*  \param rangey maximum allowed range vertically
-	*  \param checkLineOfSight checks if there is any blocking objects in the way
-	*  \return The result if you can throw there or not
+	*	\param fromPos from Source point
+	*	\param toPos Destination point
+	*   \param rangex maximum allowed range horizontially
+	*   \param rangey maximum allowed range vertically
+	*   \param checkLineOfSight checks if there is any blocking objects in the way
+	*	\return The result if you can throw there or not
 	*/
 	bool canThrowObjectTo(const Position &fromPos,
 	                      const Position &toPos,
 	                      bool checkLineOfSight = true,
-	                      int32_t rangex = Map_maxClientViewportX,
-	                      int32_t rangey = Map_maxClientViewportY);
+	                      int32_t rangex = Map::maxClientViewportX,
+	                      int32_t rangey = Map::maxClientViewportY);
 
 	/**
 	* Checks if path is clear from fromPos to toPos
-	* Notice: This only checks a straight line if the path is clear, for path
-	* finding use getPathTo.
-	*  \param fromPos from Source point
-	*  \param toPos Destination point
-	*  \param floorCheck if true then view is not clear if fromPos.z is not the
-	* same as toPos.z
-	*  \return The result if there is no obstacles
+	* Notice: This only checks a straight line if the path is clear, for path finding use
+	*getPathTo.
+	*	\param fromPos from Source point
+	*	\param toPos Destination point
+	*	\param floorCheck if true then view is not clear if fromPos.z is not the same as
+	*toPos.z
+	*	\return The result if there is no obstacles
 	*/
 	bool isSightClear(const Position &fromPos, const Position &toPos, bool floorCheck) const;
 	bool checkSightLine(const Position &fromPos, const Position &toPos) const;
@@ -251,8 +272,8 @@ public:
 	* \param creature The creature that wants a path
 	* \param destPos The position we want a path calculated to
 	* \param listDir contains a list of directions to the destination
-	* \param maxDist Maximum distance from our current position to search,
-	* default: -1 (no limit)
+	* \param maxDist Maximum distance from our current position to search, default: -1 (no
+	* limit)
 	* \returns returns true if a path was found
 	*/
 	bool getPathTo(const Creature *creature,
@@ -316,6 +337,7 @@ protected:
 	friend class Game;
 
 	friend class IOMapOTBM;
+	friend class IOMapXML;
 	friend class IOMap;
 	friend class IOMapSerialize;
 };

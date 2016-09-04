@@ -18,36 +18,30 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_TRASHHOLDER_H__
-#define __OTSERV_TRASHHOLDER_H__
+#ifndef __TRASHHOLDER_H__
+#define __TRASHHOLDER_H__
 
 #include "const.h"
 #include "cylinder.h"
+#include "definitions.h"
 #include "item.h"
-#include <stdint.h>
 
 class TrashHolder : public Item, public Cylinder
 {
 public:
-	TrashHolder(uint16_t _type, MagicEffect _effect = MAGIC_EFFECT_NONE);
+	TrashHolder(uint16_t _type, MagicEffectClasses _effect = NM_ME_NONE);
 	~TrashHolder();
 
-	virtual TrashHolder *getTrashHolder();
-	virtual const TrashHolder *getTrashHolder() const;
+	virtual TrashHolder *getTrashHolder()
+	{
+		return this;
+	}
+	virtual const TrashHolder *getTrashHolder() const
+	{
+		return this;
+	}
 
 	// cylinder implementations
-	virtual Cylinder *getParent();
-	virtual const Cylinder *getParent() const;
-	virtual bool isRemoved() const;
-	virtual Position getPosition() const;
-	virtual Tile *getTile();
-	virtual const Tile *getTile() const;
-	virtual Item *getItem();
-	virtual const Item *getItem() const;
-	virtual Creature *getCreature();
-	virtual const Creature *getCreature() const;
-	virtual Tile *getParentTile();
-	virtual const Tile *getParentTile() const;
 	virtual ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const;
 	virtual ReturnValue
 	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const;
@@ -55,26 +49,24 @@ public:
 	virtual Cylinder *
 	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags);
 
-	virtual void __addThing(Creature *actor, Thing *thing);
-	virtual void __addThing(Creature *actor, int32_t index, Thing *thing);
-	virtual void __updateThing(Creature *actor, Thing *thing, uint16_t itemId, uint32_t count);
-	virtual void __replaceThing(Creature *actor, uint32_t index, Thing *thing);
-	virtual void __removeThing(Creature *actor, Thing *thing, uint32_t count);
+	virtual void __addThing(Thing *thing);
+	virtual void __addThing(int32_t index, Thing *thing);
 
-	virtual void postAddNotification(Creature *actor,
-	                                 Thing *thing,
-	                                 const Cylinder *oldParent,
-	                                 int32_t index,
-	                                 cylinderlink_t link = LINK_OWNER);
-	virtual void postRemoveNotification(Creature *actor,
-	                                    Thing *thing,
+	virtual void __updateThing(Thing *thing, uint16_t itemId, uint32_t count);
+	virtual void __replaceThing(uint32_t index, Thing *thing);
+
+	virtual void __removeThing(Thing *thing, uint32_t count);
+
+	virtual void
+	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER);
+	virtual void postRemoveNotification(Thing *thing,
 	                                    const Cylinder *newParent,
 	                                    int32_t index,
 	                                    bool isCompleteRemoval,
 	                                    cylinderlink_t link = LINK_OWNER);
 
 private:
-	MagicEffect effect;
+	MagicEffectClasses effect;
 };
 
 #endif

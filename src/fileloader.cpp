@@ -17,9 +17,13 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
+
 #include "otpch.h"
 
 #include "fileloader.h"
+
+#include <cmath>
+#include <cstdlib>
 
 FileLoader::FileLoader()
 {
@@ -35,6 +39,7 @@ FileLoader::FileLoader()
 	m_cache_offset = NO_VALID_CACHE;
 	memset(m_cached_data, 0, sizeof(m_cached_data));
 }
+
 
 FileLoader::~FileLoader()
 {
@@ -67,7 +72,8 @@ bool FileLoader::openFile(const char *filename, bool write, bool caching /*= fal
 		m_file = fopen(filename, "rb");
 		if (m_file) {
 			uint32_t version;
-			if (fread(&version, sizeof(version), 1, m_file) && version > 0) {
+			fread(&version, sizeof(version), 1, m_file);
+			if (version > 0) {
 				fclose(m_file);
 				m_file = NULL;
 				m_lastError = ERROR_INVALID_FILE_VERSION;
@@ -105,11 +111,11 @@ bool FileLoader::openFile(const char *filename, bool write, bool caching /*= fal
 	}
 }
 
-bool FileLoader::parseNode(NodeStruct *node)
+bool FileLoader::parseNode(NODE node)
 {
 	int byte;
 	long pos;
-	NodeStruct *currentNode = node;
+	NODE currentNode = node;
 	while (1) {
 		// read node type
 		if (readByte(byte)) {
@@ -121,7 +127,7 @@ bool FileLoader::parseNode(NodeStruct *node)
 					if (byte == NODE_START) {
 						// child node start
 						if (safeTell(pos)) {
-							NodeStruct *childNode = new NodeStruct();
+							NODE childNode = new NodeStruct();
 							childNode->start = pos;
 							setPropsSize = true;
 							currentNode->propsSize = pos - currentNode->start - 2;
@@ -146,8 +152,7 @@ bool FileLoader::parseNode(NodeStruct *node)
 							if (byte == NODE_START) {
 								// starts next node
 								if (safeTell(pos)) {
-									NodeStruct *nextNode =
-									new NodeStruct();
+									NODE nextNode = new NodeStruct();
 									nextNode->start = pos;
 									currentNode->next = nextNode;
 									currentNode = nextNode;
@@ -185,14 +190,13 @@ bool FileLoader::parseNode(NodeStruct *node)
 	}
 }
 
-const unsigned char *FileLoader::getProps(const NodeStruct *node, unsigned long &size)
+const unsigned char *FileLoader::getProps(const NODE node, unsigned long &size)
 {
 	if (node) {
-		while (node->propsSize >= m_buffer_size) {
+		if (node->propsSize >= m_buffer_size) {
 			delete[] m_buffer;
-			while (node->propsSize >= m_buffer_size)
-				m_buffer_size *= 2;
-			m_buffer = new unsigned char[m_buffer_size];
+			m_buffer = new unsigned char[m_buffer_size + 1024];
+			m_buffer_size = m_buffer_size + 1024;
 		}
 		// get buffer
 		if (readBytes(m_buffer, node->propsSize, node->start + 2)) {
@@ -223,7 +227,8 @@ const unsigned char *FileLoader::getProps(const NodeStruct *node, unsigned long 
 	}
 }
 
-bool FileLoader::getProps(const NodeStruct *node, PropStream &props)
+
+bool FileLoader::getProps(const NODE node, PropStream &props)
 {
 	unsigned long size;
 	const unsigned char *a = getProps(node, size);
@@ -257,10 +262,10 @@ void FileLoader::endNode()
 	writeData(&nodeEnd, sizeof(nodeEnd), false);
 }
 
-NodeStruct *FileLoader::getChildNode(const NodeStruct *parent, unsigned long &type)
+const NODE FileLoader::getChildNode(const NODE parent, unsigned long &type)
 {
 	if (parent) {
-		NodeStruct *child = parent->child;
+		NODE child = parent->child;
 		if (child) {
 			type = child->type;
 		}
@@ -271,18 +276,19 @@ NodeStruct *FileLoader::getChildNode(const NodeStruct *parent, unsigned long &ty
 	}
 }
 
-NodeStruct *FileLoader::getNextNode(const NodeStruct *prev, unsigned long &type)
+const NODE FileLoader::getNextNode(const NODE prev, unsigned long &type)
 {
 	if (prev) {
-		NodeStruct *next = prev->next;
+		NODE next = prev->next;
 		if (next) {
 			type = next->type;
 		}
 		return next;
 	} else {
-		return NULL;
+		return NO_NODE;
 	}
 }
+
 
 inline bool FileLoader::readByte(int &value)
 {
@@ -315,7 +321,7 @@ inline bool FileLoader::readByte(int &value)
 	}
 }
 
-inline bool FileLoader::readBytes(unsigned char *buffer, unsigned int size, long pos)
+inline bool FileLoader::readBytes(unsigned char *buffer, int size, long pos)
 {
 	if (m_use_cache) {
 		// seek at pos
@@ -329,7 +335,7 @@ inline bool FileLoader::readBytes(unsigned char *buffer, unsigned int size, long
 			m_cache_offset = pos - m_cached_data[i].base;
 
 			// get maximun read block size and calculate remaining bytes
-			reading = std::min(remain, (unsigned long)m_cached_data[i].size - m_cache_offset);
+			reading = std::min(remain, m_cached_data[i].size - m_cache_offset);
 			remain = remain - reading;
 
 			// read it
@@ -356,32 +362,33 @@ inline bool FileLoader::readBytes(unsigned char *buffer, unsigned int size, long
 	}
 }
 
+
 /*
 inline bool FileLoader::writeData(void* data, int size, bool unescape)
 {
-  for(int i = 0; i < size; ++i) {
-    unsigned char c = *(((unsigned char*)data) + i);
+        for(int i = 0; i < size; ++i) {
+                unsigned char c = *(((unsigned char*)data) + i);
 
-    if(unescape && (c == NODE_START || c == NODE_END || c == ESCAPE_CHAR)) {
-      unsigned char escape = ESCAPE_CHAR;
-      int value = fwrite(&escape, 1, 1, m_file);
-      if(value != 1) {
-        m_lastError = ERROR_COULDNOTWRITE;
-        return false;
-      }
-    }
+                if(unescape && (c == NODE_START || c == NODE_END || c == ESCAPE_CHAR)) {
+                        unsigned char escape = ESCAPE_CHAR;
+                        int value = fwrite(&escape, 1, 1, m_file);
+                        if(value != 1) {
+                                m_lastError = ERROR_COULDNOTWRITE;
+                                return false;
+                        }
+                }
 
-    int value = fwrite(&c, 1, 1, m_file);
-    if(value != 1) {
-      m_lastError = ERROR_COULDNOTWRITE;
-      return false;
-    }
-  }
+                int value = fwrite(&c, 1, 1, m_file);
+                if(value != 1) {
+                        m_lastError = ERROR_COULDNOTWRITE;
+                        return false;
+                }
+        }
 
-  return true;
+        return true;
 }
 */
-inline bool FileLoader::checks(const NodeStruct *node)
+inline bool FileLoader::checks(const NODE node)
 {
 	if (!m_file) {
 		m_lastError = ERROR_NOT_OPEN;
@@ -411,6 +418,7 @@ inline bool FileLoader::safeSeek(unsigned long pos)
 	}
 	return true;
 }
+
 
 inline bool FileLoader::safeTell(long &pos)
 {

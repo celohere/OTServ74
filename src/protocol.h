@@ -21,32 +21,50 @@
 #ifndef __OTSERV_PROTOCOL_H__
 #define __OTSERV_PROTOCOL_H__
 
-#include "protocolconst.h"
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <stdint.h>
+#include "definitions.h"
 
-class RSA;
+#include <boost/shared_ptr.hpp>
+#include <boost/utility.hpp>
+#include <cstdio>
+#include <cstring>
+
+class NetworkMessage;
 class OutputMessage;
 class Connection;
-class NetworkMessage;
+#ifdef __PROTOCOL_77__
+class RSA;
+#endif // __PROTOCOL_77__
 
 typedef boost::shared_ptr<OutputMessage> OutputMessage_ptr;
-typedef boost::shared_ptr<Connection> Connection_ptr;
+
+#if defined(__PROTOCOL_77__)
+#define CLIENT_VERSION_MIN 770
+#define CLIENT_VERSION_MAX 772
+#define STRING_CLIENT_VERSION "This server requires client version 7.7."
+#elif defined(__PROTOCOL_76__)
+#define CLIENT_VERSION_MIN 760
+#define CLIENT_VERSION_MAX 760
+#define STRING_CLIENT_VERSION "This server requires client version 7.6."
+#else
+#define CLIENT_VERSION_MIN 740
+#define CLIENT_VERSION_MAX 740
+#define STRING_CLIENT_VERSION "This server requires client version 7.4."
+#endif
 
 class Protocol : boost::noncopyable
 {
 public:
-	Protocol(Connection_ptr connection)
+	Protocol(Connection *connection)
 	{
 		m_connection = connection;
-		m_encryptionEnabled = false;
-		m_checksumEnabled = false;
 		m_rawMessages = false;
+#ifdef __PROTOCOL_77__
+		m_encryptionEnabled = false;
 		m_key[0] = 0;
 		m_key[1] = 0;
 		m_key[2] = 0;
 		m_key[3] = 0;
+#endif // __PROTOCOL_77__
 		m_refCount = 0;
 	}
 
@@ -59,19 +77,16 @@ public:
 	void onSendMessage(OutputMessage_ptr msg);
 	void onRecvMessage(NetworkMessage &msg);
 	virtual void onRecvFirstMessage(NetworkMessage &msg) = 0;
-	virtual void onConnect()
-	{
-	} // Used by new gameworld to send first packet to client
 
-	Connection_ptr getConnection()
+	Connection *getConnection()
 	{
 		return m_connection;
 	}
-	const Connection_ptr getConnection() const
+	const Connection *getConnection() const
 	{
 		return m_connection;
 	}
-	void setConnection(Connection_ptr connection)
+	void setConnection(Connection *connection)
 	{
 		m_connection = connection;
 	}
@@ -90,6 +105,7 @@ protected:
 	// Use this function for autosend messages only
 	OutputMessage_ptr getOutputBuffer();
 
+#ifdef __PROTOCOL_77__
 	void enableXTEAEncryption()
 	{
 		m_encryptionEnabled = true;
@@ -102,19 +118,11 @@ protected:
 	{
 		memcpy(&m_key, key, sizeof(uint32_t) * 4);
 	}
-	void enableChecksum()
-	{
-		m_checksumEnabled = true;
-	}
-	void disableChecksum()
-	{
-		m_checksumEnabled = false;
-	}
 
 	void XTEA_encrypt(OutputMessage &msg);
 	bool XTEA_decrypt(NetworkMessage &msg);
-	bool RSA_decrypt(NetworkMessage &msg);
 	bool RSA_decrypt(RSA *rsa, NetworkMessage &msg);
+#endif // __PROTOCOL_77__
 
 	void setRawMessages(bool value)
 	{
@@ -127,11 +135,12 @@ protected:
 
 private:
 	OutputMessage_ptr m_outputBuffer;
-	Connection_ptr m_connection;
-	bool m_encryptionEnabled;
-	bool m_checksumEnabled;
+	Connection *m_connection;
 	bool m_rawMessages;
+#ifdef __PROTOCOL_77__
+	bool m_encryptionEnabled;
 	uint32_t m_key[4];
+#endif // __PROTOCOL_77__
 	uint32_t m_refCount;
 };
 

@@ -18,12 +18,16 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __OTSERV_IOMAP_H__
-#define __OTSERV_IOMAP_H__
+#ifndef __IOMAP_H
+#define __IOMAP_H
 
+#include "definitions.h"
 #include "house.h"
+#include "iomapserialize.h"
 #include "map.h"
 #include "spawn.h"
+
+#include <string>
 
 class IOMap
 {
@@ -53,11 +57,12 @@ public:
 	*/
 	bool loadSpawns(Map *map)
 	{
-		if (map->spawnfile.empty()) {
-			return true;
+		if (!map->spawnfile.empty()) {
+			if (!Spawns::getInstance()->loadFromXml(map->spawnfile)) return false;
+			Spawns::getInstance()->startup();
 		}
 
-		return Spawns::getInstance()->loadFromXml(map->spawnfile);
+		return true;
 	}
 
 	/** Load the houses (not house tile-data)
@@ -67,7 +72,7 @@ public:
 	bool loadHouses(Map *map)
 	{
 		if (!map->housefile.empty()) {
-			return Houses::getInstance()->loadHousesXML(map->housefile);
+			return Houses::getInstance().loadHousesXML(map->housefile);
 		}
 		return true;
 	}

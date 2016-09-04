@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // OpenTibia - an opensource roleplaying game
 //////////////////////////////////////////////////////////////////////
-// Exception handler class
+// Exception Handler class
 //////////////////////////////////////////////////////////////////////
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,16 +17,21 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
+
 #include "otpch.h"
 
 #if defined __EXCEPTION_TRACER__
 
-#include "configmanager.h"
-#include "exception.h"
+#include <cstdlib>
 #include <ctime>
 #include <fstream>
 #include <iomanip>
-#include <stdlib.h>
+#include <iostream>
+#include <map>
+
+#include "configmanager.h"
+#include "exception.h"
+#include <boost/thread.hpp>
 
 extern ConfigManager g_config;
 
@@ -71,8 +76,8 @@ void printPointer(std::ostream *output, unsigned long p);
 #include <signal.h>
 #include <ucontext.h>
 
-#include <sys/resource.h> /* POSIX.1-2001 */
 #include <sys/time.h>
+#include <sys/resource.h> /* POSIX.1-2001 */
 
 extern time_t start_time;
 void _SigHandler(int signum, siginfo_t *info, void *secret);
@@ -338,6 +343,7 @@ __cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
 	miliseconds = miliseconds - (miliseconds / 1000) * 1000;
 	*outdriver << "." << miliseconds << std::endl;
 
+
 	// n threads
 	PROCESSENTRY32 uProcess;
 	HANDLE lSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -443,7 +449,7 @@ __cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
 		MessageBoxA(NULL, "Please send the file report.txt to support service. Thanks",
 		            "Error", MB_OK | MB_ICONERROR);
 	std::cout << "Error report generated. Killing server." << std::endl;
-	exit(EXIT_FAILURE); // force exit
+	exit(1); // force exit
 	return ExceptionContinueSearch;
 }
 
@@ -473,7 +479,7 @@ bool ExceptionHandler::LoadMap()
 		std::cout << "Failed loading symbols. otserv.map not found. " << std::endl;
 		std::cout << "Go to http://otfans.net/showthread.php?t=4718 for more info." << std::endl;
 		system("pause");
-		exit(EXIT_FAILURE);
+		exit(1);
 		return false;
 	}
 
@@ -659,6 +665,7 @@ void _SigHandler(int signum, siginfo_t *info, void *secret)
 	// TODO: Process thread count (is it really needed anymore?)
 	*outdriver << std::endl;
 
+
 	outdriver->flags(std::ios::hex | std::ios::showbase);
 	*outdriver << "Signal: " << signum;
 
@@ -711,7 +718,7 @@ void _SigHandler(int signum, siginfo_t *info, void *secret)
 		((std::ofstream *)outdriver)->close();
 	}
 
-	_exit(EXIT_FAILURE);
+	_exit(1);
 }
 
 void ExceptionHandler::dumpStack()

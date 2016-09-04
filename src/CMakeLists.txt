@@ -8,6 +8,12 @@ if(USE_STATIC_LIBS)
   SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 endif()
 
+if(USE_SQLITE)
+	list(REMOVE_ITEM SRC_LIST ${CMAKE_CURRENT_SOURCE_DIR}/databasemysql.cpp)
+	list(REMOVE_ITEM HDR_LIST ${CMAKE_CURRENT_SOURCE_DIR}/databasemysql.h)
+endif()
+
+
 # find required components
 find_package(Boost COMPONENTS thread regex system filesystem REQUIRED)
 find_package(GMP REQUIRED)
