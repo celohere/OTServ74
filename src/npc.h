@@ -191,7 +191,7 @@ public:
 
 	bool isIdle()
 	{
-		return std::time(unsigned(NULL)) - idleTime > idleInterval;
+		return std::time(nullptr) - idleTime > idleInterval;
 	}
 	void resetIdle()
 	{
@@ -199,12 +199,12 @@ public:
 	}
 	void updateIdle()
 	{
-		idleTime = std::time(unsigned(NULL));
+		idleTime = std::time(nullptr);
 	}
 
 	bool hasWalkDelay()
 	{
-		return walkDelay >= std::time(unsigned(NULL));
+		return walkDelay >= std::time(nullptr);
 	}
 	void setWalkDelay(int32_t delay)
 	{

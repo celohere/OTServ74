@@ -3,10 +3,10 @@ file(GLOB_RECURSE SRC_LIST *.cpp)
 file(GLOB_RECURSE HDR_LIST *.h)
 
 # static linking
-if(USE_STATIC_LIBS)
-  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
-endif()
+#if(USE_STATIC_LIBS)
+#  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#  SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+#endif()
 
 if(USE_SQLITE)
 	list(REMOVE_ITEM SRC_LIST ${CMAKE_CURRENT_SOURCE_DIR}/databasemysql.cpp)
@@ -66,13 +66,13 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # compile flags
-set(WARNING_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result")
-set(CMAKE_CXX_FLAGS                   "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
-set(CMAKE_CXX_FLAGS_COMPILESPEED      "-O0")
-set(CMAKE_CXX_FLAGS_DEBUG             "-O0 -g")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO    "-O1 -g -fno-omit-frame-pointer")
-set(CMAKE_CXX_FLAGS_RELEASE           "-Os")
-set(CMAKE_CXX_FLAGS_PERFORMANCE       "-Ofast -mmmx -msse -msse2")
+#set(WARNING_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result")
+#set(CMAKE_CXX_FLAGS                   "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
+#set(CMAKE_CXX_FLAGS_COMPILESPEED      "-O0")
+#set(CMAKE_CXX_FLAGS_DEBUG             "-O0 -g")
+#set(CMAKE_CXX_FLAGS_RELWITHDEBINFO    "-O1 -g -fno-omit-frame-pointer")
+#set(CMAKE_CXX_FLAGS_RELEASE           "-Os")
+#set(CMAKE_CXX_FLAGS_PERFORMANCE       "-Ofast -mmmx -msse -msse2")
 
 # add debug definition
 if(CMAKE_BUILD_TYPE EQUAL "Debug")

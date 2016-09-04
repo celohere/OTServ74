@@ -891,7 +891,7 @@ int NpcScriptInterface::luaSetNpcFocus(lua_State *L)
 			npc->setCreatureFocus(creature);
 		} else {
 			npc->focusCreature = 0;
-			npc->setWalkDelay(std::time(unsigned(NULL)) + 5);
+			npc->setWalkDelay(std::time(nullptr) + 5);
 		}
 	}
 

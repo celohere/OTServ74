@@ -28,6 +28,7 @@ class Map;
 #include "definitions.h"
 #include "iomapserialize.h"
 #include "map.h"
+#include "tile.h"
 
 #include <string>
 

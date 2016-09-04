@@ -7,8 +7,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
 # Revscriptsys2
 set(VERSION "0.7.0")
 
-# Make sure the compiler can compile C++11 code
-include(FindCXX11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Options
 option(USE_MYSQL "Use MySQL" OFF)
@@ -38,5 +37,4 @@ if(NOT USE_MYSQL AND NOT USE_SQLITE AND NOT USE_ODBC AND NOT USE_PGSQL)
 endif()
 
 # Sources
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_subdirectory(src)
