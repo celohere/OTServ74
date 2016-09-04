@@ -74,7 +74,7 @@ const int32_t MAX_STAMINA_MINUTES = MAX_STAMINA / 60000;
 
 class Player : public Creature, public Cylinder
 {
-	public:
+public:
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 	static uint32_t playerCount;
 #endif
@@ -929,7 +929,7 @@ class Player : public Creature, public Cylinder
 	virtual uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1) const;
 	virtual std::map<uint32_t, uint32_t> &__getAllItemTypeCount(std::map<uint32_t, uint32_t> &countMap) const;
 
-	protected:
+protected:
 	void checkTradeState(const Item *item);
 
 	std::string getSkillName(int skillid);
@@ -969,7 +969,7 @@ class Player : public Creature, public Cylinder
 	virtual void __internalAddThing(Thing *thing);
 	virtual void __internalAddThing(uint32_t index, Thing *thing);
 
-	protected:
+protected:
 	ProtocolGame *client;
 
 	uint32_t level;

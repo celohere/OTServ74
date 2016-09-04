@@ -29,7 +29,7 @@
 
 class ProtocolStatus : public Protocol
 {
-	public:
+public:
 	// static protocol information
 	enum { server_sends_first = false };
 	enum { protocol_identifier = 0xFF };
@@ -46,7 +46,7 @@ class ProtocolStatus : public Protocol
 
 	static const char *protocol_name();
 
-	protected:
+protected:
 	static std::map<uint32_t, int64_t> ipConnectMap;
 
 #ifdef __DEBUG_NET_DETAIL__
@@ -56,7 +56,7 @@ class ProtocolStatus : public Protocol
 
 class Status : boost::noncopyable
 {
-	public:
+public:
 	Status();
 
 	static Status *instance();
@@ -75,7 +75,7 @@ class Status : boost::noncopyable
 
 	uint64_t getUpTime() const;
 
-	private:
+private:
 	uint64_t m_start;
 	int m_playersmax, m_playersonline, m_playerspeak;
 	std::string m_mapname, m_mapauthor;

@@ -31,7 +31,7 @@ class Player;
 
 class BedItem : public Item
 {
-	public:
+public:
 	BedItem(uint16_t id);
 	virtual ~BedItem();
 
@@ -59,7 +59,7 @@ class BedItem : public Item
 	void wakeUp();
 	BedItem *getNextBedItem();
 
-	protected:
+protected:
 	void updateAppearance(const Player *player);
 	void regeneratePlayer(Player *player) const;
 	void internalSetSleeper(const Player *player);
@@ -74,7 +74,7 @@ class Beds
 {
 	Beds();
 
-	public:
+public:
 	~Beds();
 
 	static Beds &instance();
@@ -82,7 +82,7 @@ class Beds
 	BedItem *getBedBySleeper(uint32_t guid);
 	void setBedSleeper(BedItem *bed, uint32_t guid);
 
-	private:
+private:
 	std::map<uint32_t, BedItem *> BedSleepersMap;
 };
 

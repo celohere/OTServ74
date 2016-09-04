@@ -24,7 +24,7 @@
 
 class Waypoint : public boost::enable_shared_from_this<Waypoint>
 {
-	public:
+public:
 	Waypoint(const std::string &name, const Position &pos) : name(name), pos(pos)
 	{
 	}
@@ -37,13 +37,13 @@ typedef boost::shared_ptr<Waypoint> Waypoint_ptr;
 
 class Waypoints
 {
-	public:
+public:
 	// Does not require either constructor nor destructor
 
 	void addWaypoint(Waypoint_ptr wp);
 	Waypoint_ptr getWaypointByName(const std::string &name) const;
 
-	protected:
+protected:
 	typedef std::map<std::string, Waypoint_ptr> WaypointMap;
 	WaypointMap waypoints;
 };

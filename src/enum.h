@@ -29,7 +29,7 @@
 
 class enum_conversion_error : public std::logic_error
 {
-	public:
+public:
 	enum_conversion_error(const std::string &err) : logic_error(err)
 	{
 	}
@@ -42,7 +42,7 @@ template <class ET> class enum_iterator
 	typedef typename ET::EnumToString::iterator _internal;
 	_internal i;
 
-	public:
+public:
 	enum_iterator(const enum_iterator<ET> &o) : i(o.i)
 	{
 	}
@@ -139,10 +139,10 @@ template <class E, int size_> class BitEnum;
 
 template <class E, int size_> class Enum
 {
-	protected:
+protected:
 	E e;
 
-	public:
+public:
 	// Some useful types
 	typedef std::map<Enum<E, size_>, std::vector<std::string>> EnumToString;
 	typedef std::map<std::string, Enum<E, size_>> StringToEnum;
@@ -150,7 +150,7 @@ template <class E, int size_> class Enum
 	typedef Enum<E, size_> base_class;
 	typedef E enum_type;
 
-	public:
+public:
 	Enum() : e(E(0))
 	{
 	}
@@ -188,13 +188,13 @@ template <class E, int size_> class Enum
 		return int(e);
 	}
 
-	private:
+private:
 	void _boolean_true() const
 	{
 	}
 	typedef void (Enum<E, size_>::*_boolean_type)() const;
 
-	public:
+public:
 	operator _boolean_type() const
 	{
 		if (e != E(0)) return &Enum<E, size_>::_boolean_true;
@@ -365,7 +365,7 @@ template <class E, int size_> class Enum
 		return iterator(enum_to_string.end());
 	}
 
-	protected: // Private stuff
+protected: // Private stuff
 	static void initialize();
 
 	// This is declared here so it can be inlined
@@ -391,7 +391,7 @@ template <class E, int size_> class Enum
 	static StringToEnum string_to_enum;
 	static StringToEnum lstring_to_enum;
 
-	public: // Operators
+public: // Operators
 	// Comparison
 	bool operator==(const Enum<E, size_> &o) const
 	{
@@ -429,7 +429,7 @@ template <class E, int size_> class Enum
 template <class E, int size_ = -1 /* Will always cause error when trying to use */>
 class BitEnum : public Enum<E, size_>
 {
-	public:
+public:
 	BitEnum()
 	{
 	}

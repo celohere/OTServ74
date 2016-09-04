@@ -40,7 +40,7 @@ typedef WaitList::iterator WaitListIterator;
 
 class WaitingList
 {
-	public:
+public:
 	~WaitingList();
 
 	static WaitingList *getInstance();
@@ -49,7 +49,7 @@ class WaitingList
 	int32_t getClientSlot(const Player *player);
 	static int32_t getTime(int32_t slot);
 
-	protected:
+protected:
 	WaitList priorityWaitList;
 	WaitList waitList;
 

@@ -32,7 +32,7 @@ class Creature;
 
 class NetworkMessage
 {
-	public:
+public:
 	enum { header_length = 2 };
 	enum { crypto_length = 4 };
 	enum { xtea_multiple = 8 };
@@ -89,7 +89,7 @@ class NetworkMessage
 	virtual void clearTrack(){};
 #endif
 
-	protected:
+protected:
 	void Reset();
 	bool canAdd(uint32_t size) const;
 

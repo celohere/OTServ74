@@ -26,7 +26,7 @@
 
 class IOMapSerialize
 {
-	public:
+public:
 	static IOMapSerialize *getInstance();
 
 	/** Load the map from a data storage
@@ -63,7 +63,7 @@ class IOMapSerialize
 	*/
 	bool saveHouseInfo(Map *map);
 
-	protected:
+protected:
 	// Relational storage uses a row for each item/tile
 	bool loadMapRelational(Map *map);
 	bool saveMapRelational(Map *map);

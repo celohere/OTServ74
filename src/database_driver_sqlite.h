@@ -29,7 +29,7 @@
 
 class DatabaseSQLite : public DatabaseDriver
 {
-	public:
+public:
 	DatabaseSQLite();
 	virtual ~DatabaseSQLite();
 
@@ -44,7 +44,7 @@ class DatabaseSQLite : public DatabaseDriver
 	virtual std::string escapeString(const std::string &s);
 	virtual std::string escapeBlob(const char *s, uint32_t length);
 
-	protected:
+protected:
 	virtual bool internalQuery(const std::string &query);
 	virtual DBResult_ptr internalSelectQuery(const std::string &query);
 	virtual void freeResult(DBResult *res);
@@ -59,7 +59,7 @@ class SQLiteResult : public DBResult
 {
 	friend class DatabaseSQLite;
 
-	public:
+public:
 	virtual int32_t getDataInt(const std::string &s);
 	virtual uint32_t getDataUInt(const std::string &s);
 	virtual int64_t getDataLong(const std::string &s);
@@ -69,7 +69,7 @@ class SQLiteResult : public DBResult
 	virtual DBResult_ptr advance();
 	virtual bool empty();
 
-	protected:
+protected:
 	SQLiteResult(sqlite3_stmt *stmt);
 	virtual ~SQLiteResult();
 

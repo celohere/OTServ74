@@ -27,7 +27,7 @@
 
 class RSA
 {
-	public:
+public:
 	RSA();
 	~RSA();
 	void setKey(const char *p, const char *q);
@@ -38,7 +38,7 @@ class RSA
 	int32_t getKeySize();
 	void getPublicKey(char *buffer);
 
-	protected:
+protected:
 	bool m_keySet;
 
 	boost::recursive_mutex rsaLock;

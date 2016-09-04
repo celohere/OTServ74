@@ -32,7 +32,7 @@ class Vocation
 	Vocation(uint32_t id);
 	~Vocation();
 
-	public:
+public:
 	uint32_t getID() const;
 	const std::string &getVocName() const;
 	const std::string &getVocDescription() const;
@@ -62,7 +62,7 @@ class Vocation
 
 	void debugVocation();
 
-	protected:
+protected:
 	uint32_t id;
 	std::string name;
 	std::string description;
@@ -105,7 +105,7 @@ class Vocation
 
 class Vocations
 {
-	public:
+public:
 	Vocations();
 	~Vocations();
 
@@ -113,7 +113,7 @@ class Vocations
 	Vocation *getVocation(uint32_t vocId);
 	int32_t getVocationId(const std::string &name);
 
-	private:
+private:
 	typedef std::map<uint32_t, Vocation *> VocationsMap;
 	VocationsMap vocationsMap;
 };

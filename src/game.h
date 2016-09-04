@@ -70,7 +70,7 @@ void g_gameUnscriptThing(Thing *thing);
 
 class Game
 {
-	public:
+public:
 	Game();
 	~Game();
 
@@ -698,7 +698,7 @@ class Game
 	                  Creature *target,
 	                  int32_t amount);
 
-	protected:
+protected:
 	// Action helper function
 	ReturnValue canUseItem(const Player *player, const Position &pos, bool checkLineOfSight = false);
 	ReturnValue internalUseItem(Player *player, const Position &pos, uint8_t index, Item *item);
@@ -714,7 +714,7 @@ class Game
 	void showUseHotkeyMessage(Player *player, const ItemType &it, uint32_t itemCount);
 
 	// animation help functions
-	public:
+public:
 	void addCreatureHealth(const Creature *target);
 	void addCreatureHealth(const SpectatorVec &list, const Creature *target);
 	void addAnimatedText(const Position &pos, uint8_t textColor, const std::string &text);
@@ -754,7 +754,7 @@ class Game
 
 	void showUseHotkeyMessage(Player *player, Item *item);
 
-	protected:
+protected:
 	bool playerWhisper(Player *player, const std::string &text);
 	bool playerYell(Player *player, const std::string &text);
 	bool playerSpeakTo(Player *player, SpeakClass type, const std::string &receiver, const std::string &text);

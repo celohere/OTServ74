@@ -28,7 +28,7 @@ class NetworkMessage;
 
 class ProtocolOld : public Protocol
 {
-	public:
+public:
 	// static protocol information
 	enum { server_sends_first = false };
 	// Ident is added in subclass
@@ -43,7 +43,7 @@ class ProtocolOld : public Protocol
 
 	virtual void onRecvFirstMessage(NetworkMessage &msg);
 
-	protected:
+protected:
 	void disconnectClient(uint8_t error, const char *message);
 
 	bool parseFirstPacket(NetworkMessage &msg);
@@ -55,7 +55,7 @@ class ProtocolOld : public Protocol
 
 class ProtocolOldLogin : public ProtocolOld
 {
-	public:
+public:
 	enum { protocol_identifier = 0x01 };
 
 	ProtocolOldLogin(Connection_ptr connection);
@@ -65,7 +65,7 @@ class ProtocolOldLogin : public ProtocolOld
 
 class ProtocolOldGame : public ProtocolOld
 {
-	public:
+public:
 	enum { protocol_identifier = 0x0A };
 	static const char *protocol_name();
 

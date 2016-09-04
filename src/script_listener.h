@@ -35,7 +35,7 @@ class Manager;
 
 class Listener
 {
-	public:
+public:
 	// Listener MUST be destroyed before the manager
 	Listener(ListenerType type, const boost::any &data, Manager &manager);
 	~Listener();
@@ -61,7 +61,7 @@ class Listener
 	static std::string type2name();
 	static ListenerType name2type();
 
-	protected:
+protected:
 	static uint32_t ID_counter;
 	uint32_t ID;
 	bool active;

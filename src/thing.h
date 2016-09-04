@@ -33,10 +33,10 @@ class Item;
 
 class Thing
 {
-	protected:
+protected:
 	Thing();
 
-	public:
+public:
 	virtual ~Thing();
 
 	void addRef();
@@ -68,7 +68,7 @@ class Thing
 
 	virtual bool isRemoved() const;
 
-	private:
+private:
 	Cylinder *parent;
 	int32_t m_refCount;
 };

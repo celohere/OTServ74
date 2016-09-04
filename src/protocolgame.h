@@ -32,7 +32,7 @@ typedef boost::shared_ptr<NetworkMessage> NetworkMessage_ptr;
 
 class ProtocolGame : public Protocol
 {
-	public:
+public:
 	// static protocol information
 	enum { server_sends_first = true };
 	enum { protocol_identifier = 0 }; // Not required as we send first
@@ -54,7 +54,7 @@ class ProtocolGame : public Protocol
 
 	void setPlayer(Player *p);
 
-	private:
+private:
 	std::list<uint32_t> knownCreatureList;
 
 	bool connect(uint32_t playerId);

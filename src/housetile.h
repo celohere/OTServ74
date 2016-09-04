@@ -26,7 +26,7 @@
 
 class HouseTile : public IndexedTile
 {
-	public:
+public:
 	HouseTile(uint16_t x, uint16_t y, uint16_t z, House *_house);
 	~HouseTile();
 
@@ -44,7 +44,7 @@ class HouseTile : public IndexedTile
 		return house;
 	}
 
-	private:
+private:
 	void updateHouse(Item *item);
 
 	House *house;

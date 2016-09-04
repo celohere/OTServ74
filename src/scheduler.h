@@ -30,7 +30,7 @@
 
 class SchedulerTask : public Task
 {
-	public:
+public:
 	~SchedulerTask()
 	{
 	}
@@ -54,7 +54,7 @@ class SchedulerTask : public Task
 		return getCycle() > other.getCycle();
 	}
 
-	protected:
+protected:
 	SchedulerTask(uint32_t delay, const boost::function<void(void)> &f) : Task(delay, f)
 	{
 		m_eventid = 0;
@@ -76,7 +76,7 @@ inline SchedulerTask *createSchedulerTask(uint32_t delay, const boost::function<
 
 class lessSchedTask : public std::binary_function<SchedulerTask *&, SchedulerTask *&, bool>
 {
-	public:
+public:
 	bool operator()(SchedulerTask *&t1, SchedulerTask *&t2)
 	{
 		return (*t1) < (*t2);
@@ -85,7 +85,7 @@ class lessSchedTask : public std::binary_function<SchedulerTask *&, SchedulerTas
 
 class Scheduler
 {
-	public:
+public:
 	Scheduler();
 	~Scheduler()
 	{
@@ -101,7 +101,7 @@ class Scheduler
 
 	enum SchedulerState { STATE_RUNNING, STATE_CLOSING, STATE_TERMINATED };
 
-	protected:
+protected:
 	static void schedulerThread(void *p);
 
 	boost::thread m_thread;

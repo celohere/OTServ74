@@ -29,7 +29,7 @@
 
 class DatabasePgSQL : public DatabaseDriver
 {
-	public:
+public:
 	DatabasePgSQL();
 	virtual ~DatabasePgSQL();
 
@@ -46,7 +46,7 @@ class DatabasePgSQL : public DatabaseDriver
 	virtual std::string escapeString(const std::string &s);
 	virtual std::string escapeBlob(const char *s, uint32_t length);
 
-	protected:
+protected:
 	virtual bool internalQuery(const std::string &query);
 	virtual DBResult_ptr internalSelectQuery(const std::string &query);
 	virtual void freeResult(DBResult *res);
@@ -60,7 +60,7 @@ class PgSQLResult : public DBResult
 {
 	friend class DatabasePgSQL;
 
-	public:
+public:
 	virtual int32_t getDataInt(const std::string &s);
 	virtual uint32_t getDataUInt(const std::string &s);
 	virtual int64_t getDataLong(const std::string &s);
@@ -70,7 +70,7 @@ class PgSQLResult : public DBResult
 	virtual DBResult_ptr advance();
 	virtual bool empty();
 
-	protected:
+protected:
 	PgSQLResult(PGresult *results);
 	virtual ~PgSQLResult();
 

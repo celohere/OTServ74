@@ -119,7 +119,7 @@ class IOMapOTBM : public IOMap
 {
 	static Tile *createTile(Item *&ground, Item *item, const Position &p);
 
-	public:
+public:
 	IOMapOTBM(){};
 	~IOMapOTBM(){};
 

@@ -25,14 +25,14 @@
 
 class ExceptionHandler
 {
-	public:
+public:
 	ExceptionHandler();
 	~ExceptionHandler();
 	bool InstallHandler();
 	bool RemoveHandler();
 	static void dumpStack();
 
-	private:
+private:
 #if defined WIN32 || defined __WINDOWS__
 
 #if defined _MSC_VER || defined __USE_MINIDUMP__

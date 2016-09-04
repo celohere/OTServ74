@@ -52,7 +52,7 @@ struct Abilities {
 		bool reduce(CombatType type, int32_t &dmg) const;
 		std::ostream &getDescription(std::ostream &os) const;
 
-		protected:
+	protected:
 		std::ostream &getDescription(std::ostream &os, bool &first, CombatType combat_type) const;
 	} absorb;
 	bool cure[ConditionId::size];
@@ -87,11 +87,11 @@ struct Abilities {
 
 class ItemType
 {
-	private:
+private:
 	// It is private because calling it can cause unexpected results
 	ItemType(const ItemType &it){};
 
-	public:
+public:
 	ItemType();
 	~ItemType();
 
@@ -248,7 +248,7 @@ class ItemType
 
 template <typename A> class Array
 {
-	public:
+public:
 	Array(uint32_t n);
 	~Array();
 
@@ -261,14 +261,14 @@ template <typename A> class Array
 		return m_size;
 	}
 
-	private:
+private:
 	A *m_data;
 	uint32_t m_size;
 };
 
 class Items
 {
-	public:
+public:
 	Items();
 	~Items();
 
@@ -310,7 +310,7 @@ class Items
 
 	std::map<uint32_t, ItemType *> currencyMap;
 
-	protected:
+protected:
 	typedef std::map<int32_t, int32_t> ReverseItemMap;
 	ReverseItemMap reverseItemMap;
 

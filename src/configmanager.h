@@ -28,7 +28,7 @@
 
 class ConfigManager
 {
-	public:
+public:
 	ConfigManager();
 	~ConfigManager();
 
@@ -160,7 +160,7 @@ class ConfigManager
 
 	std::vector<std::string> getIPServerList();
 
-	private:
+private:
 	static void moveValue(lua_State *fromL, lua_State *toL);
 	std::string
 	getGlobalString(lua_State *_L, const std::string &_identifier, const std::string &_default = "") const;

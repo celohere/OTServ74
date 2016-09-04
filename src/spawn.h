@@ -45,7 +45,7 @@ struct spawnBlock_t {
 
 class Spawns
 {
-	public:
+public:
 	Spawns();
 	~Spawns();
 
@@ -60,7 +60,7 @@ class Spawns
 	bool isLoaded() const;
 	bool isStarted() const;
 
-	private:
+private:
 	SpawnList spawnList;
 
 	bool loaded;
@@ -70,7 +70,7 @@ class Spawns
 
 class Spawn
 {
-	public:
+public:
 	Spawn(const Position &pos, int32_t radius);
 	~Spawn();
 
@@ -87,7 +87,7 @@ class Spawn
 	bool isInSpawnZone(const Position &pos);
 	void cleanup();
 
-	private:
+private:
 	Position centerPos;
 	int32_t radius;
 	int32_t despawnRange;

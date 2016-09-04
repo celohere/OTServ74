@@ -29,7 +29,7 @@ const int DISPATCHER_TASK_EXPIRATION = 2000;
 
 class Task
 {
-	public:
+public:
 	// DO NOT allocate this class on the stack
 	Task(uint32_t ms, const boost::function<void(void)> &f) : m_f(f)
 	{
@@ -59,7 +59,7 @@ class Task
 		return m_expiration < boost::get_system_time();
 	}
 
-	protected:
+protected:
 	// Expiration has another meaning for scheduler tasks,
 	// then it is the time the task should be added to the
 	// dispatcher
@@ -81,7 +81,7 @@ enum DispatcherState { STATE_RUNNING, STATE_CLOSING, STATE_TERMINATED };
 
 class Dispatcher
 {
-	public:
+public:
 	Dispatcher();
 	~Dispatcher()
 	{
@@ -96,7 +96,7 @@ class Dispatcher
 
 	enum DispatcherState { STATE_RUNNING, STATE_CLOSING, STATE_TERMINATED };
 
-	protected:
+protected:
 	static void dispatcherThread(void *p);
 
 	void flush();

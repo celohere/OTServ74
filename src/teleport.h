@@ -28,7 +28,7 @@
 
 class Teleport : public Item, public Cylinder
 {
-	public:
+public:
 	Teleport(uint16_t _type);
 	~Teleport();
 
@@ -81,7 +81,7 @@ class Teleport : public Item, public Cylinder
 	                                    bool isCompleteRemoval,
 	                                    cylinderlink_t link = LINK_OWNER);
 
-	private:
+private:
 	Position destPos;
 };
 

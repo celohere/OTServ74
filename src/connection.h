@@ -49,7 +49,7 @@ typedef boost::shared_ptr<ServicePort> ServicePort_ptr;
 
 class ConnectionManager
 {
-	public:
+public:
 	static ConnectionManager *getInstance();
 
 	Connection_ptr createConnection(boost::asio::ip::tcp::socket *socket,
@@ -58,7 +58,7 @@ class ConnectionManager
 	void releaseConnection(Connection_ptr connection);
 	void closeAll();
 
-	protected:
+protected:
 	std::list<Connection_ptr> m_connections;
 	boost::recursive_mutex m_connectionManagerLock;
 };
@@ -67,7 +67,7 @@ class Connection : public boost::enable_shared_from_this<Connection>, boost::non
 {
 	friend class ConnectionManager;
 
-	public:
+public:
 	Connection(boost::asio::ip::tcp::socket *socket, boost::asio::io_service &io_service, ServicePort_ptr service_port);
 	~Connection();
 
@@ -99,7 +99,7 @@ class Connection : public boost::enable_shared_from_this<Connection>, boost::non
 	int32_t addRef();
 	int32_t unRef();
 
-	private:
+private:
 	void parseHeader(const boost::system::error_code &error);
 	void parsePacket(const boost::system::error_code &error);
 

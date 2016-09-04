@@ -30,7 +30,7 @@ extern ConfigManager g_config;
 
 class InternalCreatureType
 {
-	public:
+public:
 	InternalCreatureType();
 	~InternalCreatureType();
 

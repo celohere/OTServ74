@@ -26,7 +26,7 @@
 
 class ProtocolLogin : public Protocol
 {
-	public:
+public:
 	// static protocol information
 	enum { server_sends_first = false };
 	enum { protocol_identifier = 0x01 };
@@ -58,7 +58,7 @@ class ProtocolLogin : public Protocol
 
 	virtual void onRecvFirstMessage(NetworkMessage &msg);
 
-	protected:
+protected:
 	void disconnectClient(uint8_t error, const char *message);
 
 	bool parseFirstPacket(NetworkMessage &msg);

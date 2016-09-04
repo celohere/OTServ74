@@ -48,7 +48,7 @@ enum ErrorMode {
 
 class Error : public std::runtime_error
 {
-	public:
+public:
 	Error(const std::string &msg) : std::runtime_error(msg)
 	{
 	}
@@ -60,7 +60,7 @@ class LuaThread;
 
 class LuaState /*abstract*/
 {
-	public:
+public:
 	LuaState(Script::Manager *manager);
 	virtual ~LuaState();
 
@@ -710,7 +710,7 @@ class LuaState /*abstract*/
 	int lua_getWorldTime();
 	int lua_getWorldUpTime();
 
-	protected:
+protected:
 	// Members
 	lua_State *state;
 	Script::Manager *manager;
@@ -775,7 +775,7 @@ template <class E, int size_> inline void LuaState::pushEnum(const BitEnum<E, si
 
 class LuaThread : public LuaState
 {
-	public:
+public:
 	LuaThread(Script::Manager *manager, const std::string &name);
 	LuaThread(Script::Manager *manager, lua_State *L);
 	virtual ~LuaThread();
@@ -790,7 +790,7 @@ class LuaThread : public LuaState
 	// Returns a sweetly formatted stack trace
 	std::string report(const std::string &extramessage = "");
 
-	protected:
+protected:
 	int reference;
 	std::string name;
 	int32_t thread_state;
@@ -801,7 +801,7 @@ typedef boost::weak_ptr<LuaThread> LuaThread_wptr;
 
 class LuaStateManager : public LuaState
 {
-	public:
+public:
 	LuaStateManager(Script::Manager *man);
 	virtual ~LuaStateManager();
 
@@ -825,7 +825,7 @@ class LuaStateManager : public LuaState
 		}
 	};
 
-	protected:
+protected:
 	typedef std::map<lua_State *, LuaThread_ptr> ThreadMap;
 	ThreadMap threads;
 	std::priority_queue<ThreadSchedule> queued_threads;

@@ -46,7 +46,7 @@ enum cylinderlink_t { LINK_OWNER, LINK_PARENT, LINK_TOPPARENT, LINK_NEAR };
 
 class Cylinder
 {
-	public:
+public:
 	virtual ~Cylinder()
 	{
 	}
@@ -246,7 +246,7 @@ class Cylinder
 
 class VirtualCylinder : public Cylinder
 {
-	public:
+public:
 	virtual ~VirtualCylinder();
 	static VirtualCylinder *virtualCylinder;
 

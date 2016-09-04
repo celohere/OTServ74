@@ -32,7 +32,7 @@ struct LootBlock;
 
 class CreatureManager
 {
-	public:
+public:
 	CreatureManager();
 	~CreatureManager();
 
@@ -48,7 +48,7 @@ class CreatureManager
 
 	static uint32_t getLootRandom();
 
-	private:
+private:
 	bool deserializeSpell(xmlNodePtr node, SpellBlock &sb);
 	bool loadMonsterType(const std::string &file, const std::string &monster_name, bool reloading = false);
 

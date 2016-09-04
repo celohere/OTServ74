@@ -27,7 +27,7 @@
 
 class CombatSource
 {
-	public:
+public:
 	CombatSource();
 	CombatSource(Creature *creature, Item *item, bool condition);
 	CombatSource(Creature *creature);
@@ -46,7 +46,7 @@ class CombatSource
 	void setSourceItem(Item *_item);
 	void setSourceIsCondition(bool b);
 
-	private:
+private:
 	Creature *creature;
 	Item *item;
 	bool condition;
@@ -104,7 +104,7 @@ Position getCasterPosition(const Creature *creature, Direction dir);
 
 class MagicField : public Item
 {
-	public:
+public:
 	MagicField(uint16_t _type);
 	~MagicField();
 

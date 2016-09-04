@@ -37,7 +37,7 @@ enum DBParam_t { DBPARAM_MULTIINSERT = 1 };
 
 class DatabaseDriver
 {
-	public:
+public:
 	/**
 	* Singleton implementation.
 	*
@@ -75,7 +75,7 @@ class DatabaseDriver
 		return m_connected;
 	}
 
-	protected:
+protected:
 	/**
 	* Transaction related methods.
 	*
@@ -93,7 +93,7 @@ class DatabaseDriver
 	virtual bool rollback() = 0;
 	virtual bool commit() = 0;
 
-	public:
+public:
 	/**
 	* Executes command.
 	*
@@ -153,7 +153,7 @@ class DatabaseDriver
 	*/
 	virtual void freeResult(DBResult *res);
 
-	protected:
+protected:
 	/**
 	 * Executes a query directly
 	 */
@@ -167,13 +167,13 @@ class DatabaseDriver
 
 	bool m_connected;
 
-	private:
+private:
 	static DatabaseDriver *_instance;
 };
 
 class DBResult : public boost::enable_shared_from_this<DBResult>
 {
-	public:
+public:
 	/** Get the Integer value of a field in database
 	*\return The Integer value of the selected field and row
 	*\param s The name of the field
@@ -235,7 +235,7 @@ class DBResult : public boost::enable_shared_from_this<DBResult>
 		return true;
 	}
 
-	protected:
+protected:
 	DBResult(){};
 	virtual ~DBResult(){};
 };
@@ -250,7 +250,7 @@ class DBQuery : public std::ostringstream
 {
 	friend class DatabaseDriver;
 
-	public:
+public:
 	DBQuery();
 	~DBQuery();
 
@@ -259,7 +259,7 @@ class DBQuery : public std::ostringstream
 		str("");
 	}
 
-	protected:
+protected:
 	static boost::recursive_mutex database_lock;
 };
 
@@ -271,7 +271,7 @@ class DBQuery : public std::ostringstream
  */
 class DBInsert
 {
-	public:
+public:
 	/**
 	* Associates with given database handler.
 	*
@@ -312,7 +312,7 @@ class DBInsert
 	 */
 	uint64_t getInsertID();
 
-	protected:
+protected:
 	DatabaseDriver *m_db;
 	bool m_multiLine;
 	uint32_t m_rows;
@@ -322,7 +322,7 @@ class DBInsert
 
 class DBTransaction
 {
-	public:
+public:
 	DBTransaction(DatabaseDriver *database)
 	{
 		m_database = database;
@@ -352,7 +352,7 @@ class DBTransaction
 		}
 	}
 
-	private:
+private:
 	enum TransactionStates_t { STATE_NO_START, STATE_START, STEATE_COMMIT };
 	TransactionStates_t m_state;
 	DatabaseDriver *m_database;

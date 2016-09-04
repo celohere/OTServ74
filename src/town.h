@@ -28,7 +28,7 @@
 
 class Town
 {
-	public:
+public:
 	Town(uint32_t _townid);
 
 	const Position &getTemplePosition() const;
@@ -38,7 +38,7 @@ class Town
 	void setName(const std::string &_townName);
 	uint32_t getTownID() const;
 
-	private:
+private:
 	uint32_t townid;
 	std::string townName;
 	Position posTemple;
@@ -48,7 +48,7 @@ typedef std::map<uint32_t, Town *> TownMap;
 
 class Towns
 {
-	public:
+public:
 	static Towns *getInstance();
 
 	bool addTown(uint32_t _townid, Town *town);
@@ -59,7 +59,7 @@ class Towns
 	TownMap::const_iterator getTownBegin() const;
 	TownMap::const_iterator getTownEnd() const;
 
-	private:
+private:
 	TownMap townMap;
 };
 

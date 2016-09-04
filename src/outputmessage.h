@@ -40,7 +40,7 @@ class OutputMessage : public NetworkMessage, boost::noncopyable
 
 	OutputMessage();
 
-	public:
+public:
 	~OutputMessage();
 
 	char *getOutputBuffer();
@@ -84,7 +84,7 @@ class OutputMessage : public NetworkMessage, boost::noncopyable
 	}
 #endif
 
-	protected:
+protected:
 #ifdef __TRACK_NETWORK__
 	std::list<std::string> last_uses;
 #endif
@@ -125,7 +125,7 @@ typedef boost::shared_ptr<OutputMessage> OutputMessage_ptr;
 
 class OutputMessagePool
 {
-	public:
+public:
 	OutputMessagePool();
 	~OutputMessagePool();
 
@@ -146,7 +146,7 @@ class OutputMessagePool
 	size_t getAutoMessageCount() const;
 	void addToAutoSend(OutputMessage_ptr msg);
 
-	protected:
+protected:
 	void configureOutputMessage(OutputMessage_ptr msg, Protocol *protocol, bool autosend);
 	void releaseMessage(OutputMessage *msg);
 	void internalReleaseMessage(OutputMessage *msg);

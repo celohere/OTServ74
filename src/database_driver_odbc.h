@@ -49,7 +49,7 @@
 */
 class DatabaseODBC : public DatabaseDriver
 {
-	public:
+public:
 	DatabaseODBC();
 	virtual ~DatabaseODBC();
 
@@ -72,7 +72,7 @@ class DatabaseODBC : public DatabaseDriver
 	virtual std::string escapeString(const std::string &s);
 	virtual std::string escapeBlob(const char *s, uint32_t length);
 
-	protected:
+protected:
 	virtual bool internalQuery(const std::string &query);
 	virtual DBResult_ptr internalSelectQuery(const std::string &query);
 	virtual void freeResult(DBResult *res);
@@ -87,7 +87,7 @@ class ODBCResult : public DBResult
 {
 	friend class DatabaseODBC;
 
-	public:
+public:
 	virtual int32_t getDataInt(const std::string &s);
 	virtual uint32_t getDataUInt(const std::string &s);
 	virtual int64_t getDataLong(const std::string &s);
@@ -97,7 +97,7 @@ class ODBCResult : public DBResult
 	virtual DBResult_ptr advance();
 	virtual bool empty();
 
-	protected:
+protected:
 	ODBCResult(SQLHSTMT stmt);
 	virtual ~ODBCResult();
 

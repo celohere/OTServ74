@@ -76,7 +76,7 @@ typedef ItemMultiIndexType::iterator ItemMultiIndexTypeIterator;
 template <class T, class T_iter, class E, class E_iter, class C>
 class TileItemBaseIterator : public std::iterator<std::bidirectional_iterator_tag, C *>
 {
-	public:
+public:
 	typedef TileItemBaseIterator<T, T_iter, E, E_iter, C> this_type;
 
 	TileItemBaseIterator() : vector(NULL), multiIndex(NULL)
@@ -264,7 +264,7 @@ class TileItemBaseIterator : public std::iterator<std::bidirectional_iterator_ta
 		return multiIndex_pos;
 	}
 
-	private:
+private:
 	T vector;
 	T_iter vector_pos;
 
@@ -279,7 +279,7 @@ typedef TileItemBaseIterator<const ItemVector *, ItemVector::const_iterator, con
 
 class Tile : public Cylinder
 {
-	public:
+public:
 	static Tile &null_tile;
 	Tile(uint16_t x, uint16_t y, uint16_t z);
 	virtual ~Tile();
@@ -544,7 +544,7 @@ class Tile : public Cylinder
 	// ItemMultiIndex is modified.
 	void items_onItemModified(Item *item);
 
-	private:
+private:
 	void onAddTileItem(Item *item);
 	void onUpdateTileItem(Item *oldItem, const ItemType &oldType, Item *newItem, const ItemType &newType);
 	void onRemoveTileItem(const SpectatorVec &list, std::vector<uint32_t> &oldStackPosVector, Item *item);
@@ -552,7 +552,7 @@ class Tile : public Cylinder
 
 	void updateTileFlags(Item *item, bool removed);
 
-	protected:
+protected:
 	bool is_indexed() const
 	{
 		return hasFlag(TILEPROP_INDEXED_TILE);
@@ -576,11 +576,11 @@ class Tile : public Cylinder
 		creatures_insert(creatures_end(), creature);
 	}
 
-	public:
+public:
 	QTreeLeafNode *qt_node;
 	Item *ground;
 
-	protected:
+protected:
 	uint16_t downItemCount;
 	Position tilePos;
 	uint32_t m_flags;
@@ -596,7 +596,7 @@ class DynamicTile : public Tile
 	CreatureVector creatures;
 	ItemVector items;
 
-	public:
+public:
 	DynamicTile(uint16_t x, uint16_t y, uint16_t z);
 	~DynamicTile();
 
@@ -780,7 +780,7 @@ class DynamicTile : public Tile
 		return creatures.size();
 	}
 
-	protected:
+protected:
 	TileItemIterator items_insert(TileItemIterator _where, Item *item)
 	{
 		ItemVector::iterator it = items.insert(_where.getVectorPos(), item);
@@ -819,7 +819,7 @@ class StaticTile : public Tile
 	static ItemVector null_items;
 	static CreatureVector null_creatures;
 
-	public:
+public:
 	StaticTile(uint16_t x, uint16_t y, uint16_t z);
 	~StaticTile();
 
@@ -1003,7 +1003,7 @@ class StaticTile : public Tile
 		return (creatures ? (uint32_t)creatures->size() : 0);
 	}
 
-	protected:
+protected:
 	TileItemIterator items_insert(TileItemIterator _where, Item *item)
 	{
 		if (!items) {
@@ -1053,7 +1053,7 @@ class IndexedTile : public Tile
 	ItemMultiIndex items;
 	CreatureVector creatures;
 
-	public:
+public:
 	IndexedTile(uint16_t x, uint16_t y, uint16_t z);
 	~IndexedTile();
 
@@ -1240,7 +1240,7 @@ class IndexedTile : public Tile
 		return creatures.size();
 	}
 
-	protected:
+protected:
 	TileItemIterator items_insert(TileItemIterator _where, Item *item)
 	{
 		std::pair<ItemMultiIndexRndIterator, bool> it = items.insert(_where.getMultiIndexPos(), item);

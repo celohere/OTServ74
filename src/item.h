@@ -98,7 +98,7 @@ enum Attr_ReadValue { ATTR_READ_CONTINUE, ATTR_READ_ERROR, ATTR_READ_END };
 
 class Item : virtual public Thing, public ItemAttributes
 {
-	public:
+public:
 	// Factory member to create item of right type based on type
 	static Item *CreateItem(const uint16_t _type, uint16_t _count = 0);
 	static Item *CreateItem(const uint16_t _type, FluidType _fluid)
@@ -471,7 +471,7 @@ class Item : virtual public Thing, public ItemAttributes
 		return Item::items[id].combatType;
 	}
 
-	protected:
+protected:
 	// If weight description is needed from outside of item class
 	// use the other getWeightDescription
 	std::string getWeightDescription(double weight) const;

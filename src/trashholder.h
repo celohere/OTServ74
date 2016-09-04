@@ -28,7 +28,7 @@
 
 class TrashHolder : public Item, public Cylinder
 {
-	public:
+public:
 	TrashHolder(uint16_t _type, MagicEffect _effect = MAGIC_EFFECT_NONE);
 	~TrashHolder();
 
@@ -73,7 +73,7 @@ class TrashHolder : public Item, public Cylinder
 	                                    bool isCompleteRemoval,
 	                                    cylinderlink_t link = LINK_OWNER);
 
-	private:
+private:
 	MagicEffect effect;
 };
 

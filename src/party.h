@@ -31,7 +31,7 @@ typedef std::vector<Player *> PlayerVector;
 
 class Party
 {
-	public:
+public:
 	Party(Player *_leader);
 	~Party();
 
@@ -68,7 +68,7 @@ class Party
 
 	const PlayerVector &getMemberList() const;
 
-	private:
+private:
 	bool sharedExpActive;
 	bool sharedExpEnabled;
 

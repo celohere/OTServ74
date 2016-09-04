@@ -31,10 +31,10 @@ enum TargetSearchType_t { TARGETSEARCH_DEFAULT, TARGETSEARCH_RANDOM, TARGETSEARC
 
 class Actor : public Creature
 {
-	private:
+private:
 	Actor(CreatureType mtype);
 
-	public:
+public:
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 	static uint32_t monsterCount;
 #endif
@@ -225,7 +225,7 @@ class Actor : public Creature
 	                   bool checkDefense = false,
 	                   bool checkArmor = false);
 
-	private:
+private:
 	CreatureList targetList;
 	CreatureList friendList;
 

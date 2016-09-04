@@ -26,7 +26,7 @@
 
 class Position
 {
-	public:
+public:
 	Position();
 	Position(int32_t _x, int32_t _y, int32_t _z);
 
@@ -68,7 +68,7 @@ std::ostream &operator<<(std::ostream &, const Direction &);
 
 class PositionEx : public Position
 {
-	public:
+public:
 	PositionEx(int32_t _x, int32_t _y, int32_t _z, int32_t _stackpos = 0);
 	PositionEx(const Position &p);
 	PositionEx(const PositionEx &p);

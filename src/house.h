@@ -30,7 +30,7 @@
 
 class AccessList
 {
-	public:
+public:
 	AccessList();
 	~AccessList();
 
@@ -43,7 +43,7 @@ class AccessList
 
 	void getList(std::string &_list) const;
 
-	private:
+private:
 	typedef std::unordered_set<uint32_t> PlayerList;
 	typedef std::list<std::pair<uint32_t, std::string>> GuildList;
 
@@ -58,7 +58,7 @@ class AccessList
 
 class Door : public Item
 {
-	public:
+public:
 	Door(uint16_t _type);
 	virtual ~Door();
 
@@ -100,10 +100,10 @@ class Door : public Item
 	virtual void onRemoved();
 	void copyAttributes(Item *item);
 
-	protected:
+protected:
 	void setHouse(House *_house);
 
-	private:
+private:
 	House *house;
 	AccessList *accessList;
 	friend class House;
@@ -124,7 +124,7 @@ typedef std::list<BedItem *> HouseBedItemList;
 
 class House
 {
-	public:
+public:
 	enum syncflags_t {
 		HOUSE_SYNC_TOWNID = 0,
 		HOUSE_SYNC_NAME = 1 << 0,
@@ -306,7 +306,7 @@ class House
 	// updates, for example)
 	void cleanHouse();
 
-	private:
+private:
 	void updateDoorDescription();
 	bool transferToDepot();
 
@@ -343,7 +343,7 @@ enum RentPeriod_t {
 
 class Houses
 {
-	public:
+public:
 	Houses();
 	~Houses();
 
@@ -383,7 +383,7 @@ class Houses
 
 	bool payHouse(House *house, time_t time);
 
-	private:
+private:
 	RentPeriod_t rentPeriod;
 	HouseMap houseMap;
 	friend class IOMapSerialize;

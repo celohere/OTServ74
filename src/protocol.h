@@ -36,7 +36,7 @@ typedef boost::shared_ptr<Connection> Connection_ptr;
 
 class Protocol : boost::noncopyable
 {
-	public:
+public:
 	Protocol(Connection_ptr connection)
 	{
 		m_connection = connection;
@@ -86,7 +86,7 @@ class Protocol : boost::noncopyable
 		return --m_refCount;
 	}
 
-	protected:
+protected:
 	// Use this function for autosend messages only
 	OutputMessage_ptr getOutputBuffer();
 
@@ -125,7 +125,7 @@ class Protocol : boost::noncopyable
 	virtual void deleteProtocolTask();
 	friend class Connection;
 
-	private:
+private:
 	OutputMessage_ptr m_outputBuffer;
 	Connection_ptr m_connection;
 	bool m_encryptionEnabled;

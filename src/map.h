@@ -49,7 +49,7 @@ struct AStarNode {
 
 class AStarNodes
 {
-	public:
+public:
 	AStarNodes();
 	~AStarNodes(){};
 
@@ -66,7 +66,7 @@ class AStarNodes
 	static int32_t getTileWalkCost(const Creature *creature, const Tile *tile);
 	int32_t getEstimatedDistance(int32_t x, int32_t y, int32_t xGoal, int32_t yGoal);
 
-	private:
+private:
 	AStarNode nodes[MAX_NODES];
 	std::bitset<MAX_NODES> openNodes;
 	uint32_t curNode;
@@ -74,7 +74,7 @@ class AStarNodes
 
 template <class T> class lessPointer : public std::binary_function<T *, T *, bool>
 {
-	public:
+public:
 	bool operator()(T *&t1, T *&t2)
 	{
 		return *t1 < *t2;
@@ -94,7 +94,7 @@ class FrozenPathingConditionCall;
 
 class QTreeNode
 {
-	public:
+public:
 	QTreeNode();
 	virtual ~QTreeNode();
 
@@ -106,7 +106,7 @@ class QTreeNode
 	static QTreeLeafNode *getLeafStatic(QTreeNode *root, uint32_t x, uint32_t y);
 	QTreeLeafNode *createLeaf(uint32_t x, uint32_t y, uint32_t level);
 
-	protected:
+protected:
 	bool m_isLeaf;
 	QTreeNode *m_child[4];
 
@@ -115,7 +115,7 @@ class QTreeNode
 
 class QTreeLeafNode : public QTreeNode
 {
-	public:
+public:
 	QTreeLeafNode();
 	virtual ~QTreeLeafNode();
 
@@ -137,7 +137,7 @@ class QTreeLeafNode : public QTreeNode
 	void addCreature(Creature *c);
 	void removeCreature(Creature *c);
 
-	protected:
+protected:
 	static bool newLeaf;
 	QTreeLeafNode *m_leafS;
 	QTreeLeafNode *m_leafE;
@@ -155,7 +155,7 @@ class QTreeLeafNode : public QTreeNode
 
 class Map
 {
-	public:
+public:
 	Map();
 	~Map();
 
@@ -268,7 +268,7 @@ class Map
 	// Waypoints on the map
 	Waypoints waypoints;
 
-	protected:
+protected:
 	uint32_t mapWidth, mapHeight;
 	std::string spawnfile;
 	std::string housefile;

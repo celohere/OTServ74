@@ -63,7 +63,7 @@ typedef std::map<uint32_t, ConnectBlock> IpConnectMap;
 
 class BanManager
 {
-	public:
+public:
 	BanManager()
 	{
 	}
@@ -125,7 +125,7 @@ class BanManager
 	uint32_t getNotationsCount(uint32_t account) const;
 	std::vector<Ban> getBans(BanType_t type);
 
-	protected:
+protected:
 	mutable boost::recursive_mutex banLock;
 
 	IpLoginMap ipLoginMap;

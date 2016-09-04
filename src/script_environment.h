@@ -49,7 +49,7 @@ typedef uint64_t ObjectID;
 
 class Environment
 {
-	public:
+public:
 	Environment();
 	~Environment();
 
@@ -75,7 +75,7 @@ class Environment
 	bool removeObject(ObjectID id);
 	bool removeThing(Thing *thing);
 
-	public: // Event maps
+public: // Event maps
 	// Listener API
 	// Cleanup must be called when no scripts are running as it will invalidate
 	// the listener maps
@@ -132,7 +132,7 @@ class Environment
 	} Generic;
 	SpecificListenerMap specific_listeners;
 
-	protected:
+protected:
 	bool stopListener(ListenerList &list, uint32_t id);
 	bool stopListener(ListenerItemMap &item_map, uint32_t id);
 	bool stopListener(ListenerStringMap &list, uint32_t id);

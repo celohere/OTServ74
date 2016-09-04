@@ -27,7 +27,7 @@
 
 class IOMap
 {
-	public:
+public:
 	IOMap()
 	{
 	}
@@ -82,7 +82,7 @@ class IOMap
 		errorString = _errorString;
 	}
 
-	protected:
+protected:
 	std::string errorString;
 };
 

@@ -46,7 +46,7 @@ enum ChannelID {
 
 class ChatChannel
 {
-	public:
+public:
 	ChatChannel(uint16_t channelId, std::string channelName);
 	virtual ~ChatChannel();
 
@@ -70,7 +70,7 @@ class ChatChannel
 	// Call with NULL to make everyone hear again.
 	void makePlayerDeaf(Player *p);
 
-	protected:
+protected:
 	UsersMap m_users;
 	Player *m_deaf_user;
 	std::string m_name;
@@ -79,7 +79,7 @@ class ChatChannel
 
 class PrivateChatChannel : public ChatChannel
 {
-	public:
+public:
 	PrivateChatChannel(uint16_t channelId, std::string channelName);
 	virtual ~PrivateChatChannel();
 
@@ -96,7 +96,7 @@ class PrivateChatChannel : public ChatChannel
 
 	void closeChannel();
 
-	protected:
+protected:
 	typedef std::map<uint32_t, Player *> InvitedMap;
 
 	InvitedMap m_invites;
@@ -107,7 +107,7 @@ typedef std::list<ChatChannel *> ChannelList;
 
 class Chat
 {
-	public:
+public:
 	Chat();
 	~Chat();
 	ChatChannel *createChannel(Player *player, uint16_t channelId);
@@ -132,7 +132,7 @@ class Chat
 	ChatChannel *getChannelById(uint16_t channelId);
 	PrivateChatChannel *getPrivateChannel(Player *player);
 
-	private:
+private:
 	typedef std::map<uint16_t, ChatChannel *> NormalChannelMap;
 	typedef std::map<uint32_t, ChatChannel *> GuildChannelMap;
 	typedef std::map<Party *, PrivateChatChannel *> PartyChannelMap;

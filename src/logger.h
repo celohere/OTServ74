@@ -37,14 +37,14 @@ enum eLogType { LOGTYPE_EVENT, LOGTYPE_WARNING, LOGTYPE_ERROR };
 
 class Logger
 {
-	public:
+public:
 	Logger();
 	~Logger();
 	static Logger *getInstance();
 
 	void logMessage(const char *channel, eLogType type, int level, std::string message, const char *func);
 
-	private:
+private:
 	FILE *m_file;
 };
 

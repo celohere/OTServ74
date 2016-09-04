@@ -35,7 +35,7 @@ typedef std::map<std::string, std::string> Headers;
 
 class Request
 {
-	public:
+public:
 	Request();
 
 	Request &url(const std::string &url);
@@ -55,7 +55,7 @@ class Request
 	std::string responseData() const;
 	Headers responseHeaders() const;
 
-	protected:
+protected:
 	// Request data
 	std::string requestUrl;
 	std::string requestData;

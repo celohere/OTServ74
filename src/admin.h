@@ -125,7 +125,7 @@ enum { ENCRYPTION_RSA1024XTEA = 1 };
 
 class AdminProtocolConfig
 {
-	public:
+public:
 	AdminProtocolConfig();
 	~AdminProtocolConfig();
 
@@ -149,7 +149,7 @@ class AdminProtocolConfig
 
 	RSA *getRSAKey(uint8_t type);
 
-	protected:
+protected:
 	bool m_enabled;
 	bool m_onlyLocalHost;
 	int32_t m_maxConnections;
@@ -165,7 +165,7 @@ class AdminProtocolConfig
 
 class ProtocolAdmin : public Protocol
 {
-	public:
+public:
 	// static protocol information
 	enum { server_sends_first = false };
 	enum { protocol_identifier = 0xFE }; // Not required as we send first
@@ -186,7 +186,7 @@ class ProtocolAdmin : public Protocol
 
 	virtual void onRecvFirstMessage(NetworkMessage &msg);
 
-	protected:
+protected:
 	virtual void deleteProtocolTask();
 
 	void adminCommandOpenServer();
@@ -208,7 +208,7 @@ class ProtocolAdmin : public Protocol
 		LOGGED_IN
 	};
 
-	private:
+private:
 	int32_t m_loginTries;
 	ConnectionState_t m_state;
 	time_t m_lastCommand;

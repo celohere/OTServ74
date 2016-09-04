@@ -44,7 +44,7 @@ struct LightInfo {
 // class ConditionEffect
 class ConditionEffect
 {
-	public:
+public:
 	enum Type {
 		// periodic
 		PERIODIC_HEAL,
@@ -431,7 +431,7 @@ class ConditionEffect
 	bool unserialize(PropStream &propStream);
 	bool serialize(PropWriteStream &propWriteStream);
 
-	protected:
+protected:
 	int32_t getStatValue(Creature *creature, PlayerStatType statType, int32_t percent, int32_t value) const;
 	int32_t getSkillValue(Creature *creature, SkillType skillType, int32_t percent, int32_t value) const;
 
@@ -448,7 +448,7 @@ class ConditionEffect
 
 class Condition
 {
-	public:
+public:
 	static Condition *
 	createCondition(ConditionId id, uint32_t ticks, uint32_t sourceId = 0, uint32_t flags = 0);
 
@@ -549,7 +549,7 @@ class Condition
 	bool unserialize(PropStream &propStream);
 	bool serialize(PropWriteStream &propWriteStream);
 
-	protected:
+protected:
 	std::string name;
 	CombatType combatType;
 	MechanicType mechanicType;

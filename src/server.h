@@ -44,7 +44,7 @@ typedef std::vector<IPAddress> IPAddressList;
 
 class ServiceBase : boost::noncopyable
 {
-	public:
+public:
 	virtual ~ServiceBase()
 	{
 	} // Redundant, but stifles compiler warnings
@@ -59,7 +59,7 @@ class ServiceBase : boost::noncopyable
 
 template <typename ProtocolType> class Service : public ServiceBase
 {
-	public:
+public:
 	bool is_single_socket() const
 	{
 		return ProtocolType::server_sends_first;
@@ -89,7 +89,7 @@ template <typename ProtocolType> class Service : public ServiceBase
 // it on to the service
 class ServicePort : boost::noncopyable, public boost::enable_shared_from_this<ServicePort>
 {
-	public:
+public:
 	ServicePort(boost::asio::io_service &io_service);
 	~ServicePort();
 
@@ -107,7 +107,7 @@ class ServicePort : boost::noncopyable, public boost::enable_shared_from_this<Se
 	              boost::asio::ip::tcp::socket *socket,
 	              const boost::system::error_code &error);
 
-	protected:
+protected:
 	void accept(Acceptor_ptr acceptor);
 
 	boost::asio::io_service &m_io_service;
@@ -126,7 +126,7 @@ class ServiceManager : boost::noncopyable
 {
 	ServiceManager(const ServiceManager &);
 
-	public:
+public:
 	ServiceManager();
 	~ServiceManager();
 
@@ -143,7 +143,7 @@ class ServiceManager : boost::noncopyable
 	}
 	std::list<uint16_t> get_ports() const;
 
-	protected:
+protected:
 	void die();
 
 	std::map<uint16_t, ServicePort_ptr> m_acceptors;

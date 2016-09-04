@@ -35,7 +35,7 @@ template <typename T> class Singleton : boost::noncopyable
 		m_pointer.reset(new T);
 	}
 
-	public:
+public:
 	/// Initialize the internal instance if still not initialized
 	/// and returns it.
 	///
@@ -49,7 +49,7 @@ template <typename T> class Singleton : boost::noncopyable
 		return m_pointer.get();
 	}
 
-	private:
+private:
 	/// A scoped pointer holding the actual resource.
 	static boost::scoped_ptr<T> m_pointer;
 

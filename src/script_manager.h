@@ -34,7 +34,7 @@ typedef shared_ptr<LuaClassType> LuaClassType_ptr;
 
 class Manager : public LuaStateManager
 {
-	public:
+public:
 	Manager(Environment &e);
 	virtual ~Manager();
 
@@ -47,14 +47,14 @@ class Manager : public LuaStateManager
 	int32_t eventsDiscarded() const;
 	int32_t functionsCalled() const;
 
-	protected:
+protected:
 	// This actually registers functions!
 	// Defined in script functions.cpp
 	void registerFunctions();
 	void registerClasses();
 	void registerMetaMethods();
 
-	protected:
+protected:
 	// Internal representation of functions
 	typedef int (LuaState::*CallbackFunctionType)();
 
@@ -114,12 +114,12 @@ class Manager : public LuaStateManager
 
 class LuaClassType
 {
-	public:
+public:
 	LuaClassType(Manager &manager, std::string name, std::string parent_name = "");
 
 	bool isType(const std::string &type) const;
 
-	protected:
+protected:
 	Manager &manager;
 	std::string name;
 	std::vector<std::string> parent_classes;

@@ -49,7 +49,7 @@ typedef std::list<itemBlock> ItemBlockList;
 /** Class responsible for loading players from database. */
 class IOPlayer
 {
-	public:
+public:
 	static IOPlayer *instance();
 
 	/** Load a player
@@ -87,7 +87,7 @@ class IOPlayer
 	bool isPlayerOnlineByAccount(uint32_t acc);
 	bool cleanOnlineInfo();
 
-	protected:
+protected:
 	bool storeNameByGuid(DatabaseDriver &mysql, uint32_t guid);
 
 	struct StringCompareCase {

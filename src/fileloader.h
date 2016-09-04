@@ -52,7 +52,7 @@ struct NodeStruct {
 		}
 	}
 
-	private:
+private:
 	static void clearNext(NodeStruct *node)
 	{
 		NodeStruct *deleteNode = node;
@@ -96,7 +96,7 @@ enum FILELOADER_ERRORS {
 
 class FileLoader
 {
-	public:
+public:
 	FileLoader();
 	virtual ~FileLoader();
 
@@ -119,7 +119,7 @@ class FileLoader
 		m_lastError = ERROR_NONE;
 	}
 
-	protected:
+protected:
 	enum SPECIAL_BYTES { NODE_START = 0xFE, NODE_END = 0xFF, ESCAPE_CHAR = 0xFD };
 
 	bool parseNode(NodeStruct *node);
@@ -130,7 +130,7 @@ class FileLoader
 	inline bool safeSeek(unsigned long pos);
 	inline bool safeTell(long &pos);
 
-	public:
+public:
 	inline bool writeData(const void *data, int size, bool unescape)
 	{
 		for (int i = 0; i < size; ++i) {
@@ -153,7 +153,7 @@ class FileLoader
 		return true;
 	}
 
-	protected:
+protected:
 	FILE *m_file;
 	FILELOADER_ERRORS m_lastError;
 	NodeStruct *m_root;
@@ -179,7 +179,7 @@ class FileLoader
 
 class PropStream
 {
-	public:
+public:
 	PropStream()
 	{
 		end = NULL;
@@ -299,14 +299,14 @@ class PropStream
 		return true;
 	}
 
-	protected:
+protected:
 	const char *p;
 	const char *end;
 };
 
 class PropWriteStream
 {
-	public:
+public:
 	PropWriteStream()
 	{
 		buffer = (char *)malloc(32 * sizeof(char));
@@ -394,7 +394,7 @@ class PropWriteStream
 		size = size + str_len;
 	}
 
-	protected:
+protected:
 	char *buffer;
 	uint32_t buffer_size;
 	uint32_t size;

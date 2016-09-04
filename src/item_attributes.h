@@ -29,7 +29,7 @@ class PropStream;
 
 class ItemAttribute
 {
-	public:
+public:
 	ItemAttribute();
 	ItemAttribute(const std::string &v);
 	ItemAttribute(int32_t v);
@@ -55,7 +55,7 @@ class ItemAttribute
 	const bool *getBoolean() const;
 	boost::any get() const;
 
-	private:
+private:
 	enum { STRING = 1, INTEGER = 2, FLOAT = 3, BOOLEAN = 4, NONE = 0 } m_type;
 
 	union {
@@ -70,7 +70,7 @@ class ItemAttribute
 
 class ItemAttributes
 {
-	public:
+public:
 	ItemAttributes();
 	ItemAttributes(const ItemAttributes &i);
 	virtual ~ItemAttributes();
@@ -79,7 +79,7 @@ class ItemAttributes
 	void serializeAttributeMap(PropWriteStream &stream) const;
 	bool unserializeAttributeMap(PropStream &stream);
 
-	public:
+public:
 	void setAttribute(const std::string &key, const std::string &value);
 	void setAttribute(const std::string &key, int32_t value);
 	void setAttribute(const std::string &key, float value);
@@ -98,7 +98,7 @@ class ItemAttributes
 
 	void eraseAttribute(const std::string &key);
 
-	protected:
+protected:
 	typedef std::map<std::string, ItemAttribute> AttributeMap;
 	AttributeMap *attributes;
 

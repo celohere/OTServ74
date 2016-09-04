@@ -59,7 +59,7 @@ namespace Script
 
 class Event
 {
-	public:
+public:
 	Event();
 	virtual ~Event();
 
@@ -77,7 +77,7 @@ class Event
 	// can't be made fiend due to compiler limitations)
 	bool call(Manager &stae, Environment &environment, Listener_ptr listener);
 
-	protected:
+protected:
 	int reference;
 	bool propagate_by_default;
 };
@@ -91,7 +91,7 @@ namespace OnServerLoad
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(bool real_startup);
 	~Event();
 
@@ -107,7 +107,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	bool real_startup;
 };
 }
@@ -120,7 +120,7 @@ namespace OnServerUnload
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(bool real_shutdown);
 	~Event();
 
@@ -136,7 +136,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	bool real_shutdown;
 };
 }
@@ -162,7 +162,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *speaker, SpeakClass &speak_class, ChatChannel *channel, std::string &text);
 	~Event();
 
@@ -182,7 +182,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *speaker;
 	SpeakClass &speak_class;
 	ChatChannel *channel;
@@ -201,7 +201,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, Creature *talking_creature, const std::string &message, const SpeakClass &speak_class);
 	~Event();
 
@@ -217,7 +217,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	Creature *talking_creature;
 	const std::string &message;
@@ -243,7 +243,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *user, Item *item, const PositionEx *toPos, Creature *targetCreature, Item *targetItem, ReturnValue &retval);
 	Event(Player *user, Item *item, ReturnValue &retval);
 	~Event();
@@ -264,7 +264,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *user;
 	Item *item;
 	const PositionEx *targetPos;
@@ -293,7 +293,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player, Creature *attacked, Item *weapon);
 	~Event();
 
@@ -312,7 +312,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 	Creature *attacked;
 	Item *weapon;
@@ -340,7 +340,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	// For events that will trigger after the move is completed
 	Event(Player *user, Item *item, SlotType slot, bool equip);
 
@@ -365,10 +365,10 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	private:
+private:
 	ReturnValue dummyRetVal;
 
-	protected:
+protected:
 	Player *user;
 	Item *item;
 	SlotPosition slotPos;
@@ -409,7 +409,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *actor, Creature *moving_creature, Tile *fromTile, Tile *toTile);
 	~Event();
 
@@ -429,7 +429,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	bool isMatch(const ScriptInformation &info, Tile *tile);
 
 	Creature *actor;
@@ -449,7 +449,7 @@ namespace OnTurn
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, Direction direction);
 	~Event();
 
@@ -465,7 +465,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	Direction direction;
 };
@@ -492,7 +492,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	// For events that will trigger after the move is completed
 	Event(Creature *actor, Item *item, Tile *tile, bool addItem);
 
@@ -517,10 +517,10 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	private:
+private:
 	ReturnValue dummyRetVal;
 
-	protected:
+protected:
 	Creature *actor;
 	Item *item;
 	Tile *tile;
@@ -538,7 +538,7 @@ namespace OnJoinChannel
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *chatter, ChatChannel *chat);
 	~Event();
 
@@ -554,7 +554,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *chatter;
 	ChatChannel *channel;
 };
@@ -568,7 +568,7 @@ namespace OnLeaveChannel
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *chatter, ChatChannel *chat);
 	~Event();
 
@@ -584,7 +584,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *chatter;
 	ChatChannel *channel;
 };
@@ -605,7 +605,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(std::string &name,
 	      uint32_t &number,
 	      std::string &password,
@@ -630,7 +630,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	std::string &name;
 	uint32_t &number;
 	std::string &password;
@@ -648,7 +648,7 @@ namespace OnLogin
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player);
 	~Event();
 
@@ -664,7 +664,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 };
 }
@@ -677,7 +677,7 @@ namespace OnLogout
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player, bool forced, bool timeout);
 	~Event();
 
@@ -693,7 +693,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 	bool forced;
 	bool timeout;
@@ -708,7 +708,7 @@ namespace OnChangeOutfit
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player, std::list<Outfit> &outfitList);
 	~Event();
 
@@ -724,7 +724,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 	std::list<Outfit> &outfitList;
 };
@@ -745,7 +745,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player, std::string &desc, Thing *object);
 	~Event();
 
@@ -765,7 +765,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 	std::string &desc;
 	Thing *object;
@@ -780,7 +780,7 @@ namespace OnSpotCreature
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, Creature *spotted_creature);
 	~Event();
 
@@ -796,7 +796,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	Creature *spotted_creature;
 };
@@ -810,7 +810,7 @@ namespace OnLoseCreature
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, Creature *lose_creature);
 	~Event();
 
@@ -826,7 +826,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	Creature *lose_creature;
 };
@@ -840,7 +840,7 @@ namespace OnSpawn
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Actor *actor, bool reloading = false);
 	~Event();
 
@@ -856,7 +856,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Actor *actor;
 	bool reloading;
 };
@@ -870,7 +870,7 @@ namespace OnThink
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, int32_t interval);
 	~Event();
 
@@ -886,7 +886,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	int32_t interval;
 };
@@ -907,7 +907,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player, LevelType skill, uint32_t oldskilllevel, uint32_t newskilllevel);
 	~Event();
 
@@ -927,7 +927,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 	LevelType skill;
 	uint32_t oldSkillLevel;
@@ -943,7 +943,7 @@ namespace OnShopPurchase
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player, uint16_t itemId, int32_t type, uint32_t amount, bool ignoreCapacity, bool buyWithBackpack);
 	~Event();
 
@@ -959,7 +959,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 	uint16_t itemId;
 	int32_t type;
@@ -977,7 +977,7 @@ namespace OnShopSell
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player, uint16_t itemId, int32_t type, uint32_t amount);
 	~Event();
 
@@ -993,7 +993,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 	uint16_t itemId;
 	int32_t type;
@@ -1009,7 +1009,7 @@ namespace OnShopClose
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player);
 	~Event();
 
@@ -1025,7 +1025,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player;
 };
 }
@@ -1049,7 +1049,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player1, Item *item1, Player *player2, Item *item2);
 	~Event();
 
@@ -1069,7 +1069,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player1;
 	Item *item1;
 	Player *player2;
@@ -1096,7 +1096,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Player *player1, Item *item1, Player *player2, Item *item2, bool isCompleted);
 	~Event();
 
@@ -1116,7 +1116,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Player *player1;
 	Item *item1;
 	Player *player2;
@@ -1144,7 +1144,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, ConditionEffect &effect);
 	Event(Creature *creature, ConditionEffect &effect, ConditionEnd reason);
 	Event(Creature *creature, ConditionEffect &effect, uint32_t ticks);
@@ -1166,7 +1166,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	ConditionEffect &effect;
 	ConditionEnd reason;
@@ -1202,7 +1202,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, Creature *attacked);
 	~Event();
 
@@ -1222,7 +1222,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	Creature *attacked;
 };
@@ -1256,7 +1256,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(CombatType &combatType, CombatSource &combatSource, Creature *creature, int32_t &value);
 	~Event();
 
@@ -1276,7 +1276,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	CombatType &combatType;
 	CombatSource &combatSource;
 	Creature *creature;
@@ -1310,7 +1310,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, CombatSource &combatSource);
 	~Event();
 
@@ -1330,7 +1330,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	CombatSource &combatSource;
 };
@@ -1362,7 +1362,7 @@ struct ScriptInformation {
 
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Creature *creature, Item *corpse, Creature *killer);
 	~Event();
 
@@ -1382,7 +1382,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Creature *creature;
 	Item *corpse;
 	Creature *killer;
@@ -1397,7 +1397,7 @@ namespace OnActorLoadSpell
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(const SpellBlock &spell);
 	~Event();
 
@@ -1413,7 +1413,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Actor *actor;
 	const SpellBlock &spell;
 };
@@ -1427,7 +1427,7 @@ namespace OnActorCastSpell
 {
 class Event : public Script::Event
 {
-	public:
+public:
 	Event(Actor *actor, Creature *target, const std::string &name);
 	~Event();
 
@@ -1443,7 +1443,7 @@ class Event : public Script::Event
 	void push_instance(LuaState &state, Environment &environment);
 	void update_instance(Manager &state, Script::Environment &environment, LuaThread_ptr thread);
 
-	protected:
+protected:
 	Actor *actor;
 	Creature *target;
 	std::string name;

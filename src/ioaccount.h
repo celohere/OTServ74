@@ -26,7 +26,7 @@
 
 class IOAccount
 {
-	public:
+public:
 	IOAccount()
 	{
 	}

@@ -27,7 +27,7 @@ class Position;
 
 class Depot : public Container
 {
-	public:
+public:
 	Depot(uint16_t _type);
 	~Depot();
 
@@ -72,7 +72,7 @@ class Depot : public Container
 	// overrides
 	virtual bool canRemove() const;
 
-	private:
+private:
 	uint32_t maxDepotLimit;
 	uint32_t depotId;
 };

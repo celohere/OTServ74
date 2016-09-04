@@ -91,7 +91,7 @@ struct DeathEntry {
 		return boost::any_cast<std::string>(data);
 	}
 
-	protected:
+protected:
 	boost::any data;
 	int32_t damage;
 	bool isUnjust;
@@ -119,7 +119,7 @@ typedef std::vector<Listener_ptr> ListenerList;
 
 class FrozenPathingConditionCall
 {
-	public:
+public:
 	FrozenPathingConditionCall(const Position &_targetPos);
 	virtual ~FrozenPathingConditionCall()
 	{
@@ -132,7 +132,7 @@ class FrozenPathingConditionCall
 
 	bool isInRange(const Position &startPos, const Position &testPos, const FindPathParams &fpp) const;
 
-	protected:
+protected:
 	Position targetPos;
 };
 
@@ -142,10 +142,10 @@ class FrozenPathingConditionCall
 
 class Creature : public AutoID, virtual public Thing
 {
-	protected:
+protected:
 	Creature();
 
-	public:
+public:
 	virtual ~Creature();
 
 	virtual Creature *getCreature();
@@ -394,7 +394,7 @@ class Creature : public AutoID, virtual public Thing
 	StorageMap::const_iterator getCustomValueIteratorBegin() const;
 	StorageMap::const_iterator getCustomValueIteratorEnd() const;
 
-	protected:
+protected:
 	static const int32_t mapWalkWidth = Map_maxViewportX * 2 + 1;
 	static const int32_t mapWalkHeight = Map_maxViewportY * 2 + 1;
 	bool localMapCache[mapWalkHeight][mapWalkWidth];

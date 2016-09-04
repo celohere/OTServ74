@@ -27,7 +27,7 @@
 
 template <class T> class AutoList
 {
-	public:
+public:
 	AutoList()
 	{
 	}
@@ -55,7 +55,7 @@ template <class T> class AutoList
 
 class AutoID
 {
-	public:
+public:
 	AutoID()
 	{
 		boost::recursive_mutex::scoped_lock lockClass(autoIDLock);
@@ -82,7 +82,7 @@ class AutoID
 	uint32_t auto_id;
 	static boost::recursive_mutex autoIDLock;
 
-	protected:
+protected:
 	static uint32_t count;
 	static list_type list;
 };

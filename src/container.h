@@ -28,7 +28,7 @@
 
 class ContainerIterator
 {
-	public:
+public:
 	ContainerIterator();
 	ContainerIterator(const ContainerIterator &rhs);
 	~ContainerIterator();
@@ -41,7 +41,7 @@ class ContainerIterator
 	Item *operator*();
 	Item *operator->();
 
-	protected:
+protected:
 	ContainerIterator(Container *super);
 
 	Container *super;
@@ -53,7 +53,7 @@ class ContainerIterator
 
 class Container : public Item, public Cylinder
 {
-	public:
+public:
 	Container(uint16_t _type);
 	virtual ~Container();
 	virtual Item *clone() const;
@@ -138,7 +138,7 @@ class Container : public Item, public Cylinder
 	virtual void __internalAddThing(Thing *thing);
 	virtual void __internalAddThing(uint32_t index, Thing *thing);
 
-	private:
+private:
 	void onAddContainerItem(Item *item);
 	void onUpdateContainerItem(uint32_t index, Item *oldItem, const ItemType &oldType, Item *newItem, const ItemType &newType);
 	void onRemoveContainerItem(uint32_t index, Item *item);
@@ -146,7 +146,7 @@ class Container : public Item, public Cylinder
 	Container *getParentContainer();
 	void updateItemWeight(double diff);
 
-	protected:
+protected:
 	std::ostringstream &getContentDescription(std::ostringstream &os) const;
 
 	uint32_t maxSize;
