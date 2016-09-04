@@ -650,7 +650,6 @@ int32_t Player::getPlayerInfo(playerinfo_t playerinfo) const
 		return soulMax;
 		break;
 	default:
-		return 0;
 		break;
 	}
 
