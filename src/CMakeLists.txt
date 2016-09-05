@@ -6,6 +6,9 @@ file(GLOB_RECURSE HDR_LIST *.h)
 if(USE_SQLITE)
 	list(REMOVE_ITEM SRC_LIST ${CMAKE_CURRENT_SOURCE_DIR}/databasemysql.cpp)
 	list(REMOVE_ITEM HDR_LIST ${CMAKE_CURRENT_SOURCE_DIR}/databasemysql.h)
+elseif(USE_MYSQL)
+	list(REMOVE_ITEM SRC_LIST ${CMAKE_CURRENT_SOURCE_DIR}/databasesqlite.cpp)
+	list(REMOVE_ITEM HDR_LIST ${CMAKE_CURRENT_SOURCE_DIR}/databasesqlite.h)
 endif()
 
 
@@ -25,39 +28,39 @@ target_link_libraries(${PROJECT_NAME} -pthread ${Boost_LIBRARIES} ${GMP_LIBRARY}
 
 # libxml2 if linked statically requires zlib + iconv + lzma on Unix
 if(USE_STATIC_LIBS)
-  find_package(ZLIB REQUIRED)
-  find_package(Iconv REQUIRED)
-  target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES} ${ICONV_LIBRARIES})
-  
-  if(UNIX)
-    find_package(LZMA REQUIRED)
-    target_link_libraries(${PROJECT_NAME} ${LZMA_LIBRARIES})
-  endif()
-  
-  # notify cmake about static build
-  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_SEARCH_START_STATIC ON)
-  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_SEARCH_END_STATIC ON)
-  
-  # notify source code about static build
-  remove_definitions(-D__STATIC__)
-  add_definitions(-D__STATIC__)
+	find_package(ZLIB REQUIRED)
+	find_package(Iconv REQUIRED)
+	target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES} ${ICONV_LIBRARIES})
+
+	if(UNIX)
+		find_package(LZMA REQUIRED)
+		target_link_libraries(${PROJECT_NAME} ${LZMA_LIBRARIES})
+	endif()
+
+	# notify cmake about static build
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_SEARCH_START_STATIC ON)
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_SEARCH_END_STATIC ON)
+
+	# notify source code about static build
+	remove_definitions(-D__STATIC__)
+	add_definitions(-D__STATIC__)
 endif()
 
 # server diagnostic
 if(USE_DIAGNOSTIC)
-  remove_definitions(-D__ENABLE_SERVER_DIAGNOSTIC__)
-  add_definitions(-D__ENABLE_SERVER_DIAGNOSTIC__)
+	remove_definitions(-D__ENABLE_SERVER_DIAGNOSTIC__)
+	add_definitions(-D__ENABLE_SERVER_DIAGNOSTIC__)
 endif()
 
 # skull system
 if(USE_SKULLSYSTEM)
-  remove_definitions(-D__SKULLSYSTEM__)
-  add_definitions(-D__SKULLSYSTEM__)
+	remove_definitions(-D__SKULLSYSTEM__)
+	add_definitions(-D__SKULLSYSTEM__)
 endif()
 
 # default build type
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 
 # compile flags
@@ -69,36 +72,31 @@ endif()
 #set(CMAKE_CXX_FLAGS_RELEASE           "-Os")
 #set(CMAKE_CXX_FLAGS_PERFORMANCE       "-Ofast -mmmx -msse -msse2")
 
-# add debug definition
-if(CMAKE_BUILD_TYPE EQUAL "Debug")
-  remove_definitions(-D__DEBUG__ -D__DEBUG_NET_DETAIL__ -D__DEBUG__MOVESYS__ -D__DEBUG_CRITICALSECTION__ -D__DEBUG_HOUSES__ -D__DEBUG_PLAYERS__ -D__DEBUG_SCHEDULER__ -D__DEBUG_SCRIPT_ENVIRONMENT_OBJECTMAP__)
-  add_definitions(-DD__DEBUG__ -D__DEBUG_NET_DETAIL__ -D__DEBUG__MOVESYS__ -D__DEBUG_CRITICALSECTION__ -D__DEBUG_HOUSES__ -D__DEBUG_PLAYERS__ -D__DEBUG_SCHEDULER__ -D__DEBUG_SCRIPT_ENVIRONMENT_OBJECTMAP__)
-endif()
 
 
 # choose Lua 5.1 or LuaJIT
 if(USE_LUAJIT)
-  find_package(LuaJIT 2.0.3 REQUIRED)
-  include_directories(${LUAJIT_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${LUAJIT_LIBRARY})
+	find_package(LuaJIT 2.0.3 REQUIRED)
+	include_directories(${LUAJIT_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} ${LUAJIT_LIBRARY})
 else()
-  find_package(Lua 5.1 REQUIRED)
-  include_directories(${LUA_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES})
+	find_package(Lua 5.1 REQUIRED)
+	include_directories(${LUA_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES})
 endif()
 
 if(USE_MYSQL)
-  add_definitions(-D__USE_MYSQL__)
-  find_package(MySQL REQUIRED)
-  include_directories(${MYSQL_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${MYSQL_LIBRARY})
+	add_definitions(-D__USE_MYSQL__)
+	find_package(MySQL REQUIRED)
+	include_directories(${MYSQL_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} ${MYSQL_LIBRARY})
 endif()
 
 if(USE_SQLITE)
-  add_definitions(-D__USE_SQLITE__)
-  find_package(SQLite REQUIRED)
-  include_directories(${SQLITE_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${SQLITE_LIBRARY})
+	add_definitions(-D__USE_SQLITE__)
+	find_package(SQLite REQUIRED)
+	include_directories(${SQLITE_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} ${SQLITE_LIBRARY})
 endif()
 
 

@@ -6,50 +6,36 @@
 #include "definitions.h"
 
 
-
-
 #ifdef MULTI_SQL_DRIVERS
-#define DATABASE_VIRTUAL virtual
-#define DATABASE_CLASS _Database
-#define DBRES_CLASS _DBResult
-class _Database;
-class _DBResult;
+	#define DATABASE_VIRTUAL virtual
+	#define DATABASE_CLASS _Database
+	#define DBRES_CLASS _DBResult
+	class _Database;
+	class _DBResult;
 #else
-#define DATABASE_VIRTUAL
-
-#if defined(__USE_MYSQL__)
-#define DATABASE_CLASS DatabaseMySQL
-#define DBRES_CLASS MySQLResult
-class DatabaseMySQL;
-class MySQLResult;
-
-#elif defined(__USE_SQLITE__)
-#define DATABASE_CLASS DatabaseSQLite
-#define DBRES_CLASS SQLiteResult
-class DatabaseSQLite;
-class SQLiteResult;
-
-#elif defined(__USE_ODBC__)
-#define DATABASE_CLASS DatabaseODBC
-#define DBRES_CLASS ODBCResult
-class DatabaseODBC;
-class ODBCResult;
-
-#elif defined(__USE_PGSQL__)
-#define DATABASE_CLASS DatabasePgSQL
-#define DBRES_CLASS PgSQLResult
-class DatabasePgSQL;
-class PgSQLResult;
-
-#endif
+	#define DATABASE_VIRTUAL
+	#if defined(__USE_MYSQL__)
+		#define DATABASE_CLASS DatabaseMySQL
+		#define DBRES_CLASS MySQLResult
+		class DatabaseMySQL;
+		class MySQLResult;
+	
+	#elif defined(__USE_SQLITE__)
+		#define DATABASE_CLASS DatabaseSQLite
+		#define DBRES_CLASS SQLiteResult
+		class DatabaseSQLite;
+		class SQLiteResult;
+	#endif
 #endif
 
 typedef DATABASE_CLASS Database;
 typedef DBRES_CLASS DBResult;
 
 class DBQuery;
-
 enum DBParam_t { DBPARAM_MULTIINSERT = 1 };
+
+
+
 
 class _Database
 {
@@ -276,7 +262,6 @@ public:
 	}
 
 protected:
-	_DBResult(){};
 	DATABASE_VIRTUAL ~_DBResult(){};
 };
 
