@@ -1,29 +1,16 @@
-//////////////////////////////////////////////////////////////////////
-// OpenTibia - an opensource roleplaying game
-//////////////////////////////////////////////////////////////////////
-//
-//////////////////////////////////////////////////////////////////////
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//////////////////////////////////////////////////////////////////////
+
 #include "otpch.h"
 
+
+#include <sstream>
+#include <libxml/parser.h>
+#include <libxml/xmlmemory.h>
+
+#include "game.h"
 #include "combat.h"
 #include "configmanager.h"
 #include "const.h"
 #include "container.h"
-#include "game.h"
 #include "house.h"
 #include "item.h"
 #include "monster.h"
@@ -32,17 +19,10 @@
 #include "spells.h"
 #include "tasks.h"
 #include "tools.h"
-//[ added for beds system
-#include "beds.h"
-//]
-
-#include <libxml/parser.h>
-#include <libxml/xmlmemory.h>
-
-//#include <boost/bind.hpp>
-#include <sstream>
-
 #include "actions.h"
+#include "beds.h"
+#include "log.h"
+
 
 extern Game g_game;
 extern Spells *g_spells;
@@ -537,6 +517,8 @@ ReturnValue Action::canExecuteAction(const Player *player, const Position &toPos
 	return RET_NOERROR;
 }
 
+
+
 bool Action::executeUse(Player *player, Item *item, const PositionEx &fromPos, const PositionEx &toPos, bool extendedUse, uint32_t creatureId)
 {
 	// onUse(cid, item1, position1, item2, position2)
@@ -561,8 +543,8 @@ bool Action::executeUse(Player *player, Item *item, const PositionEx &fromPos, c
 		lua_pushnumber(L, cid);
 		LuaScriptInterface::pushThing(L, item, itemid1);
 		LuaScriptInterface::pushPosition(L, fromPos, fromPos.stackpos);
-		// std::cout << "posTo" <<  (Position)posTo << " stack" << (int)posTo.stackpos
-		// <<std::endl;
+
+
 		Thing *thing = g_game.internalGetThing(player, toPos, toPos.stackpos);
 		if (thing && (!extendedUse || thing != item)) {
 			uint32_t thingId2 = env->addThing(thing);
@@ -579,7 +561,7 @@ bool Action::executeUse(Player *player, Item *item, const PositionEx &fromPos, c
 
 		return result;
 	} else {
-		std::cout << "[Error] Call stack overflow. Action::executeUse" << std::endl;
+		LOG_ERROR("Call stack overflow");
 		return false;
 	}
 }

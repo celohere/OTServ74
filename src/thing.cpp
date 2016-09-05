@@ -1,22 +1,3 @@
-//////////////////////////////////////////////////////////////////////
-// OpenTibia - an opensource roleplaying game
-//////////////////////////////////////////////////////////////////////
-//
-//////////////////////////////////////////////////////////////////////
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//////////////////////////////////////////////////////////////////////
 #include "otpch.h"
 
 #include "creature.h"
@@ -25,116 +6,131 @@
 #include "player.h"
 #include "thing.h"
 #include "tile.h"
+#include "log.h"
 
-Thing::Thing()
+
+
+
+const Position& Thing::getPosition() const
 {
-	parent = NULL;
-	useCount = 0;
-}
-
-
-Thing::~Thing()
-{
-	//
-	// std::cout << "thing destructor " << this << std::endl;
-}
-
-Cylinder *Thing::getTopParent()
-{
-	// tile
-	if (getParent() == NULL) return dynamic_cast<Cylinder *>(this);
-
-	Cylinder *aux = getParent();
-	Cylinder *prevaux = dynamic_cast<Cylinder *>(this);
-
-	while (aux->getParent() != NULL) {
-		prevaux = aux;
-		aux = aux->getParent();
-	}
-
-	if (dynamic_cast<Cylinder *>(prevaux)) {
-		return prevaux;
-	}
-
-	return aux;
-}
-
-const Cylinder *Thing::getTopParent() const
-{
-	// tile
-	if (getParent() == NULL) return dynamic_cast<const Cylinder *>(this);
-
-	const Cylinder *aux = getParent();
-	const Cylinder *prevaux = dynamic_cast<const Cylinder *>(this);
-
-	while (aux->getParent() != NULL) {
-		prevaux = aux;
-		aux = aux->getParent();
-	}
-
-	if (dynamic_cast<const Cylinder *>(prevaux)) {
-		return prevaux;
-	}
-
-	return aux;
-}
-
-Tile *Thing::getTile()
-{
-	Cylinder *cylinder = getTopParent();
-
-#ifdef __DEBUG__MOVESYS__
-	if (!cylinder) {
-		std::cout << "Failure: [Thing::getTile()],  NULL tile" << std::endl;
-		DEBUG_REPORT
-		return &(Tile::null_tile);
-	}
-#endif
-
-	// get root cylinder
-	if (cylinder->getParent()) cylinder = cylinder->getParent();
-
-	return dynamic_cast<Tile *>(cylinder);
-}
-
-const Tile *Thing::getTile() const
-{
-	const Cylinder *cylinder = getTopParent();
-
-#ifdef __DEBUG__MOVESYS__
-	if (!cylinder) {
-		std::cout << "Failure: [Thing::getTile() const],  NULL tile" << std::endl;
-		DEBUG_REPORT
-		return &(Tile::null_tile);
-	}
-#endif
-
-	// get root cylinder
-	if (cylinder->getParent()) cylinder = cylinder->getParent();
-
-	return dynamic_cast<const Tile *>(cylinder);
-}
-
-const Position &Thing::getPosition() const
-{
-	const Tile *tile = getTile();
+	const Tile* tile = getTile();
 	if (tile) {
 		return tile->getTilePosition();
 	} else {
-#ifdef __DEBUG__MOVESYS__
-		std::cout << "Failure: [Thing::getPosition],  NULL tile" << std::endl;
-		DEBUG_REPORT
-#endif
+		LOG_DEBUG_MOVESYS("NULL TILE");
 		return Tile::null_tile.getTilePosition();
 	}
 }
 
+
+
+std::string Thing::getXRayDescription() const
+{
+	if (isRemoved())
+		return "Thing you looked at seems to be removed.";
+
+	const auto& pos = getPosition();
+	std::stringstream ret;
+	ret << "Position: [" << pos.x << ", " << pos.y << ", " << pos.z << "]";
+	return ret.str();
+}
+
+
+
+
 bool Thing::isRemoved() const
 {
-	if (parent == NULL) return true;
-
-	const Cylinder *aux = getParent();
-	if (aux->isRemoved()) return true;
-
+	if (parent == nullptr)
+		return true;
+	else if(getParent()->isRemoved())
+		return true;
+	
 	return false;
 }
+
+
+
+const Tile* Thing::getTile() const
+{
+	auto cylinder = getTopParent();
+	if (!cylinder) {
+		LOG_DEBUG_MOVESYS("NULL TILE");
+		return &Tile::null_tile;
+	}
+
+	const auto root_cylinder = cylinder->getParent();
+	if (root_cylinder)
+		cylinder = root_cylinder;
+
+	return dynamic_cast<const Tile*>(cylinder);
+}
+
+
+
+const Cylinder* Thing::getTopParent() const
+{
+	// tile
+	if (getParent() == nullptr)
+		return dynamic_cast<const Cylinder*>(this);
+
+	const Cylinder* aux = getParent();
+	const Cylinder* prevaux = dynamic_cast<const Cylinder*>(this);
+
+	while (aux->getParent() != nullptr) {
+		prevaux = aux;
+		aux = aux->getParent();
+	}
+
+	if (dynamic_cast<const Cylinder*>(prevaux))
+		return prevaux;
+
+	return aux;
+}
+
+
+
+
+Tile* Thing::getTile()
+{
+	auto cylinder = getTopParent();
+
+	if (!cylinder) {
+		LOG_DEBUG_MOVESYS("NULL TILE");
+		return &Tile::null_tile;
+	}
+
+	const auto root_cylinder = cylinder->getParent();
+	if (root_cylinder)
+		cylinder = root_cylinder;
+
+	return dynamic_cast<Tile*>(cylinder);
+}
+
+
+
+
+Cylinder* Thing::getTopParent()
+{
+	// tile
+	if (getParent() == nullptr) 
+		return dynamic_cast<Cylinder*>(this);
+
+	Cylinder* aux = getParent();
+	Cylinder* prevaux = dynamic_cast<Cylinder*>(this);
+
+	while (aux->getParent() != nullptr) {
+		prevaux = aux;
+		aux = aux->getParent();
+	}
+
+	if (dynamic_cast<Cylinder*>(prevaux))
+		return prevaux;
+
+	return aux;
+}
+
+
+
+
+
+

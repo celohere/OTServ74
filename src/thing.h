@@ -1,28 +1,19 @@
-//////////////////////////////////////////////////////////////////////
-// OpenTibia - an opensource roleplaying game
-//////////////////////////////////////////////////////////////////////
-//
-//////////////////////////////////////////////////////////////////////
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//////////////////////////////////////////////////////////////////////
+#ifndef __OTSERV_THING_H__
+#define __OTSERV_THING_H__
 
-#ifndef __THING_H__
-#define __THING_H__
+#include <sstream>
+
 #include "definitions.h"
 #include "position.h"
-#include <sstream>
+
+
+class Tile;
+class Cylinder;
+class Item;
+class Creature;
+
+
+
 
 /*Notice: remember to add new error codes to global.lua*/
 enum ReturnValue {
@@ -64,7 +55,7 @@ enum ReturnValue {
 	RET_NOTENOUGHMANA = 36,
 #ifdef __PROTOCOL_76__
 	RET_NOTENOUGHSOUL = 37,
-#endif // __PROTOCOL_76__
+#endif
 	RET_YOUAREEXHAUSTED = 38,
 	RET_PLAYERISNOTREACHABLE = 39,
 	RET_CANONLYUSETHISRUNEONCREATURES = 40,
@@ -94,88 +85,112 @@ enum ReturnValue {
 	RET_NEEDPREMIUMTOEQUIPITEM = 64
 };
 
-class Tile;
-class Cylinder;
-class Item;
-class Creature;
+
+
+
+
+
 
 class Thing
 {
-protected:
-	Thing();
-
 public:
-	virtual ~Thing();
-
-	void useThing2()
-	{
-		++useCount;
-	}
-	void releaseThing2()
-	{
-		--useCount;
-		if (useCount <= 0) delete this;
-	}
-
-	virtual std::string getDescription(int32_t lookDistance) const = 0;
-	virtual std::string getXRayDescription() const
-	{
-		if (isRemoved()) {
-			return "Thing you looked at seems to be removed.";
-		}
-		std::stringstream ret;
-		ret << "Position: [";
-		ret << getPosition().x << ", " << getPosition().y << ", " << getPosition().z << "]";
-		return ret.str();
-	}
-
-	Cylinder *getParent()
-	{
-		return parent;
-	}
-	const Cylinder *getParent() const
-	{
-		return parent;
-	}
-
-	virtual void setParent(Cylinder *cylinder)
-	{
-		parent = cylinder;
-	}
-
-	Cylinder *getTopParent(); // returns Tile/Container or a Player
-	const Cylinder *getTopParent() const;
-
-	virtual Tile *getTile();
-	virtual const Tile *getTile() const;
-
-	virtual const Position &getPosition() const;
-	virtual int getThrowRange() const = 0;
-	virtual bool isPushable() const = 0;
-
-	virtual Item *getItem()
-	{
-		return NULL;
-	}
-	virtual const Item *getItem() const
-	{
-		return NULL;
-	}
-	virtual Creature *getCreature()
-	{
-		return NULL;
-	}
-	virtual const Creature *getCreature() const
-	{
-		return NULL;
-	}
+	virtual ~Thing() = default;
+	
+	const Cylinder* getParent() const;
+	const Cylinder* getTopParent() const;
+	Cylinder* getParent();
+	Cylinder* getTopParent(); // returns Tile/Container or a Player
 
 	virtual bool isRemoved() const;
+	virtual const Tile* getTile() const;
+	virtual const Position& getPosition() const;
+	virtual std::string getXRayDescription() const;
+	virtual const Item* getItem() const;
+	virtual const Creature* getCreature() const;
+		
+	virtual Tile* getTile();
+	virtual Item* getItem();
+	virtual Creature* getCreature();
+	virtual void setParent(Cylinder* cylinder);
+
+	virtual bool isPushable() const = 0;
+	virtual int getThrowRange() const = 0;
+	virtual std::string getDescription(int32_t lookDistance) const = 0;
+
+
+	void useThing2();
+	void releaseThing2();
+	
+protected:
+	Thing() = default;
+
 
 private:
-	Cylinder *parent;
-	int32_t useCount;
+	Cylinder* parent = nullptr;
+	int32_t useCount = 0;
+
 };
 
 
-#endif //__THING_H__
+
+
+inline const Cylinder* Thing::getParent() const
+{
+	return parent;
+}
+
+
+inline const Item* Thing::getItem() const
+{
+	return nullptr;
+}
+
+
+inline const Creature* Thing::getCreature() const
+{
+	return nullptr;
+}
+
+
+inline Cylinder* Thing::getParent()
+{
+	return parent;
+}
+
+
+inline Item* Thing::getItem()
+{
+	return nullptr;
+}
+
+
+inline Creature* Thing::getCreature()
+{
+	return nullptr;
+}
+
+
+inline void Thing::setParent(Cylinder* cylinder)
+{
+	parent = cylinder;
+}
+
+
+
+inline void Thing::useThing2()
+{
+	++useCount;
+}
+
+
+inline void Thing::releaseThing2()
+{
+	--useCount;
+	if (useCount <= 0)
+		delete this;
+}
+
+
+
+
+#endif

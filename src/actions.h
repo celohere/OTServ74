@@ -21,13 +21,14 @@
 #ifndef __OTSERV_ACTIONS_H__
 #define __OTSERV_ACTIONS_H__
 
+#include <map>
+
 #include "baseevents.h"
 #include "definitions.h"
 #include "luascript.h"
 #include "position.h"
 #include "thing.h"
 
-#include <map>
 
 class Action;
 class Container;
