@@ -160,13 +160,14 @@ bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
 		// Add char list
 		output->AddByte(0x64);
 		output->AddByte((uint8_t)account.charList.size());
-		std::list<std::string>::iterator it;
-		for (it = account.charList.begin(); it != account.charList.end(); it++) {
-			output->AddString((*it));
+		
+		for (auto& name : account.charList) {
+			output->AddString(name);
 			output->AddString(g_config.getString(ConfigManager::WORLD_NAME));
 			output->AddU32(serverip);
 			output->AddU16(g_config.getNumber(ConfigManager::PORT));
 		}
+		
 		// Add premium days
 		output->AddU16(Account::getPremiumDaysLeft(account.premEnd));
 
