@@ -1,33 +1,3 @@
-# OS Cache files
-.DS_STORE
-Thumbs.db
-
-# XCode data files
-xcuserdata
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.perspectivev3
-*.xcuserstate
-project.xcworkspace/
-
-# Intermediate files
-.deps
-Makefile.in
-Makefile
-configure
-missing
-aclocal.m4
-autom4te.cache
-config.h
-config.h.in
-config.log
-config.status
-depcomp
-install-sh
-stamp-h1
-*.kate-swap
-
 # Text editor files
 *~
 *.autosave
@@ -57,10 +27,6 @@ build/
 Build/
 BUILD/
 
-#gbx binaries
-./gbx
-./gbx.exe
-./gbx.app
 
 # C C++
 # Compiled Object files
