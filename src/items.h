@@ -368,7 +368,7 @@ template <typename A> inline const A Array<A>::getElement(uint32_t id) const
 
 template <typename A> inline void Array<A>::addElement(A a, uint32_t pos)
 {
-#define INCREMENT 5000
+	const auto INCREMENT = 5000;
 	if (pos >= m_size) {
 		m_data = (A *)realloc(m_data, sizeof(A) * (pos + INCREMENT));
 		memset(m_data + m_size, 0, sizeof(A) * (pos + INCREMENT - m_size));

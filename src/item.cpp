@@ -1,24 +1,9 @@
-//////////////////////////////////////////////////////////////////////
-// OpenTibia - an opensource roleplaying game
-//////////////////////////////////////////////////////////////////////
-// Represents an item
-//////////////////////////////////////////////////////////////////////
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//////////////////////////////////////////////////////////////////////
-
 #include "otpch.h"
+
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <algorithm>
 
 #include "actions.h"
 #include "beds.h"
@@ -34,19 +19,17 @@
 #include "trashholder.h"
 #include "weapons.h"
 
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+
 
 extern Game g_game;
 extern Weapons *g_weapons;
 
 Items Item::items;
 
-Item *Item::CreateItem(const uint16_t _type, uint16_t _count /*= 1*/)
-{
-	Item *newItem = NULL;
 
+Item* Item::CreateItem(const uint16_t _type, uint16_t _count)
+{
+	Item* newItem = nullptr;
 	const ItemType &it = Item::items[_type];
 
 	if (it.id != 0) {
@@ -79,7 +62,9 @@ Item *Item::CreateItem(const uint16_t _type, uint16_t _count /*= 1*/)
 	return newItem;
 }
 
-Item *Item::CreateItem(PropStream &propStream)
+
+
+Item* Item::CreateItem(PropStream &propStream)
 {
 	uint16_t _id;
 	if (!propStream.GET_UINT16(_id)) {
@@ -98,7 +83,9 @@ Item *Item::CreateItem(PropStream &propStream)
 	return Item::CreateItem(_id, _count);
 }
 
-Item::Item(const uint16_t _type, uint16_t _count /*= 0*/) : ItemAttributes()
+
+
+Item::Item(const uint16_t _type, uint16_t _count)
 {
 	id = _type;
 
@@ -121,41 +108,37 @@ Item::Item(const uint16_t _type, uint16_t _count /*= 0*/) : ItemAttributes()
 	loadedOnMap = false;
 }
 
-Item::Item(const Item &i) : Thing(), ItemAttributes()
+
+
+Item::Item(const Item& other) : 
+	Thing(), 
+	ItemAttributes(other),
+	id(other.id),
+	count(other.count)
 {
-	// std::cout << "Item copy constructor " << this << std::endl;
-	id = i.id;
-	count = i.count;
 
-	m_attributes = i.m_attributes;
-	if (i.m_firstAttr) {
-		m_firstAttr = new Attribute(*i.m_firstAttr);
-	}
-
-	loadedOnMap = false;
 }
 
-Item *Item::clone() const
-{
-	Item *_item = Item::CreateItem(id, count);
-	_item->m_attributes = m_attributes;
-	if (m_firstAttr) {
-		_item->m_firstAttr = new Attribute(*m_firstAttr);
-	}
 
-	return _item;
+
+Item* Item::clone() const
+{
+	Item* const newItem = CreateItem(id, count);
+	newItem->m_attrFlags = this->m_attrFlags;
+	newItem->m_attributes = this->m_attributes;
+	return newItem;
 }
 
-void Item::copyAttributes(Item *item)
-{
-	m_attributes = item->m_attributes;
-	if (item->m_firstAttr) {
-		m_firstAttr = new Attribute(*item->m_firstAttr);
-	}
 
+void Item::copyAttributes(Item* const other)
+{
+	other->m_attrFlags = this->m_attrFlags;
+	other->m_attributes = this->m_attributes;
 	removeAttribute(ATTR_ITEM_DECAYING);
 	removeAttribute(ATTR_ITEM_DURATION);
 }
+
+
 
 Item::~Item()
 {
@@ -844,240 +827,10 @@ void Item::getLight(LightInfo &lightInfo)
 	lightInfo.level = it.lightLevel;
 }
 
-std::string ItemAttributes::emptyString("");
 
-const std::string &ItemAttributes::getStrAttr(itemAttrTypes type) const
-{
-	if (!validateStrAttrType(type)) return emptyString;
 
-	// this will *NOT* create the attribute if it does not exist
-	Attribute *attr = getAttrConst(type);
-	if (attr) {
-		return *(std::string *)attr->value;
-	} else {
-		return emptyString;
-	}
-}
 
-void ItemAttributes::setStrAttr(itemAttrTypes type, const std::string &value)
-{
-	if (!validateStrAttrType(type)) return;
 
-	if (value.length() == 0) return;
-
-	// this will create the attribute if it does not exist
-	Attribute *attr = getAttr(type);
-	if (attr) {
-		// if has a previous value delete it
-		if (attr->value) {
-			delete (std::string *)attr->value;
-		}
-		// create the new value as string
-		attr->value = (void *)new std::string(value);
-	}
-}
-
-bool ItemAttributes::hasAttribute(itemAttrTypes type) const
-{
-	if (!validateIntAttrType(type)) return false;
-
-	Attribute *attr = getAttrConst(type);
-	if (attr) {
-		return true;
-	}
-
-	return false;
-}
-
-void ItemAttributes::removeAttribute(itemAttrTypes type)
-{
-	// check if we have it
-	if ((type & m_attributes) != 0) {
-		// go trough the linked list until find it
-		Attribute *prevAttr = NULL;
-		Attribute *curAttr = m_firstAttr;
-		while (curAttr != NULL) {
-			if (curAttr->type == type) {
-				// found so remove it from the linked list
-				if (prevAttr) {
-					prevAttr->next = curAttr->next;
-				} else {
-					m_firstAttr = curAttr->next;
-				}
-				// remove it from flags
-				m_attributes = m_attributes & ~type;
-
-				// delete string if it is string type
-				if (validateStrAttrType(type)) {
-					delete (std::string *)curAttr->value;
-				}
-				// finally delete the attribute and return
-				delete curAttr;
-				return;
-			}
-
-			// advance in the linked list
-			prevAttr = curAttr;
-			curAttr = curAttr->next;
-		}
-	}
-}
-
-uint32_t ItemAttributes::getIntAttr(itemAttrTypes type) const
-{
-	if (!validateIntAttrType(type)) return 0;
-
-	Attribute *attr = getAttrConst(type);
-	if (attr) {
-		return static_cast<uint32_t>(0xFFFFFFFF & reinterpret_cast<ptrdiff_t>(attr->value));
-	} else {
-		return 0;
-	}
-}
-
-void ItemAttributes::setIntAttr(itemAttrTypes type, int32_t value)
-{
-	if (!validateIntAttrType(type)) return;
-
-	Attribute *attr = getAttr(type);
-	if (attr) {
-		attr->value = reinterpret_cast<void *>(static_cast<ptrdiff_t>(value));
-	}
-}
-
-void ItemAttributes::increaseIntAttr(itemAttrTypes type, int32_t value)
-{
-	if (!validateIntAttrType(type)) return;
-
-	Attribute *attr = getAttr(type);
-	if (attr) {
-		attr->value = reinterpret_cast<void *>(static_cast<ptrdiff_t>(
-		static_cast<uint32_t>(0xFFFFFFFF & reinterpret_cast<ptrdiff_t>(attr->value)) + value));
-	}
-}
-
-bool ItemAttributes::validateIntAttrType(itemAttrTypes type)
-{
-	// list of numeric type attributes
-	switch (type) {
-	case ATTR_ITEM_ACTIONID:
-	case ATTR_ITEM_UNIQUEID:
-	case ATTR_ITEM_OWNER:
-	case ATTR_ITEM_DURATION:
-	case ATTR_ITEM_DECAYING:
-	// case ATTR_ITEM_WRITTENDATE:
-	case ATTR_ITEM_CHARGES:
-	case ATTR_ITEM_FLUIDTYPE:
-	case ATTR_ITEM_DOORID:
-		return true;
-
-	default:
-		return false;
-	}
-
-	return false;
-}
-
-bool ItemAttributes::validateStrAttrType(itemAttrTypes type)
-{
-	// list of text type attributes
-	switch (type) {
-	case ATTR_ITEM_DESC:
-	case ATTR_ITEM_TEXT:
-	case ATTR_ITEM_WRITTENBY:
-		return true;
-
-	default:
-		break;
-	}
-
-	return false;
-}
-
-void ItemAttributes::addAttr(Attribute *attr)
-{
-	// add an attribute to the linked list
-	if (m_firstAttr) {
-		// is not the first, so look for the end of the list
-		Attribute *curAttr = m_firstAttr;
-		while (curAttr->next) {
-			curAttr = curAttr->next;
-		}
-		// and add it at the end
-		curAttr->next = attr;
-	} else {
-		// is the first
-		m_firstAttr = attr;
-	}
-	// add it to flags
-	m_attributes = m_attributes | attr->type;
-}
-
-ItemAttributes::Attribute *ItemAttributes::getAttrConst(itemAttrTypes type) const
-{
-	// check flags
-	if ((type & m_attributes) == 0) {
-		return NULL;
-	}
-	// it is here, so search it in the linked list
-	Attribute *curAttr = m_firstAttr;
-	while (curAttr) {
-		if (curAttr->type == type) {
-			// found
-			return curAttr;
-		}
-		curAttr = curAttr->next;
-	}
-	// not found?
-	std::cout << "Warning: [ItemAttributes::getAttrConst] (type & m_attributes) != 0 but "
-	             "attribute not found"
-	          << std::endl;
-	return NULL;
-}
-
-ItemAttributes::Attribute *ItemAttributes::getAttr(itemAttrTypes type)
-{
-	Attribute *curAttr;
-	if ((type & m_attributes) == 0) {
-		// if that type was not present add it
-		curAttr = new Attribute(type);
-		addAttr(curAttr);
-		return curAttr;
-	} else {
-		// was present, search and return it
-		curAttr = m_firstAttr;
-		while (curAttr) {
-			if (curAttr->type == type) {
-				return curAttr;
-			}
-			curAttr = curAttr->next;
-		}
-	}
-	std::cout
-	<< "Warning: [ItemAttributes::getAttr] (type & m_attributes) != 0 but attribute not found"
-	<< std::endl;
-	curAttr = new Attribute(type);
-	addAttr(curAttr);
-	return curAttr;
-}
-
-void ItemAttributes::deleteAttrs(Attribute *attr)
-{
-	// deletes all attributes recursively
-	if (attr) {
-		// if is string type, delete the allocated string
-		if (validateStrAttrType(attr->type)) {
-			delete (std::string *)attr->value;
-		}
-		Attribute *next_attr = attr->next;
-		attr->next = NULL;
-		// delete next while it was not NULL
-		if (next_attr) {
-			deleteAttrs(next_attr);
-		}
-		delete attr;
-	}
-}
 
 void Item::__startDecaying()
 {

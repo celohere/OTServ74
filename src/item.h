@@ -1,34 +1,16 @@
-//////////////////////////////////////////////////////////////////////
-// OpenTibia - an opensource roleplaying game
-//////////////////////////////////////////////////////////////////////
-// Item represents an existing item.
-//////////////////////////////////////////////////////////////////////
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//////////////////////////////////////////////////////////////////////
-
-
 #ifndef __OTSERV_ITEM_H__
 #define __OTSERV_ITEM_H__
-
-#include "definitions.h"
-#include "items.h"
-#include "thing.h"
 
 #include <iostream>
 #include <list>
 #include <vector>
+
+#include "definitions.h"
+#include "items.h"
+#include "thing.h"
+#include "log.h"
+#include "ItemAttributes.h"
+
 
 class Creature;
 class Player;
@@ -40,6 +22,8 @@ class Mailbox;
 class Door;
 class MagicField;
 class BedItem;
+
+
 
 enum ITEMPROPERTY {
 	BLOCKSOLID = 0,
@@ -56,12 +40,12 @@ enum ITEMPROPERTY {
 	SUPPORTHANGABLE
 };
 
+
 enum TradeEvents_t {
 	ON_TRADE_TRANSFER,
 	ON_TRADE_CANCEL,
 };
 
-enum ItemDecayState_t { DECAYING_FALSE = 0, DECAYING_TRUE, DECAYING_PENDING };
 
 /*from iomapotbm.h*/
 #pragma pack(1)
@@ -71,6 +55,8 @@ struct TeleportDest {
 	uint8_t _z;
 };
 #pragma pack()
+
+
 
 enum AttrTypes_t {
 	// attr 0 means end of attribute list
@@ -100,210 +86,13 @@ enum AttrTypes_t {
 	ATTR_CONTAINER_ITEMS = 22,
 };
 
-enum Attr_ReadValue { ATTR_READ_ERROR, ATTR_READ_CONTINUE, ATTR_READ_END };
 
-class ItemAttributes
-{
-public:
-	ItemAttributes()
-	{
-		m_attributes = 0;
-		m_firstAttr = NULL;
-	}
-	virtual ~ItemAttributes()
-	{
-		if (m_firstAttr) {
-			deleteAttrs(m_firstAttr);
-		}
-	}
-	ItemAttributes(const ItemAttributes &i)
-	{
-		m_attributes = i.m_attributes;
-		if (i.m_firstAttr) {
-			m_firstAttr = new Attribute(*i.m_firstAttr);
-		}
-	}
 
-	void setSpecialDescription(const std::string &desc)
-	{
-		setStrAttr(ATTR_ITEM_DESC, desc);
-	}
-	void resetSpecialDescription()
-	{
-		removeAttribute(ATTR_ITEM_DESC);
-	}
-	const std::string &getSpecialDescription() const
-	{
-		return getStrAttr(ATTR_ITEM_DESC);
-	}
 
-	void setText(const std::string &text)
-	{
-		setStrAttr(ATTR_ITEM_TEXT, text);
-	}
-	void resetText()
-	{
-		removeAttribute(ATTR_ITEM_TEXT);
-	}
-	const std::string &getText() const
-	{
-		return getStrAttr(ATTR_ITEM_TEXT);
-	}
 
-	void setWriter(std::string _writer)
-	{
-		setStrAttr(ATTR_ITEM_WRITTENBY, _writer);
-	}
-	void resetWriter()
-	{
-		removeAttribute(ATTR_ITEM_WRITTENBY);
-	}
-	const std::string &getWriter() const
-	{
-		return getStrAttr(ATTR_ITEM_WRITTENBY);
-	}
 
-	void setActionId(uint16_t n)
-	{
-		if (n < 100) n = 100;
-		setIntAttr(ATTR_ITEM_ACTIONID, n);
-	}
-	uint16_t getActionId() const
-	{
-		return (uint16_t)getIntAttr(ATTR_ITEM_ACTIONID);
-	}
 
-	void setUniqueId(uint16_t n)
-	{
-		if (n < 1000) n = 1000;
-		setIntAttr(ATTR_ITEM_UNIQUEID, n);
-	}
-	uint16_t getUniqueId() const
-	{
-		return (uint16_t)getIntAttr(ATTR_ITEM_UNIQUEID);
-	}
 
-	void setCharges(uint16_t n)
-	{
-		setIntAttr(ATTR_ITEM_CHARGES, n);
-	}
-	uint16_t getCharges() const
-	{
-		return (uint16_t)getIntAttr(ATTR_ITEM_CHARGES);
-	}
-
-	void setFluidType(uint16_t n)
-	{
-		setIntAttr(ATTR_ITEM_FLUIDTYPE, n);
-	}
-	uint16_t getFluidType() const
-	{
-		return (uint16_t)getIntAttr(ATTR_ITEM_FLUIDTYPE);
-	}
-
-	void setOwner(uint32_t _owner)
-	{
-		setIntAttr(ATTR_ITEM_OWNER, _owner);
-	}
-	uint32_t getOwner() const
-	{
-		return (uint32_t)getIntAttr(ATTR_ITEM_OWNER);
-	}
-
-	void setDuration(int32_t time)
-	{
-		setIntAttr(ATTR_ITEM_DURATION, time);
-	}
-	void decreaseDuration(int32_t time)
-	{
-		increaseIntAttr(ATTR_ITEM_DURATION, -time);
-	}
-	int32_t getDuration() const
-	{
-		return (int32_t)getIntAttr(ATTR_ITEM_DURATION);
-	}
-
-	void setDecaying(ItemDecayState_t decayState)
-	{
-		setIntAttr(ATTR_ITEM_DECAYING, decayState);
-	}
-	uint32_t getDecaying() const
-	{
-		return (uint32_t)getIntAttr(ATTR_ITEM_DECAYING);
-	}
-
-protected:
-	enum itemAttrTypes {
-		ATTR_ITEM_ACTIONID = 1 << 0,
-		ATTR_ITEM_UNIQUEID = 1 << 1,
-		ATTR_ITEM_DESC = 1 << 2,
-		ATTR_ITEM_TEXT = 1 << 3,
-		// ATTR_ITEM_WRITTENDATE = 1 << 4,
-		ATTR_ITEM_WRITTENBY = 1 << 5,
-		ATTR_ITEM_OWNER = 1 << 6,
-		ATTR_ITEM_DURATION = 1 << 7,
-		ATTR_ITEM_DECAYING = 1 << 8,
-		ATTR_ITEM_CHARGES = 1 << 9,
-		ATTR_ITEM_FLUIDTYPE = 1 << 10,
-		ATTR_ITEM_DOORID = 1 << 11
-	};
-
-	bool hasAttribute(itemAttrTypes type) const;
-	void removeAttribute(itemAttrTypes type);
-
-protected:
-	static std::string emptyString;
-
-	class Attribute
-	{
-	public:
-		itemAttrTypes type;
-		void *value;
-		Attribute *next;
-		Attribute(itemAttrTypes _type)
-		{
-			type = _type;
-			value = NULL;
-			next = NULL;
-		}
-
-		Attribute(const Attribute &i)
-		{
-			type = i.type;
-			if (ItemAttributes::validateIntAttrType(type)) {
-				value = i.value;
-			} else if (ItemAttributes::validateStrAttrType(type)) {
-				value = (void *)new std::string(*((std::string *)i.value));
-			} else {
-				value = NULL;
-			}
-
-			next = NULL;
-			if (i.next) {
-				next = new Attribute(*i.next);
-			}
-		}
-	};
-
-	uint32_t m_attributes;
-	Attribute *m_firstAttr;
-
-	const std::string &getStrAttr(itemAttrTypes type) const;
-	void setStrAttr(itemAttrTypes type, const std::string &value);
-
-	uint32_t getIntAttr(itemAttrTypes type) const;
-	void setIntAttr(itemAttrTypes type, int32_t value);
-	void increaseIntAttr(itemAttrTypes type, int32_t value);
-
-	static bool validateIntAttrType(itemAttrTypes type);
-	static bool validateStrAttrType(itemAttrTypes type);
-
-	void addAttr(Attribute *attr);
-	Attribute *getAttrConst(itemAttrTypes type) const;
-	Attribute *getAttr(itemAttrTypes type);
-
-	void deleteAttrs(Attribute *attr);
-};
 
 class Item : virtual public Thing, public ItemAttributes
 {
@@ -377,7 +166,7 @@ public:
 	{
 		return NULL;
 	}
-	//[ added for beds system
+
 	virtual BedItem *getBed()
 	{
 		return NULL;
@@ -386,7 +175,6 @@ public:
 	{
 		return NULL;
 	}
-	//]
 
 	static std::string
 	getDescription(const ItemType &it, int32_t lookDistance, const Item *item = NULL, int32_t subType = -1);
@@ -638,7 +426,8 @@ public:
 		return (!loadedOnMap && (getUniqueId() == 0 && getActionId() == 0) &&
 		        isPickupable() && canRemove());
 	}
-	bool loadedOnMap;
+
+	bool loadedOnMap = false;
 
 protected:
 	// If weight description is needed from outside of item class
@@ -665,5 +454,13 @@ inline uint32_t Item::countByType(const Item *i, int checkType, bool multiCount)
 
 	return 0;
 }
+
+
+
+
+
+
+
+
 
 #endif
