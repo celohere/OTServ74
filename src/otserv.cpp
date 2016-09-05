@@ -40,11 +40,8 @@
 
 #ifdef __PROTOCOL_77__
 #include "rsa.h"
-#endif // __PROTOCOL_77__
-
-#ifdef __OTSERV_ALLOCATOR__
-#include "allocator.h"
 #endif
+
 
 #ifdef BOOST_NO_EXCEPTIONS
 #include <exception>
@@ -65,9 +62,10 @@ Monsters g_monsters;
 BanManager g_bans;
 Vocations g_vocations;
 Server *g_server = NULL;
+
 #ifdef __PROTOCOL_77__
 RSA *g_otservRSA = NULL;
-#endif // __PROTOCOL_77__
+#endif
 
 boost::mutex g_loaderLock;
 boost::condition_variable g_loaderSignal;
@@ -160,9 +158,6 @@ int main(int argc, char *argv[])
 	time(&start_time);
 #endif
 
-#ifdef __OTSERV_ALLOCATOR_STATS__
-	boost::thread(boost::bind(&allocatorStatsThread, (void *)NULL));
-#endif
 
 #if defined __EXCEPTION_TRACER__
 	ExceptionHandler mainExceptionHandler;
