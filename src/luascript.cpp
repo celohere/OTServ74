@@ -1,23 +1,9 @@
-//////////////////////////////////////////////////////////////////////
-// OpenTibia - an opensource roleplaying game
-//////////////////////////////////////////////////////////////////////
-// Lua script interface
-//////////////////////////////////////////////////////////////////////
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//////////////////////////////////////////////////////////////////////
 #include "otpch.h"
+
+#include <iostream>
+#include <sstream>
+#include <string>
+
 
 #include "ban.h"
 #include "baseevents.h"
@@ -40,16 +26,17 @@
 #include "teleport.h"
 #include "tools.h"
 #include "town.h"
-#include <iostream>
-#include <sstream>
-#include <string>
+
+
 
 extern Game g_game;
 extern Monsters g_monsters;
 extern BanManager g_bans;
 extern ConfigManager g_config;
-extern MoveEvents *g_moveEvents;
-extern Spells *g_spells;
+extern MoveEvents* g_moveEvents;
+extern Spells* g_spells;
+
+
 
 enum { EVENT_ID_LOADING = 1, EVENT_ID_USER = 1000 };
 
@@ -66,11 +53,15 @@ uint32_t ScriptEnviroment::m_lastResultId = 0;
 ScriptEnviroment::StorageMap ScriptEnviroment::m_globalStorageMap;
 ScriptEnviroment::TempItemListMap ScriptEnviroment::m_tempItems;
 
+
+
 ScriptEnviroment::ScriptEnviroment() : m_curNpc(NULL), m_curSpell(NULL)
 {
 	resetEnv();
 	m_lastUID = 70000;
 }
+
+
 
 ScriptEnviroment::~ScriptEnviroment()
 {
@@ -89,28 +80,31 @@ ScriptEnviroment::~ScriptEnviroment()
 	m_areaMap.clear();
 }
 
+
+
 void ScriptEnviroment::resetEnv()
 {
 	m_scriptId = 0;
 	m_callbackId = 0;
 	m_timerEvent = false;
-	m_interface = NULL;
+	m_interface = nullptr;
 	m_localMap.clear();
 
-	for (TempItemListMap::iterator mit = m_tempItems.begin(); mit != m_tempItems.end(); ++mit) {
-		ItemList &itemList = mit->second;
-		for (ItemList::iterator it = itemList.begin(); it != itemList.end(); ++it) {
-			if ((*it)->getParent() == VirtualCylinder::virtualCylinder) {
-				g_game.FreeThing(*it);
-			}
+	for (auto& mit : m_tempItems) {
+		ItemList& itemList = mit.second;
+		for (auto& it : itemList) {
+			if (it->getParent() == nullptr)
+				g_game.FreeThing(it);
 		}
 	}
+
 	m_tempItems.clear();
 
 	if (!m_tempResults.empty()) {
-		Database *db = Database::instance();
-		for (DBResultMap::iterator it = m_tempResults.begin(); it != m_tempResults.end(); ++it) {
-			if (it->second) db->freeResult(it->second);
+		Database* db = Database::instance();
+		for (auto& it : m_tempResults) {
+			if (it.second)
+				db->freeResult(it.second);
 		}
 	}
 
@@ -119,9 +113,11 @@ void ScriptEnviroment::resetEnv()
 	m_realPos.x = 0;
 	m_realPos.y = 0;
 	m_realPos.z = 0;
-	m_curNpc = NULL;
-	m_curSpell = NULL;
+	m_curNpc = nullptr;
+	m_curSpell = nullptr;
 }
+
+
 
 bool ScriptEnviroment::saveGameState()
 {
@@ -3167,7 +3163,7 @@ int LuaScriptInterface::luaDoPlayerAddItemEx(lua_State *L) // fix me
 		return 1;
 	}
 
-	if (item->getParent() != VirtualCylinder::virtualCylinder) {
+	if (item->getParent() != nullptr) {
 		reportErrorFunc("Item already has a parent");
 		lua_pushboolean(L, false);
 		return 1;
@@ -3204,7 +3200,7 @@ int LuaScriptInterface::luaDoTileAddItemEx(lua_State *L)
 		return 1;
 	}
 
-	if (item->getParent() != VirtualCylinder::virtualCylinder) {
+	if (item->getParent() != nullptr) {
 		reportErrorFunc("Item already has a parent");
 		lua_pushboolean(L, false);
 		return 1;
@@ -3232,7 +3228,7 @@ int LuaScriptInterface::luaAddContainerItemEx(lua_State *L)
 			return 1;
 		}
 
-		if (item->getParent() != VirtualCylinder::virtualCylinder) {
+		if (item->getParent() != nullptr) {
 			reportErrorFunc("Item already has a parent");
 			lua_pushboolean(L, false);
 			return 1;
@@ -4059,7 +4055,7 @@ int LuaScriptInterface::luaDoCreateItemEx(lua_State *L)
 		return 1;
 	}
 
-	newItem->setParent(VirtualCylinder::virtualCylinder);
+	newItem->setParent(nullptr);
 	env->addTempItem(env, newItem);
 
 	uint32_t uid = env->addThing(newItem);
