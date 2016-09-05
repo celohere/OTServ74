@@ -2,11 +2,6 @@
 file(GLOB_RECURSE SRC_LIST *.cpp)
 file(GLOB_RECURSE HDR_LIST *.h)
 
-# static linking
-#if(USE_STATIC_LIBS)
-#  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-#  SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
-#endif()
 
 if(USE_SQLITE)
 	list(REMOVE_ITEM SRC_LIST ${CMAKE_CURRENT_SOURCE_DIR}/databasemysql.cpp)
@@ -26,7 +21,7 @@ include_directories(${Boost_INCLUDE_DIRS} ${GMP_INCLUDE_DIR} ${LibXML2_INCLUDE_D
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${HDR_LIST})
 
 # link libraries
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${LibXML2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} -pthread ${Boost_LIBRARIES} ${GMP_LIBRARY} ${LibXML2_LIBRARIES})
 
 # libxml2 if linked statically requires zlib + iconv + lzma on Unix
 if(USE_STATIC_LIBS)
@@ -80,11 +75,6 @@ if(CMAKE_BUILD_TYPE EQUAL "Debug")
   add_definitions(-DD__DEBUG__ -D__DEBUG_NET_DETAIL__ -D__DEBUG__MOVESYS__ -D__DEBUG_CRITICALSECTION__ -D__DEBUG_HOUSES__ -D__DEBUG_PLAYERS__ -D__DEBUG_SCHEDULER__ -D__DEBUG_SCRIPT_ENVIRONMENT_OBJECTMAP__)
 endif()
 
-# check if MinGW
-if(WIN32 AND MINGW)
-  remove_definitions(-D__WINDOWS__ -D_WIN32_WINNT)
-  add_definitions(-D__WINDOWS__ -D_WIN32_WINNT=0x0501)
-endif()
 
 # choose Lua 5.1 or LuaJIT
 if(USE_LUAJIT)
@@ -111,30 +101,7 @@ if(USE_SQLITE)
   target_link_libraries(${PROJECT_NAME} ${SQLITE_LIBRARY})
 endif()
 
-if(USE_ODBC)
-  add_definitions(-D__USE_ODBC__)
-  find_package(ODBC REQUIRED)
-  include_directories(${ODBC_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${ODBC_LIBRARIES})
-endif()
 
-if(USE_PGSQL)
-  add_definitions(-D__USE_PGSQL__)
-  find_package(PostgreSQL REQUIRED)
-  include_directories(${POSTGRESQL_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${POSTGRESQL_LIBRARIES})
-endif()
-
-# link pthread and dl
-if(UNIX)
-  find_package(Threads)
-  target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} dl)
-endif()
-
-# link winsock
-if(WIN32)
-  target_link_libraries(${PROJECT_NAME} ws2_32 mswsock)
-endif()
 
 # display build type
 message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
