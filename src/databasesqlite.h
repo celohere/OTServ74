@@ -79,25 +79,30 @@ protected:
 class SQLiteResult : public _DBResult
 {
 	friend class DatabaseSQLite;
-
 public:
 	DATABASE_VIRTUAL int32_t getDataInt(const std::string &s);
 	DATABASE_VIRTUAL int64_t getDataLong(const std::string &s);
 	DATABASE_VIRTUAL std::string getDataString(const std::string &s);
 	DATABASE_VIRTUAL const char *getDataStream(const std::string &s, unsigned long &size);
-
 	DATABASE_VIRTUAL bool next();
+	size_t size() const;
 
 protected:
 	SQLiteResult(sqlite3_stmt *stmt);
 	DATABASE_VIRTUAL ~SQLiteResult();
 
-	typedef std::map<const std::string, uint32_t> listNames_t;
-	listNames_t m_listNames;
-
+	std::map<const std::string, uint32_t> m_listNames;
 	sqlite3_stmt *m_handle;
 };
 
-#endif
 
+inline size_t SQLiteResult::size() const {
+	return m_listNames.size();
+}
+
+
+
+
+
+#endif
 #endif

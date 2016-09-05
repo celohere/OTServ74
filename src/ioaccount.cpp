@@ -30,9 +30,10 @@ Account IOAccount::loadAccount(uint32_t accno)
 		query.str("");
 		query << "SELECT `name` FROM `players` WHERE `account_id` = " << accno;
 		if ((result = db->storeQuery(query.str()))) {
+			acc.charList.reserve(result->size());
 			do {
-				const auto ss = result->getDataString("name");
-				acc.charList.push_back(ss);
+				const auto char_name = result->getDataString("name");
+				acc.charList.push_back(char_name);
 			} while (result->next());
 
 			std::sort(acc.charList.begin(), acc.charList.end());
