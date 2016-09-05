@@ -1,66 +1,19 @@
-Avesta
-======
+The goal of this project is to fix the server code.
+Original sources:
+https://code.google.com/p/avesta74/
+https://github.com/tarantonio/avesta
 
-open source old school server
+Fixing it by modernizing it to C++11, optimizing, removing bad practices.
+And seriously... there is LOTS of awful code here!
 
-Based on Avesta rev. 9.4.2012 (April 2012)
+The newest versions of TFS and OpenTibia have improved a lot, 
+but it's not supporting the protocols, 7.4, 7.6, 7.7. 
+Is possible implement the support for them, 
+but then we'll have tons of code of features that we don't need.
+Fixing code is the first step.
+Until the first step is completed there will be only bug fixes, 
+no feature implementations.
 
-Credits on initial release go to: https://code.google.com/p/avesta74/
-
-Protocols: 7.4, 7.6 & 7.7
-
-* The default protocol is 7.4
-
-### Revnetsys
-
-* Redesigned IO model using asynchronous sockets (Boost::asio)
-
-
-### Revbattlesys
-
-* New Formula of Armor/Defense
-* Weapons configurable in XML and Lua
-* Wands, Rods, Burst Arrows and Poison Arrows
-* Drunk and Paralyze System
-* Creatures can move diagonally
-* New Lua Interface (Actions, NPCs)
-* Big Changes in Spells
-* New Decay System
-* Rings and Amulets
-* New Monster AI
-* Vocations configurable in XML
-* Players can summon monsters (utevo res)
-* Check if the player knows the spell
-* Soul Points
-* Last Writer of letters
+Focus on protocol 7.4 first.
 
 
-### Revdbsys
-
-* XML as database removed
-* Code cleaned up
-* Flexible interface for database drivers
-* Transparent database drivers
-* Speed up
-* Much less memory used (even 1000 times less for database queries!)
-* Code optimization
-* GCC 4.2 compatibility
-
-
-### And
-
-* Skull System
-* Party System
-* Bed System
-* Save System
-* Mute System
-* Rule Violations Report system (ctrl + r)
-* Bug report system (ctrl + z)
-* Violation window system (ctrl + y)
-* Walk to item
-* Push, death, walk delays
-* Magic effect displayed on air
-* Wildcard~ for spells with params
-* GM Invisible (temporary removed, caused debugs)
-* Bursts missing target
-* many many more...
