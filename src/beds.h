@@ -37,7 +37,7 @@ public:
 	// override
 	bool canRemove() const override
 	{
-		return (house == NULL);
+		return (house == nullptr);
 	}
 
 	uint32_t getSleeper() const

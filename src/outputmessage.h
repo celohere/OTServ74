@@ -121,8 +121,8 @@ protected:
 
 	void freeMessage()
 	{
-		setConnection(NULL);
-		setProtocol(NULL);
+		setConnection(nullptr);
+		setProtocol(nullptr);
 		m_frame = 0;
 		m_outputBufferStart = 4;
 		// setState have to be the last one

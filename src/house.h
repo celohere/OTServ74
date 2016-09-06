@@ -361,7 +361,7 @@ public:
 			houseMap[houseid] = house;
 			return house;
 		} else {
-			return NULL;
+			return nullptr;
 		}
 	}
 

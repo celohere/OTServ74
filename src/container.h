@@ -72,11 +72,11 @@ public:
 	}
 	virtual Depot *getDepot()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const Depot *getDepot() const
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream) override;

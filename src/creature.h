@@ -137,27 +137,27 @@ public:
 	}
 	virtual Player *getPlayer()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const Player *getPlayer() const
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual Npc *getNpc()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const Npc *getNpc() const
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual Monster *getMonster()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const Monster *getMonster() const
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	bool isDying;
@@ -357,7 +357,7 @@ public:
 	}
 	bool isSummon() const
 	{
-		return master != NULL;
+		return master != nullptr;
 	}
 	const Creature *getMaster() const
 	{

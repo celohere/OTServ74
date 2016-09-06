@@ -119,60 +119,60 @@ public:
 	}
 	virtual Container *getContainer()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const Container *getContainer() const
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual Teleport *getTeleport()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const Teleport *getTeleport() const
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual TrashHolder *getTrashHolder()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const TrashHolder *getTrashHolder() const
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual Mailbox *getMailbox()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const Mailbox *getMailbox() const
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual Door *getDoor()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const Door *getDoor() const
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual MagicField *getMagicField()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const MagicField *getMagicField() const
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	virtual BedItem *getBed()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual const BedItem *getBed() const
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	static std::string getDescription(const ItemType& it,

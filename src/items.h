@@ -333,7 +333,7 @@ template <typename A> inline A Array<A>::getElement(uint32_t id)
 	if (id < m_size) {
 		return m_data[id];
 	} else {
-		return 0;
+		return nullptr;
 	}
 }
 
@@ -342,7 +342,7 @@ template <typename A> inline const A Array<A>::getElement(uint32_t id) const
 	if (id < m_size) {
 		return m_data[id];
 	} else {
-		return 0;
+		return nullptr;
 	}
 }
 

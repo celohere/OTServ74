@@ -53,7 +53,7 @@ enum LightState_t {
 
 struct RuleViolation {
 	RuleViolation(Player *_reporter, const std::string &_text, uint32_t _time)
-	: reporter(_reporter), gamemaster(NULL), text(_text), time(_time), isOpen(true)
+	: reporter(_reporter), gamemaster(nullptr), text(_text), time(_time), isOpen(true)
 	{
 	}
 
@@ -512,8 +512,8 @@ public:
 	bool saveServer(bool globalSave);
 	void saveGameState();
 	void loadGameState();
-	void refreshMap(Map::TileMap::iterator *begin = NULL, int clean_max = 0);
-	void proceduralRefresh(Map::TileMap::iterator *begin = NULL);
+	void refreshMap(Map::TileMap::iterator *begin = nullptr, int clean_max = 0);
+	void proceduralRefresh(Map::TileMap::iterator *begin = nullptr);
 
 	// Events
 	void checkCreatureWalk(uint32_t creatureId);

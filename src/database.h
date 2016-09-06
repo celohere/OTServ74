@@ -127,7 +127,7 @@ public:
 	*/
 	DATABASE_VIRTUAL DBResult *storeQuery(const std::string &query)
 	{
-		return 0;
+		return nullptr;
 	}
 
 	/**
@@ -248,7 +248,7 @@ public:
 	*/
 	DATABASE_VIRTUAL const char *getDataStream(const std::string &s, unsigned long &size)
 	{
-		return 0;
+		return nullptr;
 	}
 
 	/**

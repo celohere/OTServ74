@@ -82,13 +82,13 @@ struct CombatParams {
 		hitTextColor = TEXTCOLOR_UNK;
 		impactEffect = NM_ME_NONE;
 		distanceEffect = NM_ME_NONE;
-		condition = NULL;
+		condition = nullptr;
 		dispelType = CONDITION_NONE;
 		useCharges = false;
 
-		valueCallback = NULL;
-		tileCallback = NULL;
-		targetCallback = NULL;
+		valueCallback = nullptr;
+		tileCallback = nullptr;
+		targetCallback = nullptr;
 	}
 
 	const Condition *condition;
@@ -285,7 +285,7 @@ protected:
 			return it->second;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	AreaCombatMap areas;
@@ -357,7 +357,7 @@ public:
 	}
 	bool hasArea() const
 	{
-		return area != NULL;
+		return area != nullptr;
 	}
 	void setCondition(const Condition *_condition)
 	{

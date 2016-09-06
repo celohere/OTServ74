@@ -38,8 +38,8 @@ struct NodeStruct {
 	{
 		start = 0;
 		propsSize = 0;
-		next = 0;
-		child = 0;
+		next = nullptr;
+		child = nullptr;
 		type = 0;
 	}
 	~NodeStruct()
@@ -197,8 +197,8 @@ class PropStream
 public:
 	PropStream()
 	{
-		end = NULL;
-		p = NULL;
+		end = nullptr;
+		p = nullptr;
 	}
 	~PropStream(){};
 

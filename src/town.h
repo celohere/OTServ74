@@ -100,7 +100,7 @@ public:
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	Town *getTown(uint32_t _townid)
@@ -111,7 +111,7 @@ public:
 			return it->second;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	TownMap::const_iterator getTownBegin() const

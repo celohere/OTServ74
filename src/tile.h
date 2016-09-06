@@ -54,11 +54,11 @@ public:
 		tilePos.x = x;
 		tilePos.y = y;
 		tilePos.z = z;
-		qt_node = NULL;
+		qt_node = nullptr;
 
 		thingCount = 0;
 		m_flags = 0;
-		ground = NULL;
+		ground = nullptr;
 	}
 
 	~Tile() override
