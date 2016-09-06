@@ -85,24 +85,23 @@ Item* Item::CreateItem(PropStream &propStream)
 
 
 
-Item::Item(const uint16_t _type, uint16_t _count)
+Item::Item(const uint16_t _id, uint16_t _count) :
+	Thing(),
+	ItemAttributes(),
+	id(_id)
 {
-	id = _type;
-
-	const ItemType &it = items[id];
-
+	const ItemType& it = items[id];
 	count = 1;
-	if (it.charges != 0) {
-		setCharges(it.charges);
-	}
 
-	if (it.isFluidContainer() || it.isSplash()) {
+	if (it.charges != 0)
+		setCharges(it.charges);
+
+	if (it.isFluidContainer() || it.isSplash())
 		setFluidType(_count);
-	} else if (it.stackable && _count != 0) {
+	else if (it.stackable && _count != 0)
 		count = _count;
-	} else if (it.charges != 0 && _count != 0) {
+	else if (it.charges != 0 && _count != 0)
 		setCharges(_count);
-	}
 
 	setDefaultDuration();
 	loadedOnMap = false;

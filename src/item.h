@@ -97,8 +97,8 @@ class Item : virtual public Thing, public ItemAttributes
 {
 public:
 	// Factory member to create item of right type based on type
-	static Item *CreateItem(const uint16_t _type, uint16_t _count = 1);
-	static Item *CreateItem(PropStream &propStream);
+	static Item* CreateItem(const uint16_t _type, uint16_t _count = 1);
+	static Item* CreateItem(PropStream &propStream);
 	static Items items;
 
 	// Constructor for items
@@ -175,9 +175,14 @@ public:
 		return NULL;
 	}
 
-	static std::string
-	getDescription(const ItemType &it, int32_t lookDistance, const Item *item = NULL, int32_t subType = -1);
-	static std::string getWeightDescription(const ItemType &it, double weight, uint32_t count = 1);
+	static std::string getDescription(const ItemType& it,
+                                          int32_t lookDistance,
+                                          const Item* item = nullptr,
+                                          int32_t subType = -1);
+
+	static std::string getWeightDescription(const ItemType& it,
+                                                double weight,
+                                                uint32_t count = 1);
 
 	virtual Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream);
 	virtual bool unserializeAttr(PropStream &propStream);
