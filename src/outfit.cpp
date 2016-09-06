@@ -99,7 +99,7 @@ Outfits::Outfits()
 		m_male_list.addOutfit(outfit);
 	}
 
-	m_list.resize(10, NULL);
+	m_list.resize(10, nullptr);
 }
 
 Outfits::~Outfits()
@@ -139,7 +139,7 @@ bool Outfits::loadFromXml(const std::string &datadir)
 					} else {
 						OutfitList *list;
 
-						if (m_list[intVal] != NULL) {
+						if (m_list[intVal] != nullptr) {
 							list = m_list[intVal];
 						} else {
 							list = new OutfitList;

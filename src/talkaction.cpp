@@ -69,7 +69,7 @@ Event *TalkActions::getEvent(const std::string &nodeName)
 	if (nodeName == "talkaction") {
 		return new TalkAction(&m_scriptInterface);
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -166,7 +166,7 @@ TalkActionResult_t TalkActions::onPlayerSpeak(Player *player, SpeakClasses type,
 
 TalkAction::TalkAction(LuaScriptInterface *_interface)
 : Event(_interface), filterType(TALKACTION_MATCH_QUOTATION), caseSensitive(false), accessLevel(0),
-  function(NULL)
+  function(nullptr)
 {
 	//
 }

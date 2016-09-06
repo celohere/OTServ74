@@ -137,14 +137,14 @@ bool Mailbox::sendItem(Item *item)
 
 		if (depot) {
 			if (g_game.internalMoveItem(item->getParent(), depot, INDEX_WHEREEVER, item,
-			                            item->getItemCount(), NULL, FLAG_NOLIMIT) == RET_NOERROR) {
+			                            item->getItemCount(), nullptr, FLAG_NOLIMIT) == RET_NOERROR) {
 				g_game.transformItem(item,
 				                     item->getID() + 1); /**Change it to stamped!**/
 			}
 			return true;
 		}
 	} else if (IOPlayer::instance()->playerExists(receiver)) {
-		Player *player = new Player(receiver, NULL);
+		Player *player = new Player(receiver, nullptr);
 
 		if (!IOPlayer::instance()->loadPlayer(player, receiver)) {
 #ifdef __DEBUG_MAILBOX__
@@ -168,7 +168,7 @@ bool Mailbox::sendItem(Item *item)
 		Depot *depot = player->getDepot(dp, true);
 		if (depot) {
 			if (g_game.internalMoveItem(item->getParent(), depot, INDEX_WHEREEVER, item,
-			                            item->getItemCount(), NULL, FLAG_NOLIMIT) == RET_NOERROR) {
+			                            item->getItemCount(), nullptr, FLAG_NOLIMIT) == RET_NOERROR) {
 				g_game.transformItem(item, item->getID() + 1);
 			}
 

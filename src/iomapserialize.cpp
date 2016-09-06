@@ -148,8 +148,8 @@ bool IOMapSerialize::loadItems(Database *db, DBResult *result, Cylinder *parent)
 	typedef std::map<int32_t, std::pair<Item *, int32_t>> ItemMap;
 	ItemMap itemMap;
 
-	Item *item = NULL;
-	Tile *tile = NULL;
+	Item *item = nullptr;
+	Tile *tile = nullptr;
 	if (!parent->getItem()) {
 		tile = parent->getTile();
 	}
@@ -159,7 +159,7 @@ bool IOMapSerialize::loadItems(Database *db, DBResult *result, Cylinder *parent)
 		int32_t pid = result->getDataInt("pid");
 		int32_t id = result->getDataInt("itemtype");
 		int32_t count = result->getDataInt("count");
-		item = NULL;
+		item = nullptr;
 
 		unsigned long attrSize = 0;
 		const char *attr = result->getDataStream("attributes", attrSize);
@@ -305,8 +305,8 @@ bool IOMapSerialize::saveItems(Database *db, uint32_t tileId, uint32_t houseId, 
 
 	bool storedTile = false;
 	int runningID = 0;
-	Item *item = NULL;
-	Container *container = NULL;
+	Item *item = nullptr;
+	Container *container = nullptr;
 
 	int parentid = 0;
 	DBQuery query;
@@ -456,14 +456,14 @@ bool IOMapSerialize::loadContainer(PropStream &propStream, Container *container)
 
 bool IOMapSerialize::loadItem(PropStream &propStream, Cylinder *parent)
 {
-	Item *item = NULL;
+	Item *item = nullptr;
 
 	uint16_t id = 0;
 	propStream.GET_UINT16(id);
 
 	const ItemType &iType = Item::items[id];
 
-	Tile *tile = NULL;
+	Tile *tile = nullptr;
 	if (!parent->getItem()) {
 		tile = parent->getTile();
 	}

@@ -68,7 +68,7 @@ Item* Item::CreateItem(PropStream &propStream)
 {
 	uint16_t _id;
 	if (!propStream.GET_UINT16(_id)) {
-		return NULL;
+		return nullptr;
 	}
 
 	const ItemType &iType = Item::items[_id];
@@ -76,7 +76,7 @@ Item* Item::CreateItem(PropStream &propStream)
 
 	if (iType.stackable || iType.isSplash() || iType.isFluidContainer()) {
 		if (!propStream.GET_UINT8(_count)) {
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -206,7 +206,7 @@ Player *Item::getHoldingPlayer()
 		p = p->getParent();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const Player *Item::getHoldingPlayer() const
@@ -570,7 +570,7 @@ std::string Item::getDescription(const ItemType &it, int32_t lookDistance, const
 
 	if (it.isRune()) {
 		uint32_t charges =
-		std::max((uint32_t)1, (uint32_t)(item == NULL ? it.charges : item->getCharges()));
+		std::max((uint32_t)1, (uint32_t)(item == nullptr ? it.charges : item->getCharges()));
 
 		if (it.runeLevel > 0 || it.runeMagLevel > 0) {
 			if (it.runeLevel > 0) {
@@ -661,7 +661,7 @@ std::string Item::getDescription(const ItemType &it, int32_t lookDistance, const
 			s << "Nothing is written on it.";
 		}
 	} else if (it.showCharges) {
-		uint32_t charges = (item == NULL ? it.charges : item->getCharges());
+		uint32_t charges = (item == nullptr ? it.charges : item->getCharges());
 		if (charges > 1) {
 			s << " that has " << (int)charges << " charges left.";
 		} else {
@@ -715,7 +715,7 @@ std::string Item::getDescription(const ItemType &it, int32_t lookDistance, const
 	}
 
 	if (lookDistance <= 1) {
-		double weight = (item == NULL ? it.weight : item->getWeight());
+		double weight = (item == nullptr ? it.weight : item->getWeight());
 		if (weight > 0) {
 			s << std::endl << getWeightDescription(it, weight);
 		}

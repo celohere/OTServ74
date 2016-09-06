@@ -44,7 +44,7 @@ extern Spells *g_spells;
 
 AutoList<Npc> Npc::listNpc;
 
-NpcScriptInterface *Npc::m_scriptInterface = NULL;
+NpcScriptInterface *Npc::m_scriptInterface = nullptr;
 
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 uint32_t Npc::npcCount = 0;
@@ -53,7 +53,7 @@ uint32_t Npc::npcCount = 0;
 void Npcs::reload()
 {
 	delete Npc::m_scriptInterface;
-	Npc::m_scriptInterface = NULL;
+	Npc::m_scriptInterface = nullptr;
 
 	for (AutoList<Npc>::listiterator it = Npc::listNpc.list.begin(); it != Npc::listNpc.list.end(); ++it) {
 		it->second->reload();
@@ -64,12 +64,12 @@ Npc *Npc::createNpc(const std::string &name)
 {
 	Npc *npc = new Npc(name);
 	if (!npc) {
-		return NULL;
+		return nullptr;
 	}
 
 	if (!npc->load()) {
 		delete npc;
-		return NULL;
+		return nullptr;
 	}
 
 	return npc;
@@ -82,7 +82,7 @@ Npc::Npc(const std::string &_name) : Creature()
 	m_filename = m_datadir + "npc/" + _name + ".xml";
 	loaded = false;
 
-	m_npcEventHandler = NULL;
+	m_npcEventHandler = nullptr;
 	reset();
 
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
@@ -129,7 +129,7 @@ void Npc::reset()
 	walkDelay = 0;
 
 	delete m_npcEventHandler;
-	m_npcEventHandler = NULL;
+	m_npcEventHandler = nullptr;
 
 	queueList.clear();
 	m_parameters.clear();

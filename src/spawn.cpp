@@ -301,9 +301,9 @@ Spawn::~Spawn()
 	Monster *monster;
 	for (SpawnedMap::iterator it = spawnedMap.begin(); it != spawnedMap.end(); ++it) {
 		monster = it->second;
-		it->second = NULL;
+		it->second = nullptr;
 
-		monster->setSpawn(NULL);
+		monster->setSpawn(nullptr);
 		if (monster->isRemoved()) {
 			g_game.FreeThing(monster);
 		}
@@ -322,7 +322,7 @@ bool Spawn::findPlayer(const Position &pos)
 
 	g_game.getSpectators(list, pos);
 
-	Player *tmpPlayer = NULL;
+	Player *tmpPlayer = nullptr;
 	for (it = list.begin(); it != list.end(); ++it) {
 		if ((tmpPlayer = (*it)->getPlayer()) && !tmpPlayer->hasFlag(PlayerFlag_IgnoredByMonsters)) {
 			return true;

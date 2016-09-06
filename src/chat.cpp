@@ -223,18 +223,18 @@ bool Chat::isMuteableChannel(uint16_t channelId, SpeakClasses type)
 
 ChatChannel *Chat::createChannel(Player *player, uint16_t channelId)
 {
-	if (getChannel(player, channelId)) return NULL;
+	if (getChannel(player, channelId)) return nullptr;
 
 	if (channelId == CHANNEL_GUILD) {
 		ChatChannel *newChannel = new ChatChannel(channelId, player->getGuildName());
-		if (!newChannel) return NULL;
+		if (!newChannel) return nullptr;
 
 		m_guildChannels[player->getGuildId()] = newChannel;
 		return newChannel;
 	} else if (channelId == CHANNEL_PRIVATE) {
 		// Only 1 private channel for each player
 		if (getPrivateChannel(player)) {
-			return NULL;
+			return nullptr;
 		}
 
 		// Find a free private channel slot
@@ -244,7 +244,7 @@ ChatChannel *Chat::createChannel(Player *player, uint16_t channelId)
 			new PrivateChatChannel(i, player->getName() + "'s Channel");
 
 			if (!newChannel) {
-				return NULL;
+				return nullptr;
 			}
 
 			newChannel->setOwner(player->getGUID());
@@ -253,7 +253,7 @@ ChatChannel *Chat::createChannel(Player *player, uint16_t channelId)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool Chat::deleteChannel(Player *player, uint16_t channelId)
@@ -405,13 +405,13 @@ ChatChannel *Chat::getChannel(Player *player, uint16_t channelId)
 		if (git != m_guildChannels.end()) {
 			return git->second;
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	NormalChannelMap::iterator nit = m_normalChannels.find(channelId);
 	if (nit != m_normalChannels.end()) {
 		if (channelId == CHANNEL_RULE_REP && !player->hasFlag(PlayerFlag_CanAnswerRuleViolations)) {
-			return NULL;
+			return nullptr;
 		}
 
 		return nit->second;
@@ -422,7 +422,7 @@ ChatChannel *Chat::getChannel(Player *player, uint16_t channelId)
 		return pit->second;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 ChatChannel *Chat::getChannelById(uint16_t channelId)
@@ -432,7 +432,7 @@ ChatChannel *Chat::getChannelById(uint16_t channelId)
 		return it->second;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 PrivateChatChannel *Chat::getPrivateChannel(Player *player)
@@ -445,5 +445,5 @@ PrivateChatChannel *Chat::getPrivateChannel(Player *player)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }

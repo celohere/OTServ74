@@ -122,7 +122,7 @@ bool DatabaseSQLite::executeQuery(const std::string &query)
 	std::string buf = _parse(query);
 	sqlite3_stmt *stmt;
 	// prepares statement
-	if (OTS_SQLITE3_PREPARE(m_handle, buf.c_str(), buf.length(), &stmt, NULL) != SQLITE_OK) {
+	if (OTS_SQLITE3_PREPARE(m_handle, buf.c_str(), buf.length(), &stmt, nullptr) != SQLITE_OK) {
 		sqlite3_finalize(stmt);
 		std::cout << "OTS_SQLITE3_PREPARE(): SQLITE ERROR: " << sqlite3_errmsg(m_handle)
 		          << " (" << buf << ")" << std::endl;
@@ -151,7 +151,7 @@ DBResult *DatabaseSQLite::storeQuery(const std::string &query)
 {
 	boost::recursive_mutex::scoped_lock lockClass(sqliteLock);
 
-	if (!m_connected) return NULL;
+	if (!m_connected) return nullptr;
 
 #ifdef __DEBUG_SQL__
 	std::cout << "SQLITE QUERY: " << query << std::endl;
@@ -160,11 +160,11 @@ DBResult *DatabaseSQLite::storeQuery(const std::string &query)
 	std::string buf = _parse(query);
 	sqlite3_stmt *stmt;
 	// prepares statement
-	if (OTS_SQLITE3_PREPARE(m_handle, buf.c_str(), buf.length(), &stmt, NULL) != SQLITE_OK) {
+	if (OTS_SQLITE3_PREPARE(m_handle, buf.c_str(), buf.length(), &stmt, nullptr) != SQLITE_OK) {
 		sqlite3_finalize(stmt);
 		std::cout << "OTS_SQLITE3_PREPARE(): SQLITE ERROR: " << sqlite3_errmsg(m_handle)
 		          << " (" << buf << ")" << std::endl;
-		return NULL;
+		return nullptr;
 	}
 
 	DBResult *results = new SQLiteResult(stmt);
@@ -296,7 +296,7 @@ const char *SQLiteResult::getDataStream(const std::string &s, unsigned long &siz
 	}
 
 	std::cout << "Error during getDataStream(" << s << ")." << std::endl;
-	return NULL; // Failed
+	return nullptr; // Failed
 }
 
 

@@ -114,7 +114,7 @@ ItemType::ItemType()
 	breakChance = -1;
 	shootRange = 1;
 
-	condition = NULL;
+	condition = nullptr;
 	combatType = COMBAT_NONE;
 
 	replaceable = true;
@@ -1076,7 +1076,7 @@ bool Items::loadFromXml(const std::string &datadir)
 								it.group = ITEM_GROUP_MAGICFIELD;
 								it.type = ITEM_TYPE_MAGICFIELD;
 								CombatType_t combatType = COMBAT_NONE;
-								ConditionDamage *conditionDamage = NULL;
+								ConditionDamage *conditionDamage = nullptr;
 
 								if (readXMLString(itemAttributesNode,
 								                  "value", strValue)) {

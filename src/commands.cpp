@@ -964,7 +964,7 @@ uint32_t parseTime(const std::string &time)
 		if (*timeit == "y") // year
 			multiplier = 60 * 60 * 24 * 365;
 
-		uint32_t currentTime = std::time(NULL);
+		uint32_t currentTime = std::time(nullptr);
 		return currentTime + number * multiplier;
 	}
 }

@@ -54,7 +54,7 @@ Monster *Monster::createMonster(const std::string &name)
 {
 	MonsterType *mType = g_monsters.getMonsterType(name);
 	if (!mType) {
-		return NULL;
+		return nullptr;
 	}
 
 	return createMonster(mType);
@@ -65,7 +65,7 @@ Monster::Monster(MonsterType *_mtype) : Creature()
 	isActivated = false;
 	isMasterInRange = false;
 	mType = _mtype;
-	spawn = NULL;
+	spawn = nullptr;
 	defaultOutfit = mType->outfit;
 	currentOutfit = mType->outfit;
 
@@ -300,7 +300,7 @@ bool Monster::isFriend(const Creature *creature)
 {
 	if (isSummon() && getMaster()->getPlayer()) {
 		const Player *masterPlayer = getMaster()->getPlayer();
-		const Player *tmpPlayer = NULL;
+		const Player *tmpPlayer = nullptr;
 		if (creature->getPlayer()) {
 			tmpPlayer = creature->getPlayer();
 		} else if (creature->getMaster() && creature->getMaster()->getPlayer()) {
@@ -595,7 +595,7 @@ void Monster::onThink(uint32_t interval)
 					setFollowCreature(getMaster());
 				}
 			} else if (attackedCreature == this) {
-				setFollowCreature(NULL);
+				setFollowCreature(nullptr);
 			} else if (followCreature != attackedCreature) {
 				// This happens just after a master orders an attack, so lets follow
 				// it aswell.
@@ -872,7 +872,7 @@ bool Monster::pushItem(Item *item, int32_t radius)
 			Tile *tile = g_game.getTile(tryPos.x, tryPos.y, tryPos.z);
 			if (tile && g_game.canThrowObjectTo(centerPos, tryPos)) {
 				if (g_game.internalMoveItem(item->getParent(), tile, INDEX_WHEREEVER, item,
-				                            item->getItemCount(), NULL) == RET_NOERROR) {
+				                            item->getItemCount(), nullptr) == RET_NOERROR) {
 					return true;
 				}
 			}
@@ -980,7 +980,7 @@ bool Monster::getNextStep(Direction &dir)
 			if (attackedCreature && attackedCreature == followCreature) {
 				if (isFleeing()) {
 					result = getDanceStep(getPosition(), dir, false, false);
-				} else if (getMaster() && getMaster()->getMonster() != NULL && !hasFollowPath) {
+				} else if (getMaster() && getMaster()->getMonster() != nullptr && !hasFollowPath) {
 					if (getTimeSinceLastMove() > 1000) {
 						result = getRandomStep(getPosition(), dir);
 					}
@@ -1037,7 +1037,7 @@ bool Monster::getDanceStep(const Position &creaturePos, Direction &dir, bool kee
 {
 	bool canDoAttackNow = canUseAttack(creaturePos, attackedCreature);
 
-	assert(attackedCreature != NULL);
+	assert(attackedCreature != nullptr);
 	const Position &centerPos = attackedCreature->getPosition();
 	uint32_t centerToDist =
 	std::max(std::abs(creaturePos.x - centerPos.x), std::abs(creaturePos.y - centerPos.y));
@@ -1167,10 +1167,10 @@ bool Monster::canWalkTo(Position pos, Direction dir)
 
 void Monster::die()
 {
-	setAttackedCreature(NULL);
+	setAttackedCreature(nullptr);
 	for (std::list<Creature *>::iterator cit = summons.begin(); cit != summons.end(); ++cit) {
 		(*cit)->changeHealth(-(*cit)->getHealth());
-		(*cit)->setMaster(NULL);
+		(*cit)->setMaster(nullptr);
 		(*cit)->releaseThing2();
 	}
 	summons.clear();
@@ -1184,8 +1184,8 @@ Item *Monster::getCorpse()
 {
 	Item *corpse = Creature::getCorpse();
 	if (corpse) {
-		Creature *lastHitCreature = NULL;
-		Creature *mostDamageCreature = NULL;
+		Creature *lastHitCreature = nullptr;
+		Creature *mostDamageCreature = nullptr;
 
 		if (getKillers(&lastHitCreature, &mostDamageCreature) && mostDamageCreature) {
 			uint32_t corpseOwner = 0;
@@ -1361,14 +1361,14 @@ bool Monster::convinceCreature(Creature *creature)
 			oldMaster->removeSummon(this);
 			creature->addSummon(this);
 
-			setFollowCreature(NULL);
-			setAttackedCreature(NULL);
+			setFollowCreature(nullptr);
+			setAttackedCreature(nullptr);
 
 			// destroy summons
 			for (std::list<Creature *>::iterator cit = summons.begin();
 			     cit != summons.end(); ++cit) {
 				(*cit)->changeHealth(-(*cit)->getHealth());
-				(*cit)->setMaster(NULL);
+				(*cit)->setMaster(nullptr);
 				(*cit)->releaseThing2();
 			}
 			summons.clear();
@@ -1388,7 +1388,7 @@ bool Monster::convinceCreature(Creature *creature)
 
 			if (spawn) {
 				spawn->removeMonster(this);
-				spawn = NULL;
+				spawn = nullptr;
 				masterRadius = -1;
 			}
 
@@ -1396,12 +1396,12 @@ bool Monster::convinceCreature(Creature *creature)
 		}
 	} else {
 		creature->addSummon(this);
-		setFollowCreature(NULL);
-		setAttackedCreature(NULL);
+		setFollowCreature(nullptr);
+		setAttackedCreature(nullptr);
 
 		for (std::list<Creature *>::iterator cit = summons.begin(); cit != summons.end(); ++cit) {
 			(*cit)->changeHealth(-(*cit)->getHealth());
-			(*cit)->setMaster(NULL);
+			(*cit)->setMaster(nullptr);
 			(*cit)->releaseThing2();
 		}
 		summons.clear();
@@ -1421,7 +1421,7 @@ bool Monster::convinceCreature(Creature *creature)
 
 		if (spawn) {
 			spawn->removeMonster(this);
-			spawn = NULL;
+			spawn = nullptr;
 			masterRadius = -1;
 		}
 

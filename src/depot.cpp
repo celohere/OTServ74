@@ -53,7 +53,7 @@ Attr_ReadValue Depot::readAttr(AttrTypes_t attr, PropStream &propStream)
 ReturnValue Depot::__queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const
 {
 	const Item *item = thing->getItem();
-	if (item == NULL) {
+	if (item == nullptr) {
 		return RET_NOTPOSSIBLE;
 	}
 
@@ -90,7 +90,7 @@ Depot::__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32
 
 void Depot::postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link /*= LINK_OWNER*/)
 {
-	if (getParent() != NULL) {
+	if (getParent() != nullptr) {
 		getParent()->postAddNotification(thing, oldParent, index, LINK_PARENT);
 	}
 }
@@ -101,7 +101,7 @@ void Depot::postRemoveNotification(Thing *thing,
                                    bool isCompleteRemoval,
                                    cylinderlink_t link /*= LINK_OWNER*/)
 {
-	if (getParent() != NULL) {
+	if (getParent() != nullptr) {
 		getParent()->postRemoveNotification(thing, newParent, index, isCompleteRemoval, LINK_PARENT);
 	}
 }

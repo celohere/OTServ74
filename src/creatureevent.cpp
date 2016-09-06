@@ -66,7 +66,7 @@ Event *CreatureEvents::getEvent(const std::string &nodeName)
 	if (asLowerCaseString(nodeName) == "event") {
 		return new CreatureEvent(&m_scriptInterface);
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool CreatureEvents::registerEvent(Event *event, xmlNodePtr p)
@@ -94,7 +94,7 @@ CreatureEvent *CreatureEvents::getEventByName(const std::string &name)
 	CreatureEventList::iterator it = m_creatureEvents.find(name);
 	if (it != m_creatureEvents.end()) return it->second;
 
-	return NULL;
+	return nullptr;
 }
 
 // Global events
@@ -381,7 +381,7 @@ bool CreatureEvent::executeOnLook(Player *player, Thing *target, uint16_t itemId
 			else if (target->getItem())
 				target_id = env->addThing(target->getItem());
 			else
-				target = NULL;
+				target = nullptr;
 		}
 
 		if (target)

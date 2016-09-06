@@ -120,7 +120,7 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 	player->currentOutfit = player->defaultOutfit;
 
 #ifdef __SKULLSYSTEM__
-	int32_t redSkullSeconds = result->getDataInt("redskulltime") - std::time(NULL);
+	int32_t redSkullSeconds = result->getDataInt("redskulltime") - std::time(nullptr);
 	if (redSkullSeconds > 0) {
 		// ensure that we round up the number of ticks
 		player->redSkullTicks = (redSkullSeconds + 2) * 1000;
@@ -184,7 +184,7 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 	}
 
 	Account acc;
-	if (player->getVocationId() && acc.premEnd > 0 && acc.premEnd < std::time(NULL) &&
+	if (player->getVocationId() && acc.premEnd > 0 && acc.premEnd < std::time(nullptr) &&
 	    (g_config.getNumber(ConfigManager::TEMPLE_TP_ID) != 0)) {
 		town = Towns::getInstance().getTown(g_config.getNumber(ConfigManager::TEMPLE_TP_ID));
 		player->loginPosition = town->getTemplePosition();
@@ -517,7 +517,7 @@ bool IOPlayer::savePlayer(Player *player)
 #ifdef __SKULLSYSTEM__
 	int32_t redSkullTime = 0;
 	if (player->redSkullTicks > 0) {
-		redSkullTime = std::time(NULL) + player->redSkullTicks / 1000;
+		redSkullTime = std::time(nullptr) + player->redSkullTicks / 1000;
 	}
 
 	query << ", `redskulltime` = " << redSkullTime;
@@ -904,7 +904,7 @@ const PlayerGroup *IOPlayer::getPlayerGroup(uint32_t groupid)
 			return group;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 uint32_t IOPlayer::getLastIP(std::string name) const

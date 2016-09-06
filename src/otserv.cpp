@@ -61,7 +61,7 @@ Npcs g_npcs;
 Monsters g_monsters;
 BanManager g_bans;
 Vocations g_vocations;
-Server *g_server = NULL;
+Server *g_server = nullptr;
 
 #ifdef __PROTOCOL_77__
 RSA *g_otservRSA = NULL;
@@ -214,7 +214,7 @@ defined __DEBUG_LUASCRIPTS__ || defined __DEBUG_RAID__ || defined __DEBUG_NET__ 
 	sigh.sa_handler = SIG_IGN;
 	sigh.sa_flags = 0;
 	sigemptyset(&sigh.sa_mask);
-	sigaction(SIGPIPE, &sigh, NULL);
+	sigaction(SIGPIPE, &sigh, nullptr);
 #endif
 
 	Dispatcher::getDispatcher().addTask(createTask(boost::bind(mainLoader, g_command_opts)));
@@ -410,7 +410,7 @@ void mainLoader(const CommandLineOptions &command_opts)
 
 	std::cout << ":: Checking Database Connection... ";
 	Database *db = Database::instance();
-	if (db == NULL || !db->isConnected()) {
+	if (db == nullptr || !db->isConnected()) {
 		ErrorMessage("Database Connection Failed!");
 		exit(-1);
 	}
@@ -568,7 +568,7 @@ void mainLoader(const CommandLineOptions &command_opts)
 			std::cout << ":: Local IP address(es):  ";
 			unsigned char **addr = (unsigned char **)he->h_addr_list;
 
-			while (addr[0] != NULL) {
+			while (addr[0] != nullptr) {
 				std::cout
 				<< (unsigned int)(addr[0][0]) << "." << (unsigned int)(addr[0][1]) << "."
 				<< (unsigned int)(addr[0][2]) << "." << (unsigned int)(addr[0][3]) << "  ";
@@ -594,7 +594,7 @@ void mainLoader(const CommandLineOptions &command_opts)
 	uint32_t resolvedIp = inet_addr(ip.c_str());
 	if (resolvedIp == INADDR_NONE) {
 		struct hostent *he = gethostbyname(ip.c_str());
-		if (he != 0) {
+		if (he != nullptr) {
 			resolvedIp = *(uint32_t *)he->h_addr;
 		} else {
 			std::string error_msg = "Can't resolve: " + ip;

@@ -116,8 +116,8 @@ void Connection::closeConnectionTask()
 	if (m_protocol) {
 		Dispatcher::getDispatcher().addTask(
 		createTask(boost::bind(&Protocol::releaseProtocol, m_protocol)));
-		m_protocol->setConnection(NULL);
-		m_protocol = NULL;
+		m_protocol->setConnection(nullptr);
+		m_protocol = nullptr;
 	}
 
 	if (!closingConnection()) {

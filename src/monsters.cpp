@@ -88,7 +88,7 @@ void MonsterType::reset()
 	for (SpellList::iterator it = spellAttackList.begin(); it != spellAttackList.end(); ++it) {
 		if (it->combatSpell) {
 			delete it->spell;
-			it->spell = NULL;
+			it->spell = nullptr;
 		}
 	}
 
@@ -97,7 +97,7 @@ void MonsterType::reset()
 	for (SpellList::iterator it = spellDefenseList.begin(); it != spellDefenseList.end(); ++it) {
 		if (it->combatSpell) {
 			delete it->spell;
-			it->spell = NULL;
+			it->spell = nullptr;
 		}
 	}
 
@@ -148,7 +148,7 @@ void MonsterType::createLoot(Container *corpse)
 
 Item *MonsterType::createLootItem(const LootBlock &lootBlock)
 {
-	Item *tmpItem = NULL;
+	Item *tmpItem = nullptr;
 	if (Item::items[lootBlock.id].stackable) {
 		uint32_t randvalue = Monsters::getLootRandom();
 		if (randvalue < lootBlock.chance) {
@@ -177,7 +177,7 @@ Item *MonsterType::createLootItem(const LootBlock &lootBlock)
 		return tmpItem;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void MonsterType::createLootContainer(Container *parent, const LootBlock &lootblock)
@@ -341,7 +341,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 		return true;
 	}
 
-	CombatSpell *combatSpell = NULL;
+	CombatSpell *combatSpell = nullptr;
 	bool needTarget = false;
 	bool needDirection = false;
 
@@ -354,7 +354,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 			needTarget = (intValue != 0);
 		}
 
-		combatSpell = new CombatSpell(NULL, needTarget, needDirection);
+		combatSpell = new CombatSpell(nullptr, needTarget, needDirection);
 
 		std::string datadir = g_config.getString(ConfigManager::DATA_DIRECTORY);
 		if (!combatSpell->loadScript(datadir + g_spells->getScriptBaseName() + "/scripts/" + scriptName)) {
@@ -653,14 +653,14 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 bool Monsters::loadMonster(const std::string &file, const std::string &monster_name, bool reloading /*= false*/)
 {
 	bool monsterLoad;
-	MonsterType *mType = NULL;
+	MonsterType *mType = nullptr;
 	bool new_mType = true;
 
 	if (reloading) {
 		uint32_t id = getIdByName(monster_name);
 		if (id != 0) {
 			mType = getMonsterType(id);
-			if (mType != NULL) {
+			if (mType != nullptr) {
 				new_mType = false;
 				mType->reset();
 			}
@@ -1231,14 +1231,14 @@ bool Monsters::loadLootItem(xmlNodePtr node, LootBlock &lootBlock)
 
 bool Monsters::loadLootContainer(xmlNodePtr node, LootBlock &lBlock)
 {
-	if (node == NULL) {
+	if (node == nullptr) {
 		return false;
 	}
 
 	xmlNodePtr tmpNode = node->children;
 	xmlNodePtr p;
 
-	if (tmpNode == NULL) {
+	if (tmpNode == nullptr) {
 		return false;
 	}
 
@@ -1265,7 +1265,7 @@ MonsterType *Monsters::getMonsterType(const std::string &name)
 {
 	uint32_t mId = getIdByName(name);
 	if (mId == 0) {
-		return NULL;
+		return nullptr;
 	}
 
 	return getMonsterType(mId);
@@ -1277,7 +1277,7 @@ MonsterType *Monsters::getMonsterType(uint32_t mid)
 	if (it != monsters.end()) {
 		return it->second;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 

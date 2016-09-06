@@ -49,7 +49,7 @@ bool IOAccount::saveAccount(Account acc)
 	Database *db = Database::instance();
 	DBQuery query;
 
-	if (acc.premEnd > 0 && acc.premEnd < std::time(NULL)) {
+	if (acc.premEnd > 0 && acc.premEnd < std::time(nullptr)) {
 		acc.premEnd = 0;
 	}
 

@@ -127,13 +127,13 @@ Tile *Map::getTile(uint16_t x, uint16_t y, uint16_t z)
 			if (floor) {
 				return floor->tiles[x & FLOOR_MASK][y & FLOOR_MASK];
 			} else {
-				return NULL;
+				return nullptr;
 			}
 		} else {
-			return NULL;
+			return nullptr;
 		}
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -274,7 +274,7 @@ bool Map::placeCreature(const Position &centerPos, Creature *creature, bool exte
 
 	if (foundTile) {
 		int32_t index = 0;
-		Item *toItem = NULL;
+		Item *toItem = nullptr;
 		uint32_t flags = 0;
 		Cylinder *toCylinder = tile->__queryDestination(index, creature, &toItem, flags);
 		toCylinder->__internalAddThing(creature);
@@ -662,7 +662,7 @@ const Tile *Map::canWalkTo(const Creature *creature, const Position &pos)
 {
 	switch (creature->getWalkCache(pos)) {
 	case 0:
-		return NULL;
+		return nullptr;
 	case 1:
 		return getTile(pos);
 		break;
@@ -672,7 +672,7 @@ const Tile *Map::canWalkTo(const Creature *creature, const Position &pos)
 	Tile *tile = getTile(pos);
 	if (creature->getTile() != tile) {
 		if (!tile || tile->__queryAdd(0, creature, 1, FLAG_PATHFINDING | FLAG_IGNOREFIELDDAMAGE) != RET_NOERROR) {
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -681,7 +681,7 @@ const Tile *Map::canWalkTo(const Creature *creature, const Position &pos)
 
 bool Map::getPathTo(const Creature *creature, const Position &destPos, std::list<Direction> &listDir, int32_t maxSearchDist /*= -1*/)
 {
-	if (canWalkTo(creature, destPos) == NULL) {
+	if (canWalkTo(creature, destPos) == nullptr) {
 		return false;
 	}
 
@@ -703,7 +703,7 @@ bool Map::getPathTo(const Creature *creature, const Position &destPos, std::list
 	startNode->g = 0;
 	startNode->h = nodes.getEstimatedDistance(startPos.x, startPos.y, endPos.x, endPos.y);
 	startNode->f = startNode->g + startNode->h;
-	startNode->parent = NULL;
+	startNode->parent = nullptr;
 
 	Position pos;
 	pos.z = startPos.z;
@@ -721,8 +721,8 @@ bool Map::getPathTo(const Creature *creature, const Position &destPos, std::list
 		{ -1, 1 },
 	};
 
-	const Tile *tile = NULL;
-	AStarNode *found = NULL;
+	const Tile *tile = nullptr;
+	AStarNode *found = nullptr;
 
 	while (maxSearchDist != -1 || nodes.countClosedNodes() < 100) {
 		AStarNode *n = nodes.getBestNode();
@@ -846,7 +846,7 @@ bool Map::getPathMatching(const Creature *creature,
 	startNode->y = startPos.y;
 
 	startNode->f = 0;
-	startNode->parent = NULL;
+	startNode->parent = nullptr;
 
 	Position pos;
 	pos.z = startPos.z;
@@ -865,8 +865,8 @@ bool Map::getPathMatching(const Creature *creature,
 		{ -1, 1 },
 	};
 
-	const Tile *tile = NULL;
-	AStarNode *found = NULL;
+	const Tile *tile = nullptr;
+	AStarNode *found = nullptr;
 
 	while (fpp.maxSearchDist != -1 || nodes.countClosedNodes() < 100) {
 		AStarNode *n = nodes.getBestNode();
@@ -1005,7 +1005,7 @@ AStarNodes::AStarNodes()
 AStarNode *AStarNodes::createOpenNode()
 {
 	if (curNode >= MAX_NODES) {
-		return NULL;
+		return nullptr;
 	}
 
 	uint32_t ret_node = curNode;
@@ -1016,7 +1016,7 @@ AStarNode *AStarNodes::createOpenNode()
 
 AStarNode *AStarNodes::getBestNode()
 {
-	if (curNode == 0) return NULL;
+	if (curNode == 0) return nullptr;
 
 	int best_node_f = 100000;
 	uint32_t best_node = 0;
@@ -1034,7 +1034,7 @@ AStarNode *AStarNodes::getBestNode()
 		return &nodes[best_node];
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void AStarNodes::closeNode(AStarNode *node)
@@ -1101,7 +1101,7 @@ AStarNode *AStarNodes::getNodeInList(int32_t x, int32_t y)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int32_t AStarNodes::getMapWalkCost(const Creature *creature, AStarNode *node, const Tile *neighbourTile, const Position &neighbourPos)
@@ -1149,7 +1149,7 @@ Floor::Floor()
 {
 	for (uint32_t i = 0; i < FLOOR_SIZE; ++i) {
 		for (uint32_t j = 0; j < FLOOR_SIZE; ++j) {
-			tiles[i][j] = 0;
+			tiles[i][j] = nullptr;
 		}
 	}
 }
@@ -1158,10 +1158,10 @@ Floor::Floor()
 QTreeNode::QTreeNode()
 {
 	m_isLeaf = false;
-	m_child[0] = NULL;
-	m_child[1] = NULL;
-	m_child[2] = NULL;
-	m_child[3] = NULL;
+	m_child[0] = nullptr;
+	m_child[1] = nullptr;
+	m_child[2] = nullptr;
+	m_child[3] = nullptr;
 }
 
 QTreeNode::~QTreeNode()
@@ -1183,7 +1183,7 @@ QTreeLeafNode *QTreeNode::getLeaf(uint32_t x, uint32_t y)
 		if (m_child[index]) {
 			return m_child[index]->getLeaf(x * 2, y * 2);
 		} else {
-			return NULL;
+			return nullptr;
 		}
 	} else {
 		return static_cast<QTreeLeafNode *>(this);
@@ -1207,13 +1207,13 @@ QTreeLeafNode *QTreeNode::getLeafStatic(QTreeNode *root, uint32_t x, uint32_t y)
 				currentX = currentX * 2;
 				currentY = currentY * 2;
 			} else {
-				return NULL;
+				return nullptr;
 			}
 		} else {
 			return static_cast<QTreeLeafNode *>(currentNode);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 QTreeLeafNode *QTreeNode::createLeaf(uint32_t x, uint32_t y, uint32_t level)
@@ -1244,11 +1244,11 @@ bool QTreeLeafNode::newLeaf = false;
 QTreeLeafNode::QTreeLeafNode()
 {
 	for (unsigned int i = 0; i < MAP_MAX_LAYERS; ++i) {
-		m_array[i] = NULL;
+		m_array[i] = nullptr;
 	}
 	m_isLeaf = true;
-	m_leafS = NULL;
-	m_leafE = NULL;
+	m_leafS = nullptr;
+	m_leafE = nullptr;
 }
 
 QTreeLeafNode::~QTreeLeafNode()

@@ -67,7 +67,7 @@ Event *GlobalEvents::getEvent(const std::string &nodeName)
 	if (asLowerCaseString(nodeName) == "globalevent")
 		return new GlobalEvent(&m_scriptInterface);
 
-	return NULL;
+	return nullptr;
 }
 
 bool GlobalEvents::registerEvent(Event *event, xmlNodePtr)
@@ -117,7 +117,7 @@ void GlobalEvents::startup()
 
 void GlobalEvents::timer()
 {
-	time_t now = time(NULL);
+	time_t now = time(nullptr);
 	for (GlobalEventMap::iterator it = timerMap.begin(); it != timerMap.end(); ++it) {
 		if (it->second->getNextExecution() > now) continue;
 
@@ -241,7 +241,7 @@ bool GlobalEvent::configureEvent(xmlNodePtr p)
 			}
 		}
 
-		time_t current_time = time(NULL);
+		time_t current_time = time(nullptr);
 		tm *timeinfo = localtime(&current_time);
 		timeinfo->tm_hour = hour;
 		timeinfo->tm_min = min;

@@ -42,7 +42,7 @@ extern ConfigManager g_config;
 
 boost::recursive_mutex DBQuery::database_lock;
 
-Database *_Database::_instance = NULL;
+Database *_Database::_instance = nullptr;
 
 Database *_Database::instance()
 {
@@ -75,7 +75,7 @@ DBResult *_Database::verifyResult(DBResult *result)
 {
 	if (!result->next()) {
 		_instance->freeResult(result);
-		return NULL;
+		return nullptr;
 	} else {
 		return result;
 	}

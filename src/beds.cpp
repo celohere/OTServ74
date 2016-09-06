@@ -33,7 +33,7 @@ extern ConfigManager g_config;
 
 BedItem::BedItem(uint16_t _id) : Item(_id)
 {
-	house = NULL;
+	house = nullptr;
 	internalRemoveSleeper();
 }
 
@@ -111,23 +111,23 @@ BedItem *BedItem::getNextBedItem()
 	}
 
 	Tile *tile = g_game.getMap()->getTile(targetPos);
-	if (tile != NULL) {
+	if (tile != nullptr) {
 		return tile->getBedItem();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool BedItem::canUse(Player *player)
 {
-	if (house == NULL || (g_config.getBoolean(ConfigManager::PREMIUM_ONLY_BEDS) && !player->isPremium())) {
+	if (house == nullptr || (g_config.getBoolean(ConfigManager::PREMIUM_ONLY_BEDS) && !player->isPremium())) {
 		return false;
 	} else if (sleeperGUID != 0) {
 		if (house->getHouseAccessLevel(player) != HOUSE_OWNER) {
 			std::string name;
 
 			if (IOPlayer::instance()->getNameByGuid(sleeperGUID, name)) {
-				Player *sleeper = new Player(name, NULL);
+				Player *sleeper = new Player(name, nullptr);
 
 				if (IOPlayer::instance()->loadPlayer(sleeper, name)) {
 					// compares house access of the kicker (player) to the
@@ -140,13 +140,13 @@ bool BedItem::canUse(Player *player)
 					if (house->getHouseAccessLevel(sleeper) <=
 					    house->getHouseAccessLevel(player)) {
 						delete sleeper;
-						sleeper = NULL;
+						sleeper = nullptr;
 						return isBed();
 					}
 				}
 
 				delete sleeper;
-				sleeper = NULL;
+				sleeper = nullptr;
 			}
 
 			return false;
@@ -158,7 +158,7 @@ bool BedItem::canUse(Player *player)
 
 void BedItem::sleep(Player *player)
 {
-	if ((house == NULL) || (player == NULL) || player->isRemoved()) {
+	if ((house == nullptr) || (player == nullptr) || player->isRemoved()) {
 		return;
 	}
 
@@ -192,15 +192,15 @@ void BedItem::sleep(Player *player)
 
 void BedItem::wakeUp(Player *player)
 {
-	if (house == NULL) {
+	if (house == nullptr) {
 		return;
 	}
 
 	if (sleeperGUID != 0) {
-		if ((player == NULL)) {
+		if (player = nullptr) {
 			std::string name;
 			if (IOPlayer::instance()->getNameByGuid(sleeperGUID, name)) {
-				Player *_player = new Player(name, NULL);
+				Player *_player = new Player(name, nullptr);
 
 				if (IOPlayer::instance()->loadPlayer(_player, name)) {
 					regeneratePlayer(_player);
@@ -208,7 +208,7 @@ void BedItem::wakeUp(Player *player)
 				}
 
 				delete _player;
-				_player = NULL;
+				_player = nullptr;
 			}
 		} else {
 			regeneratePlayer(player);
@@ -217,7 +217,7 @@ void BedItem::wakeUp(Player *player)
 	}
 
 	// update the BedSleepersMap
-	Beds::instance().setBedSleeper(NULL, sleeperGUID);
+	Beds::instance().setBedSleeper(nullptr, sleeperGUID);
 
 	internalRemoveSleeper();
 
@@ -227,16 +227,16 @@ void BedItem::wakeUp(Player *player)
 	}
 
 	// change self and partner's appearance
-	updateAppearance(NULL);
+	updateAppearance(nullptr);
 	if (nextBedItem) {
-		nextBedItem->updateAppearance(NULL);
+		nextBedItem->updateAppearance(nullptr);
 	}
 }
 
 void BedItem::regeneratePlayer(Player *player) const
 {
 	// Note: time_t is in seconds
-	int32_t sleptTime = int32_t(std::time(NULL) - sleepStart);
+	int32_t sleptTime = int32_t(std::time(nullptr) - sleepStart);
 
 	Condition *condition = player->getCondition(CONDITION_REGENERATION, CONDITIONID_DEFAULT);
 	if (condition) {
@@ -248,7 +248,7 @@ void BedItem::regeneratePlayer(Player *player) const
 			int32_t newRegenTicks = condition->getTicks() - (regen * 30000);
 			if (newRegenTicks <= 0) {
 				player->removeCondition(condition);
-				condition = NULL;
+				condition = nullptr;
 			} else {
 				condition->setTicks(newRegenTicks);
 			}
@@ -271,7 +271,7 @@ void BedItem::updateAppearance(const Player *player)
 {
 	const ItemType &it = Item::items[getID()];
 	if (it.type == ITEM_TYPE_BED) {
-		if (player == NULL) {
+		if (player == nullptr) {
 			if (it.noSleeperID != 0) {
 				const ItemType &newType = Item::items[it.noSleeperID];
 				if (newType.type == ITEM_TYPE_BED) {
@@ -301,7 +301,7 @@ void BedItem::internalSetSleeper(const Player *player)
 	std::string desc_str = player->getName() + " is sleeping there.";
 
 	setSleeper(player->getGUID());
-	setSleepStart(std::time(NULL));
+	setSleepStart(std::time(nullptr));
 	setSpecialDescription(desc_str);
 }
 
@@ -324,7 +324,7 @@ BedItem *Beds::getBedBySleeper(uint32_t guid)
 	if (it != BedSleepersMap.end()) {
 		return it->second;
 	}
-	return NULL;
+	return nullptr;
 }
 
 void Beds::setBedSleeper(BedItem *bed, uint32_t guid)

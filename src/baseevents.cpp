@@ -42,7 +42,7 @@ bool BaseEvents::loadFromXml(const std::string &datadir)
 		return false;
 	}
 	m_datadir = datadir;
-	Event *event = NULL;
+	Event *event = nullptr;
 
 
 	std::string scriptsName = getScriptBaseName();
@@ -101,7 +101,7 @@ bool BaseEvents::loadFromXml(const std::string &datadir)
 						          << std::endl;
 						delete event;
 					}
-					event = NULL;
+					event = nullptr;
 				}
 			}
 			p = p->next;
@@ -168,7 +168,7 @@ bool Event::loadFunction(const std::string &functionName)
 CallBack::CallBack()
 {
 	m_scriptId = 0;
-	m_scriptInterface = NULL;
+	m_scriptInterface = nullptr;
 	m_loaded = false;
 }
 

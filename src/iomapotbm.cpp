@@ -76,7 +76,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 	unsigned long type;
 	PropStream propStream;
 
-	NODE root = f.getChildNode((NODE)NULL, type);
+	NODE root = f.getChildNode((NODE)nullptr, type);
 
 	if (!f.getProps(root, propStream)) {
 		setLastErrorString("Could not read root property.");
@@ -171,7 +171,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 		}
 	}
 
-	Tile *tile = NULL;
+	Tile *tile = nullptr;
 
 	NODE nodeMapData = f.getChildNode(nodeMap, type);
 	while (nodeMapData != NO_NODE) {
@@ -225,7 +225,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 					pz = base_z;
 
 					bool isHouseTile = false;
-					House *house = NULL;
+					House *house = nullptr;
 
 					if (type == OTBM_TILE) {
 						tile = new Tile(px, py, pz);
@@ -316,7 +316,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 								<< " Item type = " << item->getID()
 								<< std::endl;
 								delete item;
-								item = NULL;
+								item = nullptr;
 							} else {
 								tile->__internalAddThing(item);
 								item->__startDecaying();

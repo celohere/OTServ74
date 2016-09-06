@@ -100,7 +100,7 @@ void Teleport::__addThing(int32_t index, Thing *thing)
 			g_game.addMagicEffect(destTile->getPosition(), NM_ME_ENERGY_AREA);
 		} else if (Item *item = thing->getItem()) {
 			g_game.internalMoveItem(getTile(), destTile, INDEX_WHEREEVER, item,
-			                        item->getItemCount(), NULL);
+			                        item->getItemCount(), nullptr);
 		}
 	}
 }

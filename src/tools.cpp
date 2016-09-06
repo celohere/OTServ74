@@ -37,8 +37,8 @@ extern ConfigManager g_config;
 bool fileExists(const char *filename)
 {
 	FILE *f = fopen(filename, "rb");
-	bool exists = (f != NULL);
-	if (f != NULL) fclose(f);
+	bool exists = (f != nullptr);
+	if (f != nullptr) fclose(f);
 
 	return exists;
 }
@@ -129,7 +129,7 @@ bool utf8ToLatin1(char *intext, std::string &outtext)
 {
 	outtext = "";
 
-	if (intext == NULL) {
+	if (intext == nullptr) {
 		return false;
 	}
 
@@ -205,7 +205,7 @@ bool hasBitSet(uint32_t flag, uint32_t flags)
 #define RAND_MAX24 16777216
 uint32_t rand24b()
 {
-	return (rand() << 12) ^ (rand()) & (0xFFFFFF);
+	return (rand() << 12) ^ ((rand()) & (0xFFFFFF));
 }
 
 float box_muller(float m, float s)

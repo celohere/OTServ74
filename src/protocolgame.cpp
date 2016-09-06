@@ -178,7 +178,7 @@ void ProtocolGame::addGameTask(r (Game::*f)(f1, f2, f3, f4, f5, f6, f7, f8), T1 
 
 ProtocolGame::ProtocolGame(Connection *connection) : Protocol(connection)
 {
-	player = NULL;
+	player = nullptr;
 	m_nextTask = 0;
 	m_nextPing = 0;
 	m_lastTaskCheck = 0;
@@ -195,7 +195,7 @@ ProtocolGame::ProtocolGame(Connection *connection) : Protocol(connection)
 
 ProtocolGame::~ProtocolGame()
 {
-	player = NULL;
+	player = nullptr;
 
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 	ProtocolGameCount--;
@@ -212,7 +212,7 @@ void ProtocolGame::releaseProtocol()
 	// dispatcher thread
 	if (player) {
 		if (player->client == this) {
-			player->client = NULL;
+			player->client = nullptr;
 		}
 	}
 
@@ -228,7 +228,7 @@ void ProtocolGame::deleteProtocolTask()
 #endif
 
 		g_game.FreeThing(player);
-		player = NULL;
+		player = nullptr;
 	}
 
 	Protocol::deleteProtocolTask();
@@ -324,7 +324,7 @@ bool ProtocolGame::login(const std::string &name, bool isSetGM)
 		}
 
 		player->lastip = player->getIP();
-		player->lastLoginSaved = std::max(time(NULL), player->lastLoginSaved + 1);
+		player->lastLoginSaved = std::max(time(nullptr), player->lastLoginSaved + 1);
 		m_acceptPackets = true;
 
 		return true;
@@ -369,7 +369,7 @@ bool ProtocolGame::connect(uint32_t playerId)
 	player->client->sendAddCreature(player, false);
 	player->sendIcons();
 	player->lastip = player->getIP();
-	player->lastLoginSaved = std::max(time(NULL), player->lastLoginSaved + 1);
+	player->lastLoginSaved = std::max(time(nullptr), player->lastLoginSaved + 1);
 	m_acceptPackets = true;
 	return true;
 }
@@ -1490,7 +1490,7 @@ void ProtocolGame::parseDebugAssert(NetworkMessage &msg)
 	// write it in the assertions file
 	FILE *f = fopen("client_assertions.txt", "a");
 	char bufferDate[32], bufferIp[32];
-	time_t tmp = time(NULL);
+	time_t tmp = time(nullptr);
 	formatIP(getIP(), bufferIp);
 	formatDate(tmp, bufferDate);
 	fprintf(f, "----- %s - %s (%s) -----\n", bufferDate, player->getName().c_str(), bufferIp);
@@ -1769,7 +1769,7 @@ void ProtocolGame::sendTradeItemRequest(const Player *player, const Item *item, 
 		if (const Container *tradeContainer = item->getContainer()) {
 			std::list<const Container *> listContainer;
 			ItemList::const_iterator it;
-			Container *tmpContainer = NULL;
+			Container *tmpContainer = nullptr;
 
 			listContainer.push_back(tradeContainer);
 
@@ -2094,7 +2094,7 @@ void ProtocolGame::sendAddCreature(const Creature *creature, bool isLogin)
 					bool online;
 					std::string vip_name;
 					if (IOPlayer::instance()->getNameByGuid((*it), vip_name)) {
-						online = (g_game.getPlayerByName(vip_name) != NULL);
+						online = (g_game.getPlayerByName(vip_name) != nullptr);
 						sendVIP((*it), vip_name, online);
 					}
 				}
@@ -2780,7 +2780,7 @@ void ProtocolGame::MoveDownCreature(NetworkMessage_ptr msg,
 // inventory
 void ProtocolGame::AddInventoryItem(NetworkMessage_ptr msg, slots_t slot, const Item *item)
 {
-	if (item == NULL) {
+	if (item == nullptr) {
 		msg->AddByte(0x79);
 		msg->AddByte(slot);
 	} else {
@@ -2792,7 +2792,7 @@ void ProtocolGame::AddInventoryItem(NetworkMessage_ptr msg, slots_t slot, const 
 
 void ProtocolGame::UpdateInventoryItem(NetworkMessage_ptr msg, slots_t slot, const Item *item)
 {
-	if (item == NULL) {
+	if (item == nullptr) {
 		msg->AddByte(0x79);
 		msg->AddByte(slot);
 	} else {

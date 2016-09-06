@@ -32,7 +32,7 @@ Scheduler::Scheduler()
 {
 	m_lastEventId = 0;
 	Scheduler::m_threadState = STATE_RUNNING;
-	boost::thread(boost::bind(&Scheduler::schedulerThread, (void *)NULL));
+	boost::thread(boost::bind(&Scheduler::schedulerThread, (void *)nullptr));
 }
 
 void Scheduler::schedulerThread(void *p)
@@ -50,7 +50,7 @@ void Scheduler::schedulerThread(void *p)
 	boost::unique_lock<boost::mutex> eventLockUnique(getScheduler().m_eventLock, boost::defer_lock);
 
 	while (Scheduler::m_threadState != Scheduler::STATE_TERMINATED) {
-		SchedulerTask *task = NULL;
+		SchedulerTask *task = nullptr;
 		bool runTask = false;
 		bool ret = true;
 

@@ -142,13 +142,13 @@ std::string Status::getStatusString() const
 	xmlNodePtr p, root;
 
 	doc = xmlNewDoc((const xmlChar *)"1.0");
-	doc->children = xmlNewDocNode(doc, NULL, (const xmlChar *)"tsqp", NULL);
+	doc->children = xmlNewDocNode(doc, nullptr, (const xmlChar *)"tsqp", nullptr);
 	root = doc->children;
 
 	xmlSetProp(root, (const xmlChar *)"version", (const xmlChar *)"1.0");
 
 
-	p = xmlNewNode(NULL, (const xmlChar *)"serverinfo");
+	p = xmlNewNode(nullptr, (const xmlChar *)"serverinfo");
 	ss << getUptime();
 	xmlSetProp(p, (const xmlChar *)"uptime", (const xmlChar *)ss.str().c_str());
 	ss.str("");
@@ -169,14 +169,14 @@ std::string Status::getStatusString() const
 	xmlSetProp(p, (const xmlChar *)"client", (const xmlChar *)OTSERV_CLIENT_VERSION);
 	xmlAddChild(root, p);
 
-	p = xmlNewNode(NULL, (const xmlChar *)"owner");
+	p = xmlNewNode(nullptr, (const xmlChar *)"owner");
 	xmlSetProp(p, (const xmlChar *)"name",
 	           (const xmlChar *)g_config.getString(ConfigManager::OWNER_NAME).c_str());
 	xmlSetProp(p, (const xmlChar *)"email",
 	           (const xmlChar *)g_config.getString(ConfigManager::OWNER_EMAIL).c_str());
 	xmlAddChild(root, p);
 
-	p = xmlNewNode(NULL, (const xmlChar *)"players");
+	p = xmlNewNode(nullptr, (const xmlChar *)"players");
 	ss << m_playersonline;
 	xmlSetProp(p, (const xmlChar *)"online", (const xmlChar *)ss.str().c_str());
 	ss.str("");
@@ -196,7 +196,7 @@ std::string Status::getStatusString() const
 	xmlAddChild(root, p);
 	*/
 
-	p = xmlNewNode(NULL, (const xmlChar *)"map");
+	p = xmlNewNode(nullptr, (const xmlChar *)"map");
 	xmlSetProp(p, (const xmlChar *)"name", (const xmlChar *)m_mapname.c_str());
 	xmlSetProp(p, (const xmlChar *)"author", (const xmlChar *)m_mapauthor.c_str());
 
@@ -210,10 +210,10 @@ std::string Status::getStatusString() const
 	xmlSetProp(p, (const xmlChar *)"height", (const xmlChar *)ss.str().c_str());
 	xmlAddChild(root, p);
 
-	xmlNewTextChild(root, NULL, (const xmlChar *)"motd",
+	xmlNewTextChild(root, nullptr, (const xmlChar *)"motd",
 	                (const xmlChar *)g_config.getString(ConfigManager::MOTD).c_str());
 
-	xmlChar *s = NULL;
+	xmlChar *s = nullptr;
 	int len = 0;
 	xmlDocDumpMemory(doc, (xmlChar **)&s, &len);
 
@@ -298,7 +298,7 @@ void Status::getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMe
 	if (requestedInfo & REQUEST_PLAYER_STATUS_INFO) {
 		output->AddByte(0x22); // players info - online status info of a player
 		const std::string name = msg.GetString();
-		if (g_game.getPlayerByName(name) != NULL) {
+		if (g_game.getPlayerByName(name) != nullptr) {
 			output->AddByte(0x01);
 		} else {
 			output->AddByte(0x00);

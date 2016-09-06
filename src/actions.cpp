@@ -74,7 +74,7 @@ Event *Actions::getEvent(const std::string &nodeName)
 	if (asLowerCaseString(nodeName) == "action") {
 		return new Action(&m_scriptInterface);
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -116,8 +116,8 @@ ReturnValue Actions::canUse(const Player *player, const Position &pos)
 
 bool Actions::hasAction(const Item *item) const
 {
-	return (getAction(item, ACTION_UNIQUEID) != NULL) || (getAction(item, ACTION_ACTIONID) != NULL) ||
-	       (getAction(item, ACTION_ITEMID) != NULL) || (getAction(item, ACTION_RUNEID) != NULL);
+	return (getAction(item, ACTION_UNIQUEID) != nullptr) || (getAction(item, ACTION_ACTIONID) != nullptr) ||
+	       (getAction(item, ACTION_ITEMID) != nullptr) || (getAction(item, ACTION_RUNEID) != nullptr);
 }
 
 ReturnValue Actions::canUse(const Player *player, const Position &pos, const Item *item)
@@ -218,7 +218,7 @@ Action *Actions::getAction(const Item *item, ActionType_t type /* = ACTION_ANY*/
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool Actions::executeUse(Action *action, Player *player, Item *item, const PositionEx &posEx, uint32_t creatureId)
@@ -291,7 +291,7 @@ ReturnValue Actions::internalUseItem(Player *player, const Position &pos, uint8_
 	// if it is a container try to open it
 	if (Container *container = item->getContainer()) {
 
-		Container *openContainer = NULL;
+		Container *openContainer = nullptr;
 		// depot container
 		if (Depot *depot = container->getDepot()) {
 			Depot *myDepot = player->getDepot(depot->getDepotId(), true);
@@ -319,7 +319,7 @@ ReturnValue Actions::internalUseItem(Player *player, const Position &pos, uint8_
 			player->setWriteItem(item, item->getMaxWriteLength());
 			player->sendTextWindow(item, item->getMaxWriteLength(), true);
 		} else {
-			player->setWriteItem(NULL);
+			player->setWriteItem(nullptr);
 			player->sendTextWindow(item, 0, false);
 		}
 
@@ -338,7 +338,7 @@ bool Actions::useItem(Player *player, const Position &pos, uint8_t index, Item *
 		return false;
 	}
 
-	player->setNextActionTask(NULL);
+	player->setNextActionTask(nullptr);
 	player->stopWalk();
 
 	ReturnValue ret = internalUseItem(player, pos, index, item, 0);
@@ -440,7 +440,7 @@ bool Actions::useItemEx(Player *player,
 		return false;
 	}
 
-	player->setNextActionTask(NULL);
+	player->setNextActionTask(nullptr);
 	player->stopWalk();
 
 	Action *action = getAction(item);
@@ -551,7 +551,7 @@ bool Action::executeUse(Player *player, Item *item, const PositionEx &fromPos, c
 			LuaScriptInterface::pushThing(L, thing, thingId2);
 			LuaScriptInterface::pushPosition(L, toPos, toPos.stackpos);
 		} else {
-			LuaScriptInterface::pushThing(L, NULL, 0);
+			LuaScriptInterface::pushThing(L, nullptr, 0);
 			Position posEx;
 			LuaScriptInterface::pushPosition(L, posEx, 0);
 		}

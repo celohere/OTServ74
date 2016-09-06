@@ -194,7 +194,7 @@ OutputMessage_ptr OutputMessagePool::getOutputMessage(Protocol *protocol, bool a
 
 	boost::recursive_mutex::scoped_lock lockClass(m_outputPoolLock);
 
-	if (protocol->getConnection() == NULL) {
+	if (protocol->getConnection() == nullptr) {
 		return OutputMessage_ptr();
 	}
 
@@ -228,7 +228,7 @@ void OutputMessagePool::configureOutputMessage(OutputMessage_ptr msg, Protocol *
 	}
 
 	Connection *connection = protocol->getConnection();
-	assert(connection != NULL);
+	assert(connection != nullptr);
 
 	msg->setProtocol(protocol);
 	protocol->addRef();

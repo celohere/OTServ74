@@ -49,7 +49,7 @@ House::House(uint32_t _houseid) : transfer_container(ITEM_LOCKER1)
 	lastWarning = 0;
 	rent = 0;
 	townid = 0;
-	transferItem = NULL;
+	transferItem = nullptr;
 }
 
 House::~House()
@@ -77,21 +77,21 @@ void House::setHouseOwner(uint32_t guid)
 		for (HouseTileList::iterator it = houseTiles.begin(); it != houseTiles.end(); ++it) {
 			for (uint32_t i = 0; i < (*it)->getThingCount(); ++i) {
 				Creature *creature = (*it)->__getThing(i)->getCreature();
-				if (creature != NULL && creature->getPlayer())
+				if (creature != nullptr && creature->getPlayer())
 					to_kick.push_back(creature->getPlayer());
 			}
 		}
 		while (to_kick.empty() == false) {
 			Player *c = to_kick.back();
 			to_kick.pop_back();
-			kickPlayer(NULL, c->getName());
+			kickPlayer(nullptr, c->getName());
 		}
 
 		// we need to remove players from beds
 		HouseBedItemList::iterator bit;
 		for (bit = bedsList.begin(); bit != bedsList.end(); ++bit) {
 			if ((*bit)->getSleeper() != 0) {
-				(*bit)->wakeUp(NULL);
+				(*bit)->wakeUp(nullptr);
 			}
 		}
 
@@ -116,7 +116,7 @@ void House::setHouseOwner(uint32_t guid)
 	}
 
 	updateDoorDescription();
-	setLastWarning(std::time(NULL)); // So the new owner has one day before he start the payment
+	setLastWarning(std::time(nullptr)); // So the new owner has one day before he start the payment
 }
 
 void House::updateDoorDescription()
@@ -139,7 +139,7 @@ void House::updateDoorDescription()
 
 AccessHouseLevel_t House::getHouseAccessLevel(const Player *player)
 {
-	if (player == NULL) // By script
+	if (player == nullptr) // By script
 		return HOUSE_OWNER;
 
 	if (player->hasFlag(PlayerFlag_CanEditHouses)) return HOUSE_OWNER;
@@ -223,7 +223,7 @@ bool House::transferToDepot()
 		return false;
 	}
 
-	Player *player = NULL;
+	Player *player = nullptr;
 	// Empty house is just cleared.
 	if (houseOwner != 0) {
 		std::string ownerName;
@@ -231,7 +231,7 @@ bool House::transferToDepot()
 			player = g_game.getPlayerByName(ownerName);
 
 			if (!player) {
-				player = new Player(ownerName, NULL);
+				player = new Player(ownerName, nullptr);
 
 				if (!IOPlayer::instance()->loadPlayer(player, ownerName)) {
 
@@ -242,17 +242,17 @@ bool House::transferToDepot()
 #endif
 
 					delete player;
-					player = NULL;
+					player = nullptr;
 				}
 			}
 		}
 	}
 
-	Depot *depot = player ? player->getDepot(townid, true) : NULL;
+	Depot *depot = player ? player->getDepot(townid, true) : nullptr;
 
 	std::list<Item *> moveItemList;
-	Container *tmpContainer = NULL;
-	Item *item = NULL;
+	Container *tmpContainer = nullptr;
+	Item *item = nullptr;
 
 	for (HouseTileList::iterator it = houseTiles.begin(); it != houseTiles.end(); ++it) {
 		for (uint32_t i = 0; i < (*it)->getThingCount(); ++i) {
@@ -274,7 +274,7 @@ bool House::transferToDepot()
 	for (std::list<Item *>::iterator it = moveItemList.begin(); it != moveItemList.end(); ++it) {
 		if (depot) {
 			g_game.internalMoveItem((*it)->getParent(), depot, INDEX_WHEREEVER, (*it),
-			                        (*it)->getItemCount(), NULL, FLAG_NOLIMIT);
+			                        (*it)->getItemCount(), nullptr, FLAG_NOLIMIT);
 		} else {
 			g_game.internalRemoveItem(*it);
 		}
@@ -296,7 +296,7 @@ void House::cleanHouse()
 	for (HouseTileList::iterator it = houseTiles.begin(); it != houseTiles.end(); ++it) {
 		for (uint32_t i = 0; i < (*it)->getThingCount(); ++i) {
 			Creature *creature = (*it)->__getThing(i)->getCreature();
-			if (creature != NULL && creature->getPlayer()) {
+			if (creature != nullptr && creature->getPlayer()) {
 				to_kick.push_back(creature->getPlayer());
 			}
 		}
@@ -304,14 +304,14 @@ void House::cleanHouse()
 	while (to_kick.empty() == false) {
 		Player *c = to_kick.back();
 		to_kick.pop_back();
-		kickPlayer(NULL, c->getName());
+		kickPlayer(nullptr, c->getName());
 	}
 
 	// we need to remove players from beds
 	HouseBedItemList::iterator bit;
 	for (bit = bedsList.begin(); bit != bedsList.end(); ++bit) {
 		if ((*bit)->getSleeper() != 0) {
-			(*bit)->wakeUp(NULL);
+			(*bit)->wakeUp(nullptr);
 		}
 	}
 }
@@ -382,7 +382,7 @@ Door *House::getDoorByNumber(uint32_t doorId)
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 Door *House::getDoorByNumber(uint32_t doorId) const
@@ -393,7 +393,7 @@ Door *House::getDoorByNumber(uint32_t doorId) const
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 Door *House::getDoorByPosition(const Position &pos)
@@ -404,7 +404,7 @@ Door *House::getDoorByPosition(const Position &pos)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool House::canEditAccessList(uint32_t listId, const Player *player)
@@ -422,9 +422,9 @@ bool House::canEditAccessList(uint32_t listId, const Player *player)
 
 HouseTransferItem *House::getTransferItem()
 {
-	if (transferItem != NULL) return NULL;
+	if (transferItem != nullptr) return nullptr;
 
-	transfer_container.setParent(NULL);
+	transfer_container.setParent(nullptr);
 	transferItem = HouseTransferItem::createHouseTransferItem(this);
 	transfer_container.__addThing(transferItem);
 	return transferItem;
@@ -434,8 +434,8 @@ void House::resetTransferItem()
 {
 	if (transferItem) {
 		Item *tmpItem = transferItem;
-		transferItem = NULL;
-		transfer_container.setParent(NULL);
+		transferItem = nullptr;
+		transfer_container.setParent(nullptr);
 
 		transfer_container.__removeThing(tmpItem, tmpItem->getItemCount());
 		g_game.FreeThing(tmpItem);
@@ -491,7 +491,7 @@ bool House::executeTransfer(HouseTransferItem *item, Player *newOwner)
 	}
 
 	setHouseOwner(newOwner->getGUID());
-	transferItem = NULL;
+	transferItem = nullptr;
 	return true;
 }
 
@@ -657,8 +657,8 @@ void AccessList::getList(std::string &_list) const
 
 Door::Door(uint16_t _type) : Item(_type)
 {
-	house = NULL;
-	accessList = NULL;
+	house = nullptr;
+	accessList = nullptr;
 }
 
 Door::~Door()
@@ -697,7 +697,7 @@ bool Door::serializeAttr(PropWriteStream &propWriteStream) const
 
 void Door::setHouse(House *_house)
 {
-	if (house != NULL) {
+	if (house != nullptr) {
 #ifdef __DEBUG_HOUSES__
 		std::cout << "Warning: [Door::setHouse] house != NULL" << std::endl;
 #endif
@@ -791,7 +791,7 @@ House *Houses::getHouseByPlayerId(uint32_t playerId)
 			return house;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool Houses::loadHousesXML(std::string filename)
@@ -880,7 +880,7 @@ bool Houses::payHouses()
 	if (rentPeriod == RENTPERIOD_NEVER) {
 		return true;
 	}
-	uint32_t currentTime = std::time(NULL);
+	uint32_t currentTime = std::time(nullptr);
 
 	for (HouseMap::iterator it = houseMap.begin(); it != houseMap.end(); ++it) {
 		House *house = it->second;
@@ -908,7 +908,7 @@ bool Houses::payHouses()
 			Player *player = g_game.getPlayerByName(name);
 
 			if (!player) {
-				player = new Player(name, NULL);
+				player = new Player(name, nullptr);
 
 				if (!IOPlayer::instance()->loadPlayer(player, name)) {
 #ifdef __DEBUG__

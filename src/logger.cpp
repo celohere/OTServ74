@@ -68,7 +68,7 @@ void Logger::logMessage(const char *channel, eLogType type, int level, std::stri
 
 	// write timestamp of the event
 	char buffer[32];
-	time_t tmp = time(NULL);
+	time_t tmp = time(nullptr);
 	formatDate(tmp, buffer);
 	fprintf(m_file, "%s", buffer);
 	// write channel generating the message

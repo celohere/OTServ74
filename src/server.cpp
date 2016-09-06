@@ -30,7 +30,7 @@
 Server::Server(uint32_t serverip, uint16_t port) : m_io_service()
 {
 	m_isOpen = true;
-	m_acceptor = NULL;
+	m_acceptor = nullptr;
 	m_listenErrors = 0;
 	m_serverIp = serverip;
 	m_serverPort = port;
@@ -71,7 +71,7 @@ void Server::closeListenSocekt()
 			}
 		}
 		delete m_acceptor;
-		m_acceptor = NULL;
+		m_acceptor = nullptr;
 	}
 }
 
