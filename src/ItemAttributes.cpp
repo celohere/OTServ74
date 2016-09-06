@@ -23,7 +23,7 @@ const std::string& ItemAttributes::getStrAttr(ItemAttrType type) const
 
 uint32_t ItemAttributes::getIntAttr(ItemAttrType type) const
 {
-	ASSERT_MSG(validateIntAttrType(type));
+	assert(validateIntAttrType(type));
 
 	const ItemAttribute* const attr = getAttr(type);
 	return attr != nullptr ? attr->integer : 0;
@@ -47,8 +47,7 @@ const ItemAttribute* ItemAttributes::getAttr(ItemAttrType type) const
 
 void ItemAttributes::setStrAttr(ItemAttrType type, const std::string& value)
 {
-	ASSERT_MSG(validateStrAttrType(type));
-	ASSERT_MSG(value.length() > 0);
+	assert(validateStrAttrType(type) && value.length() > 0);
 
 	if (m_attrFlags & type) {
 		auto itr = std::find_if(m_attributes.begin(), m_attributes.end(),
@@ -85,7 +84,7 @@ void ItemAttributes::removeAttribute(ItemAttrType type)
 
 void ItemAttributes::setIntAttr(ItemAttrType type, int32_t value)
 {
-	ASSERT_MSG(validateIntAttrType(type));
+	assert(validateIntAttrType(type));
 
 	ItemAttribute* const attr = getAttr(type);
 	if (attr)
@@ -96,7 +95,7 @@ void ItemAttributes::setIntAttr(ItemAttrType type, int32_t value)
 
 void ItemAttributes::increaseIntAttr(ItemAttrType type, int32_t value)
 {
-	ASSERT_MSG(validateIntAttrType(type));
+	assert(validateIntAttrType(type));
 	ItemAttribute* const attr = getAttr(type);
 	if (attr)
 		attr->integer += value;
@@ -147,7 +146,7 @@ bool ItemAttributes::validateStrAttrType(ItemAttrType type)
 
 void ItemAttributes::addAttr(ItemAttribute attr)
 {
-	ASSERT_MSG(!(m_attrFlags & attr.type));
+	assert(!(m_attrFlags & attr.type));
 	m_attributes.push_back(attr);
 	m_attrFlags |= attr.type;
 }

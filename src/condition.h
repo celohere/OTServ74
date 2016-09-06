@@ -156,7 +156,7 @@ protected:
 	int64_t endTime;
 	ConditionType_t conditionType;
 
-	virtual bool updateCondition(const Condition *addCondition);
+	bool updateCondition(const Condition *addCondition);
 };
 
 class ConditionGeneric : public Condition

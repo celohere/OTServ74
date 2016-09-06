@@ -4,28 +4,10 @@
 
 
 #ifndef NDEBUG
-	#include <iostream>
-
-	#define ASSERT_MSG(cond) { \
-		if(!(cond)) { \
-			std::cout << "ASSERTATION FAILED: " << #cond << '\n'; \
-			std::terminate(); \
-		} \
-	}
+	#include <assert.h>
 #else
-	#define ASSERT_MSG(cond)
+	#define assert()
 #endif
-
-
-
-
-
-
-
-
-
-
-
 
 
 

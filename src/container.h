@@ -114,6 +114,7 @@ public:
 	}
 
 	void addItem(Item *item);
+	using Thing::getItem;
 	Item *getItem(uint32_t index);
 	bool isHoldingItem(const Item *item) const;
 

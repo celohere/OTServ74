@@ -169,6 +169,7 @@ public:
 	bool useWeapon(Player *player, Item *item, Creature *target) const override;
 	int32_t
 	getWeaponDamage(const Player *player, const Creature *target, const Item *item, bool maxDamage = false) const override;
+	using Weapon::getElementDamage;
 	virtual int32_t getElementDamage(const Player *player, const Item *item) const;
 
 protected:
