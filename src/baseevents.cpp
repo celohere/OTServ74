@@ -35,14 +35,14 @@ BaseEvents::~BaseEvents()
 	//
 }
 
-bool BaseEvents::loadFromXml(const std::string &datadir)
+bool BaseEvents::loadFromXml(const std::string& datadir)
 {
 	if (m_loaded) {
 		std::cout << "Error: [BaseEvents::loadFromXml] loaded == true" << std::endl;
 		return false;
 	}
 	m_datadir = datadir;
-	Event *event = nullptr;
+	Event* event = nullptr;
 
 
 	std::string scriptsName = getScriptBaseName();
@@ -61,7 +61,7 @@ bool BaseEvents::loadFromXml(const std::string &datadir)
 		xmlNodePtr root, p;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)scriptsName.c_str()) != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)scriptsName.c_str()) != 0) {
 			xmlFreeDoc(doc);
 			return false;
 		}
@@ -69,7 +69,7 @@ bool BaseEvents::loadFromXml(const std::string &datadir)
 		p = root->children;
 		while (p) {
 			if (p->name) {
-				std::string nodeName = (const char *)p->name;
+				std::string nodeName = (const char*)p->name;
 				if ((event = getEvent(nodeName))) {
 					if (event->configureEvent(p)) {
 						bool success = true;
@@ -124,7 +124,7 @@ bool BaseEvents::reload()
 }
 
 
-Event::Event(LuaScriptInterface *_interface)
+Event::Event(LuaScriptInterface* _interface)
 {
 	m_scriptInterface = _interface;
 	m_scriptId = 0;
@@ -136,7 +136,7 @@ Event::~Event()
 	//
 }
 
-bool Event::loadScript(const std::string &scriptFile)
+bool Event::loadScript(const std::string& scriptFile)
 {
 	if (!m_scriptInterface || m_scriptId != 0) {
 		std::cout << "Failure: [Event::loadScript] m_scriptInterface == NULL. scriptid = " << m_scriptId
@@ -160,7 +160,7 @@ bool Event::loadScript(const std::string &scriptFile)
 	return true;
 }
 
-bool Event::loadFunction(const std::string &functionName)
+bool Event::loadFunction(const std::string& functionName)
 {
 	return false;
 }
@@ -177,7 +177,7 @@ CallBack::~CallBack()
 	//
 }
 
-bool CallBack::loadCallBack(LuaScriptInterface *_interface, std::string name)
+bool CallBack::loadCallBack(LuaScriptInterface* _interface, std::string name)
 {
 	if (!_interface) {
 		std::cout << "Failure: [CallBack::loadCallBack] m_scriptInterface == NULL" << std::endl;

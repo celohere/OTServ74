@@ -35,7 +35,7 @@ class Map;
 class IOMapSerialize
 {
 public:
-	static IOMapSerialize *getInstance()
+	static IOMapSerialize* getInstance()
 	{
 		static IOMapSerialize instance;
 		return &instance;
@@ -52,42 +52,42 @@ public:
 	  * \param map pointer to the Map class
 	  * \return Returns true if the map was loaded successfully
 	*/
-	bool loadMap(Map *map);
+	bool loadMap(Map* map);
 
 	/** Save the map to a file/database
 	  * \param map pointer to the Map class
 	  * \return Returns true if the map was saved successfully
 	*/
-	bool saveMap(Map *map);
+	bool saveMap(Map* map);
 
 	/** Load the house access list to a file/database
 	  * \param map pointer to the Map class
 	  * \return Returns true if the house access list was opened successfully
 	*/
-	bool loadHouseInfo(Map *map);
+	bool loadHouseInfo(Map* map);
 
 	/** Save the house access list to a file/database
 	  * \param map pointer to the Map class
 	  * \return Returns true if the house access list was saved successfully
 	*/
-	bool saveHouseInfo(Map *map);
+	bool saveHouseInfo(Map* map);
 
 protected:
 	// Relational storage uses a row for each item/tile
-	bool loadMapRelational(Map *map);
-	bool saveMapRelational(Map *map);
+	bool loadMapRelational(Map* map);
+	bool saveMapRelational(Map* map);
 
-	bool saveItems(Database *db, uint32_t tileId, uint32_t houseId, const Tile *tile);
-	bool loadItems(Database *db, DBResult *result, Cylinder *parent);
+	bool saveItems(Database* db, uint32_t tileId, uint32_t houseId, const Tile* tile);
+	bool loadItems(Database* db, DBResult* result, Cylinder* parent);
 
 	// Binary storage uses a giant BLOB field for storing everything
-	bool loadMapBinary(Map *map);
-	bool saveMapBinary(Map *map);
+	bool loadMapBinary(Map* map);
+	bool saveMapBinary(Map* map);
 
-	bool saveItem(PropWriteStream &stream, const Item *item);
-	bool saveTile(PropWriteStream &stream, const Tile *tile);
-	bool loadItem(PropStream &propStream, Cylinder *parent);
-	bool loadContainer(PropStream &propStream, Container *container);
+	bool saveItem(PropWriteStream& stream, const Item* item);
+	bool saveTile(PropWriteStream& stream, const Tile* tile);
+	bool loadItem(PropStream& propStream, Cylinder* parent);
+	bool loadContainer(PropStream& propStream, Container* container);
 };
 
 #endif

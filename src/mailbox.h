@@ -33,42 +33,40 @@ public:
 	Mailbox(uint16_t _type);
 	~Mailbox() override;
 
-	Mailbox *getMailbox() override
+	Mailbox* getMailbox() override
 	{
 		return this;
 	}
-	const Mailbox *getMailbox() const override
+	const Mailbox* getMailbox() const override
 	{
 		return this;
 	}
 
 	// cylinder implementations
-	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue __queryAdd(int32_t index, const Thing* thing, uint32_t count, uint32_t flags) const override;
 	ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
-	ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const override;
-	Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
+	__queryMaxCount(int32_t index, const Thing* thing, uint32_t count, uint32_t& maxQueryCount, uint32_t flags) const override;
+	ReturnValue __queryRemove(const Thing* thing, uint32_t count, uint32_t flags) const override;
+	Cylinder* __queryDestination(int32_t& index, const Thing* thing, Item** destItem, uint32_t& flags) override;
 
-	void __addThing(Thing *thing) override;
-	void __addThing(int32_t index, Thing *thing) override;
+	void __addThing(Thing* thing) override;
+	void __addThing(int32_t index, Thing* thing) override;
 
-	void __updateThing(Thing *thing, uint16_t itemId, uint32_t count) override;
-	void __replaceThing(uint32_t index, Thing *thing) override;
+	void __updateThing(Thing* thing, uint16_t itemId, uint32_t count) override;
+	void __replaceThing(uint32_t index, Thing* thing) override;
 
-	void __removeThing(Thing *thing, uint32_t count) override;
+	void __removeThing(Thing* thing, uint32_t count) override;
 
-	void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
-	void postRemoveNotification(Thing *thing,
-	                                    const Cylinder *newParent,
-	                                    int32_t index,
-	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER) override;
+	void postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing* thing,
+	                            const Cylinder* newParent,
+	                            int32_t index,
+	                            bool isCompleteRemoval,
+	                            cylinderlink_t link = LINK_OWNER) override;
 
-	bool getReceiver(Item *item, std::string &name, uint32_t &dpnum);
-	bool sendItem(Item *item);
-	bool canSend(const Item *item) const;
+	bool getReceiver(Item* item, std::string& name, uint32_t& dpnum);
+	bool sendItem(Item* item);
+	bool canSend(const Item* item) const;
 };
 
 #endif

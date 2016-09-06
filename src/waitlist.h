@@ -33,7 +33,7 @@ struct Wait {
 	int64_t timeout;
 };
 
-typedef std::list<Wait *> WaitList;
+typedef std::list<Wait*> WaitList;
 typedef WaitList::iterator WaitListIterator;
 
 class WaitingList
@@ -42,14 +42,14 @@ public:
 	WaitingList();
 	virtual ~WaitingList();
 
-	static WaitingList *getInstance()
+	static WaitingList* getInstance()
 	{
 		static WaitingList waitingList;
 		return &waitingList;
 	}
 
-	bool clientLogin(const Player *player);
-	int32_t getClientSlot(const Player *player);
+	bool clientLogin(const Player* player);
+	int32_t getClientSlot(const Player* player);
 	static int32_t getTime(int32_t slot);
 
 protected:
@@ -57,7 +57,7 @@ protected:
 	WaitList waitList;
 
 	int32_t getTimeOut(int32_t slot);
-	WaitListIterator findClient(const Player *player, uint32_t &slot);
+	WaitListIterator findClient(const Player* player, uint32_t& slot);
 	void cleanUpList();
 };
 #endif

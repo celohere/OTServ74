@@ -32,7 +32,7 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 
-extern Spells *g_spells;
+extern Spells* g_spells;
 extern Monsters g_monsters;
 extern ConfigManager g_config;
 
@@ -123,14 +123,14 @@ uint32_t Monsters::getLootRandom()
 	return random_range(0, MAX_LOOTCHANCE) / g_config.getNumber(ConfigManager::RATE_LOOT);
 }
 
-void MonsterType::createLoot(Container *corpse)
+void MonsterType::createLoot(Container* corpse)
 {
 	for (LootItems::const_iterator it = lootItems.begin();
 	     it != lootItems.end() && (corpse->capacity() - corpse->size() > 0); it++) {
-		Item *tmpItem = createLootItem(*it);
+		Item* tmpItem = createLootItem(*it);
 		if (tmpItem) {
 			// check containers
-			if (Container *container = tmpItem->getContainer()) {
+			if (Container* container = tmpItem->getContainer()) {
 				createLootContainer(container, *it);
 				if (container->size() == 0) {
 					delete container;
@@ -146,9 +146,9 @@ void MonsterType::createLoot(Container *corpse)
 	corpse->__startDecaying();
 }
 
-Item *MonsterType::createLootItem(const LootBlock &lootBlock)
+Item* MonsterType::createLootItem(const LootBlock& lootBlock)
 {
-	Item *tmpItem = nullptr;
+	Item* tmpItem = nullptr;
 	if (Item::items[lootBlock.id].stackable) {
 		uint32_t randvalue = Monsters::getLootRandom();
 		if (randvalue < lootBlock.chance) {
@@ -180,14 +180,14 @@ Item *MonsterType::createLootItem(const LootBlock &lootBlock)
 	return nullptr;
 }
 
-void MonsterType::createLootContainer(Container *parent, const LootBlock &lootblock)
+void MonsterType::createLootContainer(Container* parent, const LootBlock& lootblock)
 {
 	if (parent->size() < parent->capacity()) {
 		LootItems::const_iterator it;
 		for (it = lootblock.childLoot.begin(); it != lootblock.childLoot.end(); it++) {
-			Item *tmpItem = createLootItem(*it);
+			Item* tmpItem = createLootItem(*it);
 			if (tmpItem) {
-				if (Container *container = tmpItem->getContainer()) {
+				if (Container* container = tmpItem->getContainer()) {
 					createLootContainer(container, *it);
 					if (container->size() == 0 && it->dropEmpty == false) {
 						delete container;
@@ -207,7 +207,7 @@ Monsters::Monsters()
 	loaded = false;
 }
 
-bool Monsters::loadFromXml(const std::string &_datadir, bool reloading /*= false*/)
+bool Monsters::loadFromXml(const std::string& _datadir, bool reloading /*= false*/)
 {
 	loaded = false;
 	datadir = _datadir;
@@ -220,7 +220,7 @@ bool Monsters::loadFromXml(const std::string &_datadir, bool reloading /*= false
 		xmlNodePtr root, p;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"monsters") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"monsters") != 0) {
 			xmlFreeDoc(doc);
 			loaded = false;
 			return false;
@@ -233,7 +233,7 @@ bool Monsters::loadFromXml(const std::string &_datadir, bool reloading /*= false
 				continue;
 			}
 
-			if (xmlStrcmp(p->name, (const xmlChar *)"monster") == 0) {
+			if (xmlStrcmp(p->name, (const xmlChar*)"monster") == 0) {
 				std::string file;
 				std::string name;
 
@@ -259,14 +259,14 @@ bool Monsters::reload()
 	return loadFromXml(datadir, true);
 }
 
-ConditionDamage *Monsters::getDamageCondition(ConditionType_t conditionType,
+ConditionDamage* Monsters::getDamageCondition(ConditionType_t conditionType,
                                               int32_t maxDamage,
                                               int32_t minDamage,
                                               int32_t startDamage,
                                               uint32_t tickInterval)
 {
-	ConditionDamage *condition = dynamic_cast<ConditionDamage *>(
-	Condition::createCondition(CONDITIONID_COMBAT, conditionType, 0, 0));
+	ConditionDamage* condition =
+	dynamic_cast<ConditionDamage*>(Condition::createCondition(CONDITIONID_COMBAT, conditionType, 0, 0));
 	condition->setParam(CONDITIONPARAM_TICKINTERVAL, tickInterval);
 	condition->setParam(CONDITIONPARAM_MINVALUE, minDamage);
 	condition->setParam(CONDITIONPARAM_MAXVALUE, maxDamage);
@@ -276,7 +276,7 @@ ConditionDamage *Monsters::getDamageCondition(ConditionType_t conditionType,
 	return condition;
 }
 
-bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::string &description)
+bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t& sb, const std::string& description)
 {
 	sb.chance = 100;
 	sb.speed = 2000;
@@ -341,7 +341,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 		return true;
 	}
 
-	CombatSpell *combatSpell = nullptr;
+	CombatSpell* combatSpell = nullptr;
 	bool needTarget = false;
 	bool needDirection = false;
 
@@ -368,7 +368,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 		combatSpell->getCombat()->setPlayerCombatValues(FORMULA_VALUE, sb.minCombatValue, 0,
 		                                                sb.maxCombatValue, 0);
 	} else {
-		Combat *combat = new Combat;
+		Combat* combat = new Combat;
 		sb.combatSpell = true;
 
 		if (readXMLInteger(node, "length", intValue)) {
@@ -382,7 +382,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 					spread = std::max(0, intValue);
 				}
 
-				AreaCombat *area = new AreaCombat();
+				AreaCombat* area = new AreaCombat();
 				area->setupArea(length, spread);
 				combat->setArea(area);
 
@@ -398,7 +398,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 				needTarget = (intValue != 0);
 			}
 
-			AreaCombat *area = new AreaCombat();
+			AreaCombat* area = new AreaCombat();
 			area->setupArea(radius);
 			combat->setArea(area);
 		}
@@ -445,7 +445,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 			}
 
 			if (conditionType != CONDITION_NONE) {
-				Condition *condition = getDamageCondition(conditionType, maxDamage, minDamage,
+				Condition* condition = getDamageCondition(conditionType, maxDamage, minDamage,
 				                                          startDamage, tickInterval);
 				combat->setCondition(condition);
 			}
@@ -495,7 +495,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 				conditionType = CONDITION_PARALYZE;
 			}
 
-			ConditionSpeed *condition = dynamic_cast<ConditionSpeed *>(
+			ConditionSpeed* condition = dynamic_cast<ConditionSpeed*>(
 			Condition::createCondition(CONDITIONID_COMBAT, conditionType, duration, 0));
 			condition->setFormulaVars(speedChange / 1000.0, 0, speedChange / 1000.0, 0);
 			combat->setCondition(condition);
@@ -507,9 +507,9 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 			}
 
 			if (readXMLString(node, "monster", strValue)) {
-				MonsterType *mType = g_monsters.getMonsterType(strValue);
+				MonsterType* mType = g_monsters.getMonsterType(strValue);
 				if (mType) {
-					ConditionOutfit *condition = dynamic_cast<ConditionOutfit *>(
+					ConditionOutfit* condition = dynamic_cast<ConditionOutfit*>(
 					Condition::createCondition(CONDITIONID_COMBAT,
 					                           CONDITION_OUTFIT, duration, 0));
 					condition->addOutfit(mType->outfit);
@@ -520,7 +520,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 				Outfit_t outfit;
 				outfit.lookTypeEx = intValue;
 
-				ConditionOutfit *condition = dynamic_cast<ConditionOutfit *>(
+				ConditionOutfit* condition = dynamic_cast<ConditionOutfit*>(
 				Condition::createCondition(CONDITIONID_COMBAT, CONDITION_OUTFIT, duration, 0));
 				condition->addOutfit(outfit);
 				combat->setParam(COMBATPARAM_AGGRESSIVE, 0);
@@ -533,7 +533,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 				duration = intValue;
 			}
 
-			Condition *condition =
+			Condition* condition =
 			Condition::createCondition(CONDITIONID_COMBAT, CONDITION_INVISIBLE, duration, 0);
 			combat->setParam(COMBATPARAM_AGGRESSIVE, 0);
 			combat->setCondition(condition);
@@ -544,7 +544,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 				duration = intValue;
 			}
 
-			Condition *condition =
+			Condition* condition =
 			Condition::createCondition(CONDITIONID_COMBAT, CONDITION_DRUNK, duration, 0);
 			combat->setCondition(condition);
 		} else if (asLowerCaseString(name) == "firefield") {
@@ -585,7 +585,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 				}
 			}
 
-			Condition *condition =
+			Condition* condition =
 			getDamageCondition(conditionType, maxDamage, minDamage, startDamage, tickInterval);
 			combat->setCondition(condition);
 		} else if (asLowerCaseString(name) == "strength") {
@@ -603,7 +603,7 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 		xmlNodePtr attributeNode = node->children;
 
 		while (attributeNode) {
-			if (xmlStrcmp(attributeNode->name, (const xmlChar *)"attribute") == 0) {
+			if (xmlStrcmp(attributeNode->name, (const xmlChar*)"attribute") == 0) {
 				if (readXMLString(attributeNode, "key", strValue)) {
 					if (asLowerCaseString(strValue) == "shooteffect") {
 						if (readXMLString(attributeNode, "value", strValue)) {
@@ -650,10 +650,10 @@ bool Monsters::deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::st
 #define SHOW_XML_ERROR(desc) \
 	std::cout << "Error: [Monsters::loadMonster]. " << desc << ". " << file << std::endl;
 
-bool Monsters::loadMonster(const std::string &file, const std::string &monster_name, bool reloading /*= false*/)
+bool Monsters::loadMonster(const std::string& file, const std::string& monster_name, bool reloading /*= false*/)
 {
 	bool monsterLoad;
-	MonsterType *mType = nullptr;
+	MonsterType* mType = nullptr;
 	bool new_mType = true;
 
 	if (reloading) {
@@ -677,7 +677,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 		xmlNodePtr root, p;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"monster") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"monster") != 0) {
 			std::cerr << "Malformed XML: " << file << std::endl;
 		}
 
@@ -688,8 +688,9 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 
 		if (readXMLString(root, "name", strValue)) {
 			mType->name = strValue;
-		} else
+		} else {
 			monsterLoad = false;
+		}
 
 		if (readXMLString(root, "nameDescription", strValue)) {
 			mType->nameDescription = strValue;
@@ -730,7 +731,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 				continue;
 			}
 
-			if (xmlStrcmp(p->name, (const xmlChar *)"health") == 0) {
+			if (xmlStrcmp(p->name, (const xmlChar*)"health") == 0) {
 
 				if (readXMLInteger(p, "now", intValue)) {
 					mType->health = intValue;
@@ -745,10 +746,10 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 					SHOW_XML_ERROR("Missing health.max");
 					monsterLoad = false;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"flags") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"flags") == 0) {
 				xmlNodePtr tmpNode = p->children;
 				while (tmpNode) {
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"flag") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"flag") == 0) {
 
 						if (readXMLInteger(tmpNode, "summonable", intValue)) {
 							mType->isSummonable = (intValue != 0);
@@ -830,7 +831,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 				if (mType->canPushCreatures && mType->pushable) {
 					mType->pushable = false;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"targetchange") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"targetchange") == 0) {
 
 				if (readXMLInteger(p, "speed", intValue) ||
 				    readXMLInteger(p, "interval", intValue)) {
@@ -844,7 +845,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 				} else {
 					SHOW_XML_WARNING("Missing targetchange.chance");
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"strategy") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"strategy") == 0) {
 
 				if (readXMLInteger(p, "attack", intValue)) {
 					// mType->attackStrength = intValue;
@@ -853,7 +854,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 				if (readXMLInteger(p, "defense", intValue)) {
 					// mType->defenseStrength = intValue;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"look") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"look") == 0) {
 
 				if (readXMLInteger(p, "type", intValue)) {
 					mType->outfit.lookType = intValue;
@@ -882,10 +883,10 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 				if (readXMLInteger(p, "corpse", intValue)) {
 					mType->lookCorpse = (uint16_t)intValue;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"attacks") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"attacks") == 0) {
 				xmlNodePtr tmpNode = p->children;
 				while (tmpNode) {
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"attack") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"attack") == 0) {
 
 						spellBlock_t sb;
 						if (deserializeSpell(tmpNode, sb, monster_name)) {
@@ -897,7 +898,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 
 					tmpNode = tmpNode->next;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"defenses") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"defenses") == 0) {
 				if (readXMLInteger(p, "defense", intValue)) {
 					mType->defense = intValue;
 				}
@@ -908,7 +909,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 
 				xmlNodePtr tmpNode = p->children;
 				while (tmpNode) {
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"defense") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"defense") == 0) {
 
 						spellBlock_t sb;
 						if (deserializeSpell(tmpNode, sb, monster_name)) {
@@ -920,10 +921,10 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 
 					tmpNode = tmpNode->next;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"immunities") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"immunities") == 0) {
 				xmlNodePtr tmpNode = p->children;
 				while (tmpNode) {
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"immunity") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"immunity") == 0) {
 
 						if (readXMLString(tmpNode, "name", strValue)) {
 
@@ -1007,7 +1008,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 
 					tmpNode = tmpNode->next;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"voices") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"voices") == 0) {
 				xmlNodePtr tmpNode = p->children;
 
 				if (readXMLInteger(p, "speed", intValue) ||
@@ -1024,7 +1025,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 				}
 
 				while (tmpNode) {
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"voice") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"voice") == 0) {
 
 						voiceBlock_t vb;
 						vb.text = "";
@@ -1045,7 +1046,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 
 					tmpNode = tmpNode->next;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"loot") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"loot") == 0) {
 				xmlNodePtr tmpNode = p->children;
 				while (tmpNode) {
 					if (tmpNode->type != XML_ELEMENT_NODE) {
@@ -1062,10 +1063,10 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 
 					tmpNode = tmpNode->next;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"elements") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"elements") == 0) {
 				xmlNodePtr tmpNode = p->children;
 				while (tmpNode) {
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"element") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"element") == 0) {
 						CombatType_t type = COMBAT_NONE;
 						int32_t percent = 0;
 
@@ -1085,7 +1086,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 					}
 					tmpNode = tmpNode->next;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"summons") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"summons") == 0) {
 
 				if (readXMLInteger(p, "maxSummons", intValue)) {
 					mType->maxSummons = std::min(intValue, 100);
@@ -1096,7 +1097,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 				xmlNodePtr tmpNode = p->children;
 				while (tmpNode) {
 
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"summon") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"summon") == 0) {
 						int32_t chance = 100;
 						int32_t speed = 1000;
 
@@ -1123,10 +1124,10 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 
 					tmpNode = tmpNode->next;
 				}
-			} else if (xmlStrcmp(p->name, (const xmlChar *)"script") == 0) {
+			} else if (xmlStrcmp(p->name, (const xmlChar*)"script") == 0) {
 				xmlNodePtr tmpNode = p->children;
 				while (tmpNode) {
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"event") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"event") == 0) {
 
 						if (readXMLString(tmpNode, "name", strValue)) {
 							mType->scriptList.push_back(strValue);
@@ -1170,7 +1171,7 @@ bool Monsters::loadMonster(const std::string &file, const std::string &monster_n
 	}
 }
 
-bool Monsters::loadLootItem(xmlNodePtr node, LootBlock &lootBlock)
+bool Monsters::loadLootItem(xmlNodePtr node, LootBlock& lootBlock)
 {
 	int intValue;
 	std::string strValue;
@@ -1229,7 +1230,7 @@ bool Monsters::loadLootItem(xmlNodePtr node, LootBlock &lootBlock)
 	return true;
 }
 
-bool Monsters::loadLootContainer(xmlNodePtr node, LootBlock &lBlock)
+bool Monsters::loadLootContainer(xmlNodePtr node, LootBlock& lBlock)
 {
 	if (node == nullptr) {
 		return false;
@@ -1243,7 +1244,7 @@ bool Monsters::loadLootContainer(xmlNodePtr node, LootBlock &lBlock)
 	}
 
 	while (tmpNode) {
-		if (xmlStrcmp(tmpNode->name, (const xmlChar *)"inside") == 0) {
+		if (xmlStrcmp(tmpNode->name, (const xmlChar*)"inside") == 0) {
 			p = tmpNode->children;
 			while (p) {
 				LootBlock lootBlock;
@@ -1261,7 +1262,7 @@ bool Monsters::loadLootContainer(xmlNodePtr node, LootBlock &lBlock)
 	return false;
 }
 
-MonsterType *Monsters::getMonsterType(const std::string &name)
+MonsterType* Monsters::getMonsterType(const std::string& name)
 {
 	uint32_t mId = getIdByName(name);
 	if (mId == 0) {
@@ -1271,7 +1272,7 @@ MonsterType *Monsters::getMonsterType(const std::string &name)
 	return getMonsterType(mId);
 }
 
-MonsterType *Monsters::getMonsterType(uint32_t mid)
+MonsterType* Monsters::getMonsterType(uint32_t mid)
 {
 	MonsterMap::iterator it = monsters.find(mid);
 	if (it != monsters.end()) {
@@ -1281,7 +1282,7 @@ MonsterType *Monsters::getMonsterType(uint32_t mid)
 	}
 }
 
-uint32_t Monsters::getIdByName(const std::string &name)
+uint32_t Monsters::getIdByName(const std::string& name)
 {
 	std::string lower_name = name;
 	std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), tolower);
@@ -1295,6 +1296,7 @@ uint32_t Monsters::getIdByName(const std::string &name)
 
 Monsters::~Monsters()
 {
-	for (MonsterMap::iterator it = monsters.begin(); it != monsters.end(); it++)
+	for (MonsterMap::iterator it = monsters.begin(); it != monsters.end(); it++) {
 		delete it->second;
+	}
 }

@@ -32,7 +32,7 @@ enum GlobalEvent_t {
 };
 
 class GlobalEvent;
-typedef std::map<std::string, GlobalEvent *> GlobalEventMap;
+typedef std::map<std::string, GlobalEvent*> GlobalEventMap;
 
 class GlobalEvents : public BaseEvents
 {
@@ -46,7 +46,7 @@ public:
 	void execute(GlobalEvent_t type);
 
 	GlobalEventMap getEventMap(GlobalEvent_t type);
-	void clearMap(GlobalEventMap &map);
+	void clearMap(GlobalEventMap& map);
 
 protected:
 	std::string getScriptBaseName() override
@@ -55,10 +55,10 @@ protected:
 	}
 	void clear() override;
 
-	Event *getEvent(const std::string &nodeName) override;
-	bool registerEvent(Event *event, xmlNodePtr p) override;
+	Event* getEvent(const std::string& nodeName) override;
+	bool registerEvent(Event* event, xmlNodePtr p) override;
 
-	LuaScriptInterface &getScriptInterface() override
+	LuaScriptInterface& getScriptInterface() override
 	{
 		return m_scriptInterface;
 	}
@@ -71,7 +71,7 @@ protected:
 class GlobalEvent : public Event
 {
 public:
-	GlobalEvent(LuaScriptInterface *_interface);
+	GlobalEvent(LuaScriptInterface* _interface);
 	~GlobalEvent() override
 	{
 	}

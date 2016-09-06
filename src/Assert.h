@@ -2,16 +2,11 @@
 #define __OTSERV__ASSERT_H__
 
 
-
 #ifndef NDEBUG
-	#include <assert.h>
+#include <assert.h>
 #else
-	#define assert()
+#define assert()
 #endif
-
-
-
-
 
 
 #endif

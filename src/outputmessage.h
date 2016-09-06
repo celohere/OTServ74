@@ -47,14 +47,14 @@ public:
 	{
 	}
 
-	char *getOutputBuffer()
+	char* getOutputBuffer()
 	{
-		return (char *)&m_MsgBuf[m_outputBufferStart];
+		return (char*)&m_MsgBuf[m_outputBufferStart];
 	}
 
 	void writeMessageLength()
 	{
-		*(uint16_t *)(m_MsgBuf + 2) = m_MsgSize;
+		*(uint16_t*)(m_MsgBuf + 2) = m_MsgSize;
 		// added header size to the message size
 		m_MsgSize = m_MsgSize + 2;
 		m_outputBufferStart = 2;
@@ -62,7 +62,7 @@ public:
 
 	void addCryptoHeader()
 	{
-		*(uint16_t *)(m_MsgBuf) = m_MsgSize;
+		*(uint16_t*)(m_MsgBuf) = m_MsgSize;
 		m_MsgSize = m_MsgSize + 2;
 		m_outputBufferStart = 0;
 	}
@@ -74,11 +74,11 @@ public:
 		STATE_WAITING
 	};
 
-	Protocol *getProtocol()
+	Protocol* getProtocol()
 	{
 		return m_protocol;
 	}
-	Connection *getConnection()
+	Connection* getConnection()
 	{
 		return m_connection;
 	}
@@ -131,11 +131,11 @@ protected:
 
 	friend class OutputMessagePool;
 
-	void setProtocol(Protocol *protocol)
+	void setProtocol(Protocol* protocol)
 	{
 		m_protocol = protocol;
 	}
-	void setConnection(Connection *connection)
+	void setConnection(Connection* connection)
 	{
 		m_connection = connection;
 	}
@@ -154,8 +154,8 @@ protected:
 		m_frame = frame;
 	}
 
-	Protocol *m_protocol;
-	Connection *m_connection;
+	Protocol* m_protocol;
+	Connection* m_connection;
 
 	uint32_t m_outputBufferStart;
 	uint64_t m_frame;
@@ -173,7 +173,7 @@ private:
 public:
 	~OutputMessagePool();
 
-	static OutputMessagePool *getInstance()
+	static OutputMessagePool* getInstance()
 	{
 		static OutputMessagePool instance;
 		return &instance;
@@ -185,7 +185,7 @@ public:
 	{
 		m_isOpen = false;
 	}
-	OutputMessage_ptr getOutputMessage(Protocol *protocol, bool autosend = true);
+	OutputMessage_ptr getOutputMessage(Protocol* protocol, bool autosend = true);
 	void startExecutionFrame();
 
 	size_t getTotalMessageCount() const
@@ -203,11 +203,11 @@ public:
 	void addToAutoSend(OutputMessage_ptr msg);
 
 protected:
-	void configureOutputMessage(OutputMessage_ptr msg, Protocol *protocol, bool autosend);
-	void releaseMessage(OutputMessage *msg);
-	void internalReleaseMessage(OutputMessage *msg);
+	void configureOutputMessage(OutputMessage_ptr msg, Protocol* protocol, bool autosend);
+	void releaseMessage(OutputMessage* msg);
+	void internalReleaseMessage(OutputMessage* msg);
 
-	typedef std::list<OutputMessage *> InternalOutputMessageList;
+	typedef std::list<OutputMessage*> InternalOutputMessageList;
 	typedef std::list<OutputMessage_ptr> OutputMessageMessageList;
 
 	InternalOutputMessageList m_outputMessages;

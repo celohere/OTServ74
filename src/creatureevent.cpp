@@ -33,8 +33,9 @@ CreatureEvents::CreatureEvents() : m_scriptInterface("CreatureScript Interface")
 CreatureEvents::~CreatureEvents()
 {
 	CreatureEventList::iterator it;
-	for (it = m_creatureEvents.begin(); it != m_creatureEvents.end(); ++it)
+	for (it = m_creatureEvents.begin(); it != m_creatureEvents.end(); ++it) {
 		delete it->second;
+	}
 }
 
 void CreatureEvents::clear()
@@ -51,7 +52,7 @@ void CreatureEvents::clear()
 	m_scriptInterface.reInitState();
 }
 
-LuaScriptInterface &CreatureEvents::getScriptInterface()
+LuaScriptInterface& CreatureEvents::getScriptInterface()
 {
 	return m_scriptInterface;
 }
@@ -61,7 +62,7 @@ std::string CreatureEvents::getScriptBaseName()
 	return "creaturescripts";
 }
 
-Event *CreatureEvents::getEvent(const std::string &nodeName)
+Event* CreatureEvents::getEvent(const std::string& nodeName)
 {
 	if (asLowerCaseString(nodeName) == "event") {
 		return new CreatureEvent(&m_scriptInterface);
@@ -69,10 +70,12 @@ Event *CreatureEvents::getEvent(const std::string &nodeName)
 	return nullptr;
 }
 
-bool CreatureEvents::registerEvent(Event *event, xmlNodePtr p)
+bool CreatureEvents::registerEvent(Event* event, xmlNodePtr p)
 {
-	CreatureEvent *creatureEvent = dynamic_cast<CreatureEvent *>(event);
-	if (!creatureEvent) return false;
+	CreatureEvent* creatureEvent = dynamic_cast<CreatureEvent*>(event);
+	if (!creatureEvent) {
+		return false;
+	}
 
 	switch (creatureEvent->getEventType()) {
 	case CREATURE_EVENT_NONE:
@@ -89,31 +92,37 @@ bool CreatureEvents::registerEvent(Event *event, xmlNodePtr p)
 	}
 }
 
-CreatureEvent *CreatureEvents::getEventByName(const std::string &name)
+CreatureEvent* CreatureEvents::getEventByName(const std::string& name)
 {
 	CreatureEventList::iterator it = m_creatureEvents.find(name);
-	if (it != m_creatureEvents.end()) return it->second;
+	if (it != m_creatureEvents.end()) {
+		return it->second;
+	}
 
 	return nullptr;
 }
 
 // Global events
-bool CreatureEvents::playerLogIn(Player *player)
+bool CreatureEvents::playerLogIn(Player* player)
 {
 	for (CreatureEventList::iterator it = m_creatureEvents.begin(); it != m_creatureEvents.end(); ++it) {
 		if (it->second->getEventType() == CREATURE_EVENT_LOGIN) {
-			if (!it->second->executeOnLogin(player)) return false;
+			if (!it->second->executeOnLogin(player)) {
+				return false;
+			}
 		}
 	}
 
 	return true;
 }
 
-bool CreatureEvents::playerLogOut(Player *player)
+bool CreatureEvents::playerLogOut(Player* player)
 {
 	for (CreatureEventList::iterator it = m_creatureEvents.begin(); it != m_creatureEvents.end(); ++it) {
 		if (it->second->getEventType() == CREATURE_EVENT_LOGOUT) {
-			if (!it->second->executeOnLogout(player)) return false;
+			if (!it->second->executeOnLogout(player)) {
+				return false;
+			}
 		}
 	}
 
@@ -122,7 +131,7 @@ bool CreatureEvents::playerLogOut(Player *player)
 
 /////////////////////////////////////
 
-CreatureEvent::CreatureEvent(LuaScriptInterface *_interface) : Event(_interface)
+CreatureEvent::CreatureEvent(LuaScriptInterface* _interface) : Event(_interface)
 {
 	m_type = CREATURE_EVENT_NONE;
 }
@@ -193,11 +202,11 @@ std::string CreatureEvent::getScriptEventName()
 	}
 }
 
-bool CreatureEvent::executeOnLogin(Player *player)
+bool CreatureEvent::executeOnLogin(Player* player)
 {
 	// onLogin(cid)
 	if (m_scriptInterface->reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface->getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface->getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;
@@ -210,7 +219,7 @@ bool CreatureEvent::executeOnLogin(Player *player)
 
 		uint32_t cid = env->addThing(player);
 
-		lua_State *L = m_scriptInterface->getLuaState();
+		lua_State* L = m_scriptInterface->getLuaState();
 
 		m_scriptInterface->pushFunction(m_scriptId);
 		lua_pushnumber(L, cid);
@@ -225,11 +234,11 @@ bool CreatureEvent::executeOnLogin(Player *player)
 	}
 }
 
-bool CreatureEvent::executeOnLogout(Player *player)
+bool CreatureEvent::executeOnLogout(Player* player)
 {
 	// onLogout(cid)
 	if (m_scriptInterface->reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface->getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface->getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;
@@ -242,7 +251,7 @@ bool CreatureEvent::executeOnLogout(Player *player)
 
 		uint32_t cid = env->addThing(player);
 
-		lua_State *L = m_scriptInterface->getLuaState();
+		lua_State* L = m_scriptInterface->getLuaState();
 
 		m_scriptInterface->pushFunction(m_scriptId);
 		lua_pushnumber(L, cid);
@@ -257,11 +266,11 @@ bool CreatureEvent::executeOnLogout(Player *player)
 	}
 }
 
-void CreatureEvent::executeOnDie(Creature *creature, Item *corpse)
+void CreatureEvent::executeOnDie(Creature* creature, Item* corpse)
 {
 	// onDie(cid, corpse)
 	if (m_scriptInterface->reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface->getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface->getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;
@@ -275,7 +284,7 @@ void CreatureEvent::executeOnDie(Creature *creature, Item *corpse)
 		uint32_t cid = env->addThing(creature);
 		uint32_t corpseid = env->addThing(corpse);
 
-		lua_State *L = m_scriptInterface->getLuaState();
+		lua_State* L = m_scriptInterface->getLuaState();
 
 		m_scriptInterface->pushFunction(m_scriptId);
 		lua_pushnumber(L, cid);
@@ -288,11 +297,11 @@ void CreatureEvent::executeOnDie(Creature *creature, Item *corpse)
 	}
 }
 
-void CreatureEvent::executeOnKill(Creature *creature, Creature *target, bool lastHit)
+void CreatureEvent::executeOnKill(Creature* creature, Creature* target, bool lastHit)
 {
 	// onKill(cid, target, lasthit)
 	if (m_scriptInterface->reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface->getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface->getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;
@@ -306,7 +315,7 @@ void CreatureEvent::executeOnKill(Creature *creature, Creature *target, bool las
 		uint32_t cid = env->addThing(creature);
 		uint32_t targetId = env->addThing(target);
 
-		lua_State *L = m_scriptInterface->getLuaState();
+		lua_State* L = m_scriptInterface->getLuaState();
 
 		m_scriptInterface->pushFunction(m_scriptId);
 		lua_pushnumber(L, cid);
@@ -322,11 +331,11 @@ void CreatureEvent::executeOnKill(Creature *creature, Creature *target, bool las
 	}
 }
 
-void CreatureEvent::executeOnAdvance(Player *player, levelTypes_t type, uint32_t oldLevel, uint32_t newLevel)
+void CreatureEvent::executeOnAdvance(Player* player, levelTypes_t type, uint32_t oldLevel, uint32_t newLevel)
 {
 	// onAdvance(cid, type, oldlevel, newlevel)
 	if (m_scriptInterface->reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface->getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface->getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;
@@ -339,7 +348,7 @@ void CreatureEvent::executeOnAdvance(Player *player, levelTypes_t type, uint32_t
 
 		uint32_t cid = env->addThing(player);
 
-		lua_State *L = m_scriptInterface->getLuaState();
+		lua_State* L = m_scriptInterface->getLuaState();
 
 		m_scriptInterface->pushFunction(m_scriptId);
 		lua_pushnumber(L, cid);
@@ -354,11 +363,11 @@ void CreatureEvent::executeOnAdvance(Player *player, levelTypes_t type, uint32_t
 	}
 }
 
-bool CreatureEvent::executeOnLook(Player *player, Thing *target, uint16_t itemId)
+bool CreatureEvent::executeOnLook(Player* player, Thing* target, uint16_t itemId)
 {
 	// onLook(cid, thing, itemId)
 	if (m_scriptInterface->reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface->getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface->getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;
@@ -369,25 +378,27 @@ bool CreatureEvent::executeOnLook(Player *player, Thing *target, uint16_t itemId
 		env->setScriptId(m_scriptId, m_scriptInterface);
 		env->setRealPos(player->getPosition());
 
-		lua_State *L = m_scriptInterface->getLuaState();
+		lua_State* L = m_scriptInterface->getLuaState();
 		m_scriptInterface->pushFunction(m_scriptId);
 		uint32_t cid = env->addThing(player);
 		lua_pushnumber(L, cid);
 
 		uint32_t target_id = 0;
 		if (target) {
-			if (target->getCreature())
+			if (target->getCreature()) {
 				target_id = env->addThing(target->getCreature());
-			else if (target->getItem())
+			} else if (target->getItem()) {
 				target_id = env->addThing(target->getItem());
-			else
+			} else {
 				target = nullptr;
+			}
 		}
 
-		if (target)
+		if (target) {
 			LuaScriptInterface::pushThing(L, target, target_id);
-		else
+		} else {
 			lua_pushnil(L);
+		}
 
 		lua_pushnumber(L, itemId);
 

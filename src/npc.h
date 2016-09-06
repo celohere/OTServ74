@@ -32,7 +32,7 @@
 class Npc;
 class Player;
 
-typedef std::list<Npc *> NpcList;
+typedef std::list<Npc*> NpcList;
 class Npcs
 {
 public:
@@ -52,29 +52,29 @@ public:
 protected:
 	void registerFunctions() override;
 
-	static int luaActionSay(lua_State *L);
-	static int luaActionMove(lua_State *L);
-	static int luaActionMoveTo(lua_State *L);
-	static int luaActionTurn(lua_State *L);
-	static int luaActionFollow(lua_State *L);
-	static int luaCreatureGetName(lua_State *L);
-	static int luaCreatureGetName2(lua_State *L);
-	static int luaCreatureGetPos(lua_State *L);
-	static int luaSelfGetPos(lua_State *L);
-	static int luaGetDistanceTo(lua_State *L);
-	static int luaGetNpcCid(lua_State *L);
-	static int luaGetNpcPos(lua_State *L);
-	static int luaGetNpcName(lua_State *L);
+	static int luaActionSay(lua_State* L);
+	static int luaActionMove(lua_State* L);
+	static int luaActionMoveTo(lua_State* L);
+	static int luaActionTurn(lua_State* L);
+	static int luaActionFollow(lua_State* L);
+	static int luaCreatureGetName(lua_State* L);
+	static int luaCreatureGetName2(lua_State* L);
+	static int luaCreatureGetPos(lua_State* L);
+	static int luaSelfGetPos(lua_State* L);
+	static int luaGetDistanceTo(lua_State* L);
+	static int luaGetNpcCid(lua_State* L);
+	static int luaGetNpcPos(lua_State* L);
+	static int luaGetNpcName(lua_State* L);
 
-	static int luaSetNpcFocus(lua_State *L);
-	static int luaGetNpcFocus(lua_State *L);
-	static int luaIsNpcIdle(lua_State *L);
-	static int luaResetNpcIdle(lua_State *L);
-	static int luaUpdateNpcIdle(lua_State *L);
-	static int luaQueuePlayer(lua_State *L);
-	static int luaUnqueuePlayer(lua_State *L);
-	static int luaGetQueuedPlayer(lua_State *L);
-	static int luaFaceCreature(lua_State *L);
+	static int luaSetNpcFocus(lua_State* L);
+	static int luaGetNpcFocus(lua_State* L);
+	static int luaIsNpcIdle(lua_State* L);
+	static int luaResetNpcIdle(lua_State* L);
+	static int luaUpdateNpcIdle(lua_State* L);
+	static int luaQueuePlayer(lua_State* L);
+	static int luaUnqueuePlayer(lua_State* L);
+	static int luaGetQueuedPlayer(lua_State* L);
+	static int luaFaceCreature(lua_State* L);
 
 
 private:
@@ -87,36 +87,36 @@ private:
 class NpcEventsHandler
 {
 public:
-	NpcEventsHandler(Npc *npc);
+	NpcEventsHandler(Npc* npc);
 	virtual ~NpcEventsHandler();
 
-	virtual void onCreatureAppear(const Creature *creature){};
-	virtual void onCreatureDisappear(const Creature *creature){};
-	virtual void onCreatureMove(const Creature *creature, const Position &oldPos, const Position &newPos){};
-	virtual void onCreatureSay(const Creature *creature, SpeakClasses, const std::string &text){};
+	virtual void onCreatureAppear(const Creature* creature){};
+	virtual void onCreatureDisappear(const Creature* creature){};
+	virtual void onCreatureMove(const Creature* creature, const Position& oldPos, const Position& newPos){};
+	virtual void onCreatureSay(const Creature* creature, SpeakClasses, const std::string& text){};
 	virtual void onThink(){};
 
 	bool isLoaded();
 
 protected:
-	Npc *m_npc;
+	Npc* m_npc;
 	bool m_loaded;
 };
 
 class NpcScript : public NpcEventsHandler
 {
 public:
-	NpcScript(std::string file, Npc *npc);
+	NpcScript(std::string file, Npc* npc);
 	~NpcScript() override;
 
-	void onCreatureAppear(const Creature *creature) override;
-	void onCreatureDisappear(const Creature *creature) override;
-	void onCreatureMove(const Creature *creature, const Position &oldPos, const Position &newPos) override;
-	void onCreatureSay(const Creature *creature, SpeakClasses, const std::string &text) override;
+	void onCreatureAppear(const Creature* creature) override;
+	void onCreatureDisappear(const Creature* creature) override;
+	void onCreatureMove(const Creature* creature, const Position& oldPos, const Position& newPos) override;
+	void onCreatureSay(const Creature* creature, SpeakClasses, const std::string& text) override;
 	void onThink() override;
 
 private:
-	NpcScriptInterface *m_scriptInterface;
+	NpcScriptInterface* m_scriptInterface;
 
 	int32_t m_onCreatureAppear;
 	int32_t m_onCreatureDisappear;
@@ -134,11 +134,11 @@ public:
 
 	~Npc() override;
 
-	Npc *getNpc() override
+	Npc* getNpc() override
 	{
 		return this;
 	}
-	const Npc *getNpc() const override
+	const Npc* getNpc() const override
 	{
 		return this;
 	}
@@ -162,18 +162,18 @@ public:
 		listNpc.addList(this);
 	}
 
-	static Npc *createNpc(const std::string &name);
+	static Npc* createNpc(const std::string& name);
 
-	bool canSee(const Position &pos) const override;
+	bool canSee(const Position& pos) const override;
 
 	bool load();
 	void reload();
 
-	const std::string &getName() const override
+	const std::string& getName() const override
 	{
 		return name;
 	}
-	const std::string &getNameDescription() const override
+	const std::string& getNameDescription() const override
 	{
 		return name;
 	}
@@ -187,7 +187,7 @@ public:
 		return loaded;
 	}
 
-	void setCreatureFocus(Creature *creature);
+	void setCreatureFocus(Creature* creature);
 
 	bool isIdle()
 	{
@@ -210,38 +210,41 @@ public:
 	{
 		walkDelay = delay;
 	}
-	Direction getDir(Creature *creature);
+	Direction getDir(Creature* creature);
 
-	NpcScriptInterface *getScriptInterface();
+	NpcScriptInterface* getScriptInterface();
 
 protected:
-	Npc(const std::string &_name);
+	Npc(const std::string& _name);
 
-	void onAddTileItem(const Tile *tile, const Position &pos, const Item *item) override;
-	void onUpdateTileItem(const Tile *tile,
-	                              const Position &pos,
-	                              uint32_t stackpos,
-	                              const Item *oldItem,
-	                              const ItemType &oldType,
-	                              const Item *newItem,
-	                              const ItemType &newType) override;
-	void
-	onRemoveTileItem(const Tile *tile, const Position &pos, uint32_t stackpos, const ItemType &iType, const Item *item) override;
-	void onUpdateTile(const Tile *tile, const Position &pos) override;
+	void onAddTileItem(const Tile* tile, const Position& pos, const Item* item) override;
+	void onUpdateTileItem(const Tile* tile,
+	                      const Position& pos,
+	                      uint32_t stackpos,
+	                      const Item* oldItem,
+	                      const ItemType& oldType,
+	                      const Item* newItem,
+	                      const ItemType& newType) override;
+	void onRemoveTileItem(const Tile* tile,
+	                      const Position& pos,
+	                      uint32_t stackpos,
+	                      const ItemType& iType,
+	                      const Item* item) override;
+	void onUpdateTile(const Tile* tile, const Position& pos) override;
 
-	void onCreatureAppear(const Creature *creature, bool isLogin) override;
-	void onCreatureDisappear(const Creature *creature, uint32_t stackpos, bool isLogout) override;
-	void onCreatureMove(const Creature *creature,
-	                            const Tile *newTile,
-	                            const Position &newPos,
-	                            const Tile *oldTile,
-	                            const Position &oldPos,
-	                            uint32_t oldStackPos,
-	                            bool teleport) override;
+	void onCreatureAppear(const Creature* creature, bool isLogin) override;
+	void onCreatureDisappear(const Creature* creature, uint32_t stackpos, bool isLogout) override;
+	void onCreatureMove(const Creature* creature,
+	                    const Tile* newTile,
+	                    const Position& newPos,
+	                    const Tile* oldTile,
+	                    const Position& oldPos,
+	                    uint32_t oldStackPos,
+	                    bool teleport) override;
 
-	void onCreatureTurn(const Creature *creature, uint32_t stackpos) override;
-	void onCreatureSay(const Creature *creature, SpeakClasses type, const std::string &text) override;
-	void onCreatureChangeOutfit(const Creature *creature, const Outfit_t &outfit) override;
+	void onCreatureTurn(const Creature* creature, uint32_t stackpos) override;
+	void onCreatureSay(const Creature* creature, SpeakClasses type, const std::string& text) override;
+	void onCreatureChangeOutfit(const Creature* creature, const Outfit_t& outfit) override;
 	void onThink(uint32_t interval) override;
 	std::string getDescription(int32_t lookDistance) const override;
 
@@ -257,16 +260,16 @@ protected:
 	{
 		return attackable;
 	}
-	bool getNextStep(Direction &dir) override;
+	bool getNextStep(Direction& dir) override;
 
-	bool canWalkTo(const Position &fromPos, Direction dir);
-	bool getRandomStep(Direction &dir);
+	bool canWalkTo(const Position& fromPos, Direction dir);
+	bool getRandomStep(Direction& dir);
 
 	void reset();
-	bool loadFromXml(const std::string &name);
+	bool loadFromXml(const std::string& name);
 
-	void onPlayerEnter(Player *player);
-	void onPlayerLeave(Player *player);
+	void onPlayerEnter(Player* player);
+	void onPlayerLeave(Player* player);
 
 	typedef std::map<std::string, std::string> ParametersMap;
 	ParametersMap m_parameters;
@@ -287,14 +290,14 @@ protected:
 	int32_t focusCreature;
 	int32_t walkDelay;
 
-	NpcEventsHandler *m_npcEventHandler;
+	NpcEventsHandler* m_npcEventHandler;
 
 	typedef std::list<uint32_t> QueueList;
 	QueueList queueList;
 
 	bool loaded;
 
-	static NpcScriptInterface *m_scriptInterface;
+	static NpcScriptInterface* m_scriptInterface;
 
 	friend class Npcs;
 	friend class NpcScriptInterface;

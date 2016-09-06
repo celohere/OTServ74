@@ -13,8 +13,6 @@ class Item;
 class Creature;
 
 
-
-
 /*Notice: remember to add new error codes to global.lua*/
 enum ReturnValue {
 	RET_NOERROR = 1,
@@ -86,16 +84,11 @@ enum ReturnValue {
 };
 
 
-
-
-
-
-
 class Thing
 {
 public:
 	virtual ~Thing() = default;
-	
+
 	const Cylinder* getParent() const;
 	const Cylinder* getTopParent() const;
 	Cylinder* getParent();
@@ -107,7 +100,7 @@ public:
 	virtual std::string getXRayDescription() const;
 	virtual const Item* getItem() const;
 	virtual const Creature* getCreature() const;
-		
+
 	virtual Tile* getTile();
 	virtual Item* getItem();
 	virtual Creature* getCreature();
@@ -120,7 +113,7 @@ public:
 
 	void useThing2();
 	void releaseThing2();
-	
+
 protected:
 	Thing() = default;
 
@@ -128,10 +121,7 @@ protected:
 private:
 	Cylinder* parent = nullptr;
 	int32_t useCount = 0;
-
 };
-
-
 
 
 inline const Cylinder* Thing::getParent() const
@@ -176,7 +166,6 @@ inline void Thing::setParent(Cylinder* cylinder)
 }
 
 
-
 inline void Thing::useThing2()
 {
 	++useCount;
@@ -186,11 +175,10 @@ inline void Thing::useThing2()
 inline void Thing::releaseThing2()
 {
 	--useCount;
-	if (useCount <= 0)
+	if (useCount <= 0) {
 		delete this;
+	}
 }
-
-
 
 
 #endif

@@ -34,16 +34,18 @@
 
 extern ConfigManager g_config;
 
-bool fileExists(const char *filename)
+bool fileExists(const char* filename)
 {
-	FILE *f = fopen(filename, "rb");
+	FILE* f = fopen(filename, "rb");
 	bool exists = (f != nullptr);
-	if (f != nullptr) fclose(f);
+	if (f != nullptr) {
+		fclose(f);
+	}
 
 	return exists;
 }
 
-void replaceString(std::string &str, const std::string sought, const std::string replacement)
+void replaceString(std::string& str, const std::string sought, const std::string replacement)
 {
 	size_t pos = 0;
 	size_t start = 0;
@@ -55,43 +57,43 @@ void replaceString(std::string &str, const std::string sought, const std::string
 	}
 }
 
-void trim_right(std::string &source, const std::string &t)
+void trim_right(std::string& source, const std::string& t)
 {
 	source.erase(source.find_last_not_of(t) + 1);
 }
 
-void trim_left(std::string &source, const std::string &t)
+void trim_left(std::string& source, const std::string& t)
 {
 	source.erase(0, source.find_first_not_of(t));
 }
 
-void toLowerCaseString(std::string &source)
+void toLowerCaseString(std::string& source)
 {
 	std::transform(source.begin(), source.end(), source.begin(), tolower);
 }
 
-void toUpperCaseString(std::string &source)
+void toUpperCaseString(std::string& source)
 {
 	std::transform(source.begin(), source.end(), source.begin(), upchar);
 }
 
-std::string asLowerCaseString(const std::string &source)
+std::string asLowerCaseString(const std::string& source)
 {
 	std::string s = source;
 	toLowerCaseString(s);
 	return s;
 }
 
-std::string asUpperCaseString(const std::string &source)
+std::string asUpperCaseString(const std::string& source)
 {
 	std::string s = source;
 	toUpperCaseString(s);
 	return s;
 }
 
-bool readXMLInteger(xmlNodePtr node, const char *tag, int &value)
+bool readXMLInteger(xmlNodePtr node, const char* tag, int& value)
 {
-	char *nodeValue = (char *)xmlGetProp(node, (xmlChar *)tag);
+	char* nodeValue = (char*)xmlGetProp(node, (xmlChar*)tag);
 	if (nodeValue) {
 		value = atoi(nodeValue);
 		xmlFree(nodeValue);
@@ -101,9 +103,9 @@ bool readXMLInteger(xmlNodePtr node, const char *tag, int &value)
 	return false;
 }
 
-bool readXMLInteger64(xmlNodePtr node, const char *tag, uint64_t &value)
+bool readXMLInteger64(xmlNodePtr node, const char* tag, uint64_t& value)
 {
-	char *nodeValue = (char *)xmlGetProp(node, (xmlChar *)tag);
+	char* nodeValue = (char*)xmlGetProp(node, (xmlChar*)tag);
 	if (nodeValue) {
 		value = ATOI64(nodeValue);
 		xmlFree(nodeValue);
@@ -113,9 +115,9 @@ bool readXMLInteger64(xmlNodePtr node, const char *tag, uint64_t &value)
 	return false;
 }
 
-bool readXMLFloat(xmlNodePtr node, const char *tag, float &value)
+bool readXMLFloat(xmlNodePtr node, const char* tag, float& value)
 {
-	char *nodeValue = (char *)xmlGetProp(node, (xmlChar *)tag);
+	char* nodeValue = (char*)xmlGetProp(node, (xmlChar*)tag);
 	if (nodeValue) {
 		value = atof(nodeValue);
 		xmlFree(nodeValue);
@@ -125,7 +127,7 @@ bool readXMLFloat(xmlNodePtr node, const char *tag, float &value)
 	return false;
 }
 
-bool utf8ToLatin1(char *intext, std::string &outtext)
+bool utf8ToLatin1(char* intext, std::string& outtext)
 {
 	outtext = "";
 
@@ -139,22 +141,22 @@ bool utf8ToLatin1(char *intext, std::string &outtext)
 	}
 
 	int outlen = inlen * 2;
-	unsigned char *outbuf = new unsigned char[outlen];
-	int res = UTF8Toisolat1(outbuf, &outlen, (unsigned char *)intext, &inlen);
+	unsigned char* outbuf = new unsigned char[outlen];
+	int res = UTF8Toisolat1(outbuf, &outlen, (unsigned char*)intext, &inlen);
 	if (res < 0) {
 		delete[] outbuf;
 		return false;
 	}
 
 	outbuf[outlen] = '\0';
-	outtext = (char *)outbuf;
+	outtext = (char*)outbuf;
 	delete[] outbuf;
 	return true;
 }
 
-bool readXMLString(xmlNodePtr node, const char *tag, std::string &value)
+bool readXMLString(xmlNodePtr node, const char* tag, std::string& value)
 {
-	char *nodeValue = (char *)xmlGetProp(node, (xmlChar *)tag);
+	char* nodeValue = (char*)xmlGetProp(node, (xmlChar*)tag);
 	if (nodeValue) {
 		if (!utf8ToLatin1(nodeValue, value)) {
 			value = nodeValue;
@@ -167,9 +169,9 @@ bool readXMLString(xmlNodePtr node, const char *tag, std::string &value)
 	return false;
 }
 
-bool readXMLContentString(xmlNodePtr node, std::string &value)
+bool readXMLContentString(xmlNodePtr node, std::string& value)
 {
-	char *nodeValue = (char *)xmlNodeGetContent(node);
+	char* nodeValue = (char*)xmlNodeGetContent(node);
 	if (nodeValue) {
 		if (!utf8ToLatin1(nodeValue, value)) {
 			value = nodeValue;
@@ -182,7 +184,7 @@ bool readXMLContentString(xmlNodePtr node, std::string &value)
 	return false;
 }
 
-std::vector<std::string> explodeString(const std::string &inString, const std::string &separator)
+std::vector<std::string> explodeString(const std::string& inString, const std::string& separator)
 {
 	std::vector<std::string> returnVector;
 	std::string::size_type start = 0;
@@ -275,18 +277,21 @@ int random_range(int lowest_number, int highest_number, DistributionType_t type 
 
 
 // dump a part of the memory to stderr.
-void hexdump(unsigned char *_data, int _len)
+void hexdump(unsigned char* _data, int _len)
 {
 	int i;
 	for (; _len > 0; _data += 16, _len -= 16) {
-		for (i = 0; i < 16 && i < _len; i++)
+		for (i = 0; i < 16 && i < _len; i++) {
 			fprintf(stderr, "%02x ", _data[i]);
-		for (; i < 16; i++)
+		}
+		for (; i < 16; i++) {
 			fprintf(stderr, "   ");
+		}
 
 		fprintf(stderr, " ");
-		for (i = 0; i < 16 && i < _len; i++)
+		for (i = 0; i < 16 && i < _len; i++) {
 			fprintf(stderr, "%c", (_data[i] & 0x70) < 32 ? '·' : _data[i]);
+		}
 
 		fprintf(stderr, "\n");
 	}
@@ -301,15 +306,15 @@ char upchar(char c)
 	return c;
 }
 
-std::string urlEncode(const std::string &str)
+std::string urlEncode(const std::string& str)
 {
 	return urlEncode(str.c_str());
 }
 
-std::string urlEncode(const char *str)
+std::string urlEncode(const char* str)
 {
 	std::string out;
-	const char *it;
+	const char* it;
 	for (it = str; *it != 0; it++) {
 		char ch = *it;
 		if (!(ch >= '0' && ch <= '9') && !(ch >= 'A' && ch <= 'Z') && !(ch >= 'a' && ch <= 'z')) {
@@ -323,7 +328,7 @@ std::string urlEncode(const char *str)
 	return out;
 }
 
-bool passwordTest(const std::string &plain, std::string &hash)
+bool passwordTest(const std::string& plain, std::string& hash)
 {
 	switch (g_config.getNumber(ConfigManager::PASSWORD_TYPE)) {
 	case PASSWORD_TYPE_PLAIN: {
@@ -337,7 +342,7 @@ bool passwordTest(const std::string &plain, std::string &hash)
 		std::stringstream hexStream;
 
 		MD5Init(&m_md5, 0);
-		MD5Update(&m_md5, (const unsigned char *)plain.c_str(), plain.length());
+		MD5Update(&m_md5, (const unsigned char*)plain.c_str(), plain.length());
 		MD5Final(&m_md5);
 
 		hexStream.flags(std::ios::hex | std::ios::uppercase);
@@ -356,7 +361,7 @@ bool passwordTest(const std::string &plain, std::string &hash)
 		unsigned sha1Hash[5];
 		std::stringstream hexStream;
 
-		sha1.Input((const unsigned char *)plain.c_str(), plain.length());
+		sha1.Input((const unsigned char*)plain.c_str(), plain.length());
 		sha1.Result(sha1Hash);
 
 		hexStream.flags(std::ios::hex | std::ios::uppercase);
@@ -376,15 +381,15 @@ bool passwordTest(const std::string &plain, std::string &hash)
 }
 
 // buffer should have at least 17 bytes
-void formatIP(uint32_t ip, char *buffer)
+void formatIP(uint32_t ip, char* buffer)
 {
 	sprintf(buffer, "%d.%d.%d.%d", ip & 0xFF, (ip >> 8) & 0xFF, (ip >> 16) & 0xFF, (ip >> 24));
 }
 
 // buffer should have at least 21 bytes
-void formatDate(time_t time, char *buffer)
+void formatDate(time_t time, char* buffer)
 {
-	const tm *tms = localtime(&time);
+	const tm* tms = localtime(&time);
 	if (tms) {
 		sprintf(buffer, "%02d/%02d/%04d  %02d:%02d:%02d", tms->tm_mday, tms->tm_mon + 1,
 		        tms->tm_year + 1900, tms->tm_hour, tms->tm_min, tms->tm_sec);
@@ -394,9 +399,9 @@ void formatDate(time_t time, char *buffer)
 }
 
 // buffer should have at least 16 bytes
-void formatDate2(time_t time, char *buffer)
+void formatDate2(time_t time, char* buffer)
 {
-	const tm *tms = localtime(&time);
+	const tm* tms = localtime(&time);
 	if (tms) {
 		strftime(buffer, 12, "%d %b %Y", tms);
 	} else {
@@ -407,10 +412,13 @@ void formatDate2(time_t time, char *buffer)
 std::string formatTime(int32_t hours, int32_t minutes)
 {
 	std::stringstream time;
-	if (hours)
+	if (hours) {
 		time << hours << " " << (hours > 1 ? "hours" : "hour") << (minutes ? " and " : "");
+	}
 
-	if (minutes) time << minutes << " " << (minutes > 1 ? "minutes" : "minute");
+	if (minutes) {
+		time << minutes << " " << (minutes > 1 ? "minutes" : "minute");
+	}
 
 	return time.str();
 }
@@ -454,22 +462,22 @@ Position getNextPosition(Direction direction, Position pos)
 }
 
 struct MagicEffectNames {
-	const char *name;
+	const char* name;
 	MagicEffectClasses effect;
 };
 
 struct ShootTypeNames {
-	const char *name;
+	const char* name;
 	ShootType_t shoot;
 };
 
 struct AmmoTypeNames {
-	const char *name;
+	const char* name;
 	Ammo_t ammoType;
 };
 
 struct AmmoActionNames {
-	const char *name;
+	const char* name;
 	AmmoAction_t ammoAction;
 };
 
@@ -532,7 +540,7 @@ AmmoActionNames ammoActionNames[] = { { "move", AMMOACTION_MOVE },
 	                              { "removecharge", AMMOACTION_REMOVECHARGE },
 	                              { "removecount", AMMOACTION_REMOVECOUNT } };
 
-MagicEffectClasses getMagicEffect(const std::string &strValue)
+MagicEffectClasses getMagicEffect(const std::string& strValue)
 {
 	for (uint32_t i = 0; i < sizeof(magicEffectNames) / sizeof(MagicEffectNames); ++i) {
 		if (boost::algorithm::iequals(strValue.c_str(), magicEffectNames[i].name)) {
@@ -542,7 +550,7 @@ MagicEffectClasses getMagicEffect(const std::string &strValue)
 	return NM_ME_UNK;
 }
 
-ShootType_t getShootType(const std::string &strValue)
+ShootType_t getShootType(const std::string& strValue)
 {
 	for (uint32_t i = 0; i < sizeof(shootTypeNames) / sizeof(ShootTypeNames); ++i) {
 		if (boost::algorithm::iequals(strValue.c_str(), shootTypeNames[i].name)) {
@@ -552,7 +560,7 @@ ShootType_t getShootType(const std::string &strValue)
 	return NM_SHOOT_UNK;
 }
 
-Ammo_t getAmmoType(const std::string &strValue)
+Ammo_t getAmmoType(const std::string& strValue)
 {
 	for (uint32_t i = 0; i < sizeof(ammoTypeNames) / sizeof(AmmoTypeNames); ++i) {
 		if (boost::algorithm::iequals(strValue.c_str(), ammoTypeNames[i].name)) {
@@ -563,7 +571,7 @@ Ammo_t getAmmoType(const std::string &strValue)
 	return AMMO_NONE;
 }
 
-AmmoAction_t getAmmoAction(const std::string &strValue)
+AmmoAction_t getAmmoAction(const std::string& strValue)
 {
 	for (uint32_t i = 0; i < sizeof(ammoActionNames) / sizeof(AmmoActionNames); ++i) {
 		if (boost::algorithm::iequals(strValue.c_str(), ammoActionNames[i].name)) {

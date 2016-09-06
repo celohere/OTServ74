@@ -48,7 +48,7 @@ Spawns::~Spawns()
 	clear();
 }
 
-bool Spawns::loadFromXml(const std::string &_filename)
+bool Spawns::loadFromXml(const std::string& _filename)
 {
 	if (isLoaded()) {
 		return true;
@@ -61,7 +61,7 @@ bool Spawns::loadFromXml(const std::string &_filename)
 		xmlNodePtr root, spawnNode;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"spawns") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"spawns") != 0) {
 			xmlFreeDoc(doc);
 			return false;
 		}
@@ -71,7 +71,7 @@ bool Spawns::loadFromXml(const std::string &_filename)
 
 		spawnNode = root->children;
 		while (spawnNode) {
-			if (xmlStrcmp(spawnNode->name, (const xmlChar *)"spawn") == 0) {
+			if (xmlStrcmp(spawnNode->name, (const xmlChar*)"spawn") == 0) {
 				Position centerPos;
 				int32_t radius = -1;
 
@@ -103,12 +103,12 @@ bool Spawns::loadFromXml(const std::string &_filename)
 					return false;
 				}
 
-				Spawn *spawn = new Spawn(centerPos, radius);
+				Spawn* spawn = new Spawn(centerPos, radius);
 				spawnList.push_back(spawn);
 
 				xmlNodePtr tmpNode = spawnNode->children;
 				while (tmpNode) {
-					if (xmlStrcmp(tmpNode->name, (const xmlChar *)"monster") == 0) {
+					if (xmlStrcmp(tmpNode->name, (const xmlChar*)"monster") == 0) {
 
 						std::string name = "";
 						Position pos = centerPos;
@@ -171,7 +171,7 @@ bool Spawns::loadFromXml(const std::string &_filename)
 							<< std::endl;
 						}
 					} else if (xmlStrcmp(tmpNode->name,
-					                     (const xmlChar *)"npc") == 0) {
+					                     (const xmlChar*)"npc") == 0) {
 
 						Direction direction = NORTH;
 						std::string name = "";
@@ -215,7 +215,7 @@ bool Spawns::loadFromXml(const std::string &_filename)
 							continue;
 						}
 
-						Npc *npc = Npc::createNpc(name);
+						Npc* npc = Npc::createNpc(name);
 						if (!npc) {
 							tmpNode = tmpNode->next;
 							continue;
@@ -243,7 +243,9 @@ bool Spawns::loadFromXml(const std::string &_filename)
 
 void Spawns::startup()
 {
-	if (!isLoaded() || isStarted()) return;
+	if (!isLoaded() || isStarted()) {
+		return;
+	}
 
 	for (NpcList::iterator it = npcList.begin(); it != npcList.end(); ++it) {
 		g_game.placeCreature((*it), (*it)->getMasterPos(), false, true);
@@ -270,7 +272,7 @@ void Spawns::clear()
 	filename = "";
 }
 
-bool Spawns::isInZone(const Position &centerPos, int32_t radius, const Position &pos)
+bool Spawns::isInZone(const Position& centerPos, int32_t radius, const Position& pos)
 {
 	if (radius == -1) {
 		return true;
@@ -288,7 +290,7 @@ void Spawn::startSpawnCheck()
 	}
 }
 
-Spawn::Spawn(const Position &_pos, int32_t _radius)
+Spawn::Spawn(const Position& _pos, int32_t _radius)
 {
 	centerPos = _pos;
 	radius = _radius;
@@ -298,7 +300,7 @@ Spawn::Spawn(const Position &_pos, int32_t _radius)
 
 Spawn::~Spawn()
 {
-	Monster *monster;
+	Monster* monster;
 	for (SpawnedMap::iterator it = spawnedMap.begin(); it != spawnedMap.end(); ++it) {
 		monster = it->second;
 		it->second = nullptr;
@@ -315,14 +317,14 @@ Spawn::~Spawn()
 	stopEvent();
 }
 
-bool Spawn::findPlayer(const Position &pos)
+bool Spawn::findPlayer(const Position& pos)
 {
 	SpectatorVec list;
 	SpectatorVec::iterator it;
 
 	g_game.getSpectators(list, pos);
 
-	Player *tmpPlayer = nullptr;
+	Player* tmpPlayer = nullptr;
 	for (it = list.begin(); it != list.end(); ++it) {
 		if ((tmpPlayer = (*it)->getPlayer()) && !tmpPlayer->hasFlag(PlayerFlag_IgnoredByMonsters)) {
 			return true;
@@ -332,14 +334,14 @@ bool Spawn::findPlayer(const Position &pos)
 	return false;
 }
 
-bool Spawn::isInSpawnZone(const Position &pos)
+bool Spawn::isInSpawnZone(const Position& pos)
 {
 	return Spawns::getInstance()->isInZone(centerPos, radius, pos);
 }
 
-bool Spawn::spawnMonster(uint32_t spawnId, MonsterType *mType, const Position &pos, Direction dir, bool startup /*= false*/)
+bool Spawn::spawnMonster(uint32_t spawnId, MonsterType* mType, const Position& pos, Direction dir, bool startup /*= false*/)
 {
-	Monster *monster = Monster::createMonster(mType);
+	Monster* monster = Monster::createMonster(mType);
 	if (!monster) {
 		return false;
 	}
@@ -372,7 +374,7 @@ void Spawn::startup()
 {
 	for (SpawnMap::iterator it = spawnMap.begin(); it != spawnMap.end(); ++it) {
 		uint32_t spawnId = it->first;
-		spawnBlock_t &sb = it->second;
+		spawnBlock_t& sb = it->second;
 
 		spawnMonster(spawnId, sb.mType, sb.pos, sb.direction, true);
 	}
@@ -385,7 +387,7 @@ void Spawn::checkSpawn()
 #endif
 	checkSpawnEvent = 0;
 
-	Monster *monster;
+	Monster* monster;
 	uint32_t spawnId;
 
 	for (SpawnedMap::iterator it = spawnedMap.begin(); it != spawnedMap.end();) {
@@ -410,7 +412,7 @@ void Spawn::checkSpawn()
 	uint32_t spawnCount = 0;
 	for (SpawnMap::iterator it = spawnMap.begin(); it != spawnMap.end(); ++it) {
 		spawnId = it->first;
-		spawnBlock_t &sb = it->second;
+		spawnBlock_t& sb = it->second;
 
 		if (spawnedMap.count(spawnId) == 0) {
 			if (OTSYS_TIME() >= sb.lastSpawn + sb.interval) {
@@ -441,9 +443,9 @@ void Spawn::checkSpawn()
 #endif
 }
 
-bool Spawn::addMonster(const std::string &_name, const Position &_pos, Direction _dir, uint32_t _interval)
+bool Spawn::addMonster(const std::string& _name, const Position& _pos, Direction _dir, uint32_t _interval)
 {
-	MonsterType *mType = g_monsters.getMonsterType(_name);
+	MonsterType* mType = g_monsters.getMonsterType(_name);
 	if (!mType) {
 		std::cout << "[Spawn::addMonster] Can not find " << _name << std::endl;
 		return false;
@@ -466,7 +468,7 @@ bool Spawn::addMonster(const std::string &_name, const Position &_pos, Direction
 	return true;
 }
 
-void Spawn::removeMonster(Monster *monster)
+void Spawn::removeMonster(Monster* monster)
 {
 	for (SpawnedMap::iterator it = spawnedMap.begin(); it != spawnedMap.end(); ++it) {
 		if (it->second == monster) {

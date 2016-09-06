@@ -42,9 +42,9 @@ extern ConfigManager g_config;
 
 boost::recursive_mutex DBQuery::database_lock;
 
-Database *_Database::_instance = nullptr;
+Database* _Database::_instance = nullptr;
 
-Database *_Database::instance()
+Database* _Database::instance()
 {
 	if (!_instance) {
 #if defined MULTI_SQL_DRIVERS
@@ -71,7 +71,7 @@ Database *_Database::instance()
 	return _instance;
 }
 
-DBResult *_Database::verifyResult(DBResult *result)
+DBResult* _Database::verifyResult(DBResult* result)
 {
 	if (!result->next()) {
 		_instance->freeResult(result);
@@ -91,7 +91,7 @@ DBQuery::~DBQuery()
 	database_lock.unlock();
 }
 
-DBInsert::DBInsert(Database *db)
+DBInsert::DBInsert(Database* db)
 {
 	m_db = db;
 	m_rows = 0;
@@ -100,14 +100,14 @@ DBInsert::DBInsert(Database *db)
 	m_multiLine = m_db->getParam(DBPARAM_MULTIINSERT) != 0;
 }
 
-void DBInsert::setQuery(const std::string &query)
+void DBInsert::setQuery(const std::string& query)
 {
 	m_query = query;
 	m_buf = "";
 	m_rows = 0;
 }
 
-bool DBInsert::addRow(const std::string &row)
+bool DBInsert::addRow(const std::string& row)
 {
 	if (m_multiLine) {
 		m_rows++;
@@ -117,7 +117,9 @@ bool DBInsert::addRow(const std::string &row)
 		if (size == 0) {
 			m_buf = "(" + row + ")";
 		} else if (size > 8192) {
-			if (!execute()) return false;
+			if (!execute()) {
+				return false;
+			}
 
 			m_buf = "(" + row + ")";
 		} else {
@@ -131,7 +133,7 @@ bool DBInsert::addRow(const std::string &row)
 	}
 }
 
-bool DBInsert::addRow(std::stringstream &row)
+bool DBInsert::addRow(std::stringstream& row)
 {
 	bool ret = addRow(row.str());
 	row.str("");

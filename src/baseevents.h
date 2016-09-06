@@ -35,7 +35,7 @@ public:
 	BaseEvents();
 	virtual ~BaseEvents();
 
-	bool loadFromXml(const std::string &datadir);
+	bool loadFromXml(const std::string& datadir);
 	bool reload();
 	bool isLoaded()
 	{
@@ -43,10 +43,10 @@ public:
 	}
 
 protected:
-	virtual LuaScriptInterface &getScriptInterface() = 0;
+	virtual LuaScriptInterface& getScriptInterface() = 0;
 	virtual std::string getScriptBaseName() = 0;
-	virtual Event *getEvent(const std::string &nodeName) = 0;
-	virtual bool registerEvent(Event *event, xmlNodePtr p) = 0;
+	virtual Event* getEvent(const std::string& nodeName) = 0;
+	virtual bool registerEvent(Event* event, xmlNodePtr p) = 0;
 	virtual void clear() = 0;
 
 	bool m_loaded;
@@ -56,19 +56,19 @@ protected:
 class Event
 {
 public:
-	Event(LuaScriptInterface *_interface);
+	Event(LuaScriptInterface* _interface);
 	virtual ~Event();
 
 	virtual bool configureEvent(xmlNodePtr p) = 0;
 
-	bool loadScript(const std::string &scriptFile);
-	virtual bool loadFunction(const std::string &functionName);
+	bool loadScript(const std::string& scriptFile);
+	virtual bool loadFunction(const std::string& functionName);
 
 protected:
 	virtual std::string getScriptEventName() = 0;
 
 	int32_t m_scriptId;
-	LuaScriptInterface *m_scriptInterface;
+	LuaScriptInterface* m_scriptInterface;
 
 	bool m_scripted;
 };
@@ -80,11 +80,11 @@ public:
 	CallBack();
 	virtual ~CallBack();
 
-	bool loadCallBack(LuaScriptInterface *_interface, std::string name);
+	bool loadCallBack(LuaScriptInterface* _interface, std::string name);
 
 protected:
 	int32_t m_scriptId;
-	LuaScriptInterface *m_scriptInterface;
+	LuaScriptInterface* m_scriptInterface;
 
 	bool m_loaded;
 

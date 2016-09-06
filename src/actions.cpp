@@ -2,31 +2,31 @@
 #include "otpch.h"
 
 
-#include <sstream>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
+#include <sstream>
 
-#include "game.h"
+#include "actions.h"
+#include "beds.h"
 #include "combat.h"
 #include "configmanager.h"
 #include "const.h"
 #include "container.h"
+#include "game.h"
 #include "house.h"
 #include "item.h"
+#include "log.h"
 #include "monster.h"
 #include "npc.h"
 #include "player.h"
 #include "spells.h"
 #include "tasks.h"
 #include "tools.h"
-#include "actions.h"
-#include "beds.h"
-#include "log.h"
 
 
 extern Game g_game;
-extern Spells *g_spells;
-extern Actions *g_actions;
+extern Spells* g_spells;
+extern Actions* g_actions;
 extern ConfigManager g_config;
 
 Actions::Actions() : m_scriptInterface("Action Interface")
@@ -39,7 +39,7 @@ Actions::~Actions()
 	clear();
 }
 
-inline void Actions::clearMap(ActionUseMap &map)
+inline void Actions::clearMap(ActionUseMap& map)
 {
 	ActionUseMap::iterator it = map.begin();
 	while (it != map.end()) {
@@ -59,7 +59,7 @@ void Actions::clear()
 	m_loaded = false;
 }
 
-LuaScriptInterface &Actions::getScriptInterface()
+LuaScriptInterface& Actions::getScriptInterface()
 {
 	return m_scriptInterface;
 }
@@ -69,7 +69,7 @@ std::string Actions::getScriptBaseName()
 	return "actions";
 }
 
-Event *Actions::getEvent(const std::string &nodeName)
+Event* Actions::getEvent(const std::string& nodeName)
 {
 	if (asLowerCaseString(nodeName) == "action") {
 		return new Action(&m_scriptInterface);
@@ -78,10 +78,12 @@ Event *Actions::getEvent(const std::string &nodeName)
 	}
 }
 
-bool Actions::registerEvent(Event *event, xmlNodePtr p)
+bool Actions::registerEvent(Event* event, xmlNodePtr p)
 {
-	Action *action = dynamic_cast<Action *>(event);
-	if (!action) return false;
+	Action* action = dynamic_cast<Action*>(event);
+	if (!action) {
+		return false;
+	}
 
 	int value;
 	if (readXMLInteger(p, "itemid", value)) {
@@ -97,9 +99,9 @@ bool Actions::registerEvent(Event *event, xmlNodePtr p)
 	return true;
 }
 
-ReturnValue Actions::canUse(const Player *player, const Position &pos)
+ReturnValue Actions::canUse(const Player* player, const Position& pos)
 {
-	const Position &playerPos = player->getPosition();
+	const Position& playerPos = player->getPosition();
 
 	if (pos.x != 0xFFFF) {
 		if (playerPos.z > pos.z) {
@@ -114,15 +116,16 @@ ReturnValue Actions::canUse(const Player *player, const Position &pos)
 	return RET_NOERROR;
 }
 
-bool Actions::hasAction(const Item *item) const
+bool Actions::hasAction(const Item* item) const
 {
-	return (getAction(item, ACTION_UNIQUEID) != nullptr) || (getAction(item, ACTION_ACTIONID) != nullptr) ||
+	return (getAction(item, ACTION_UNIQUEID) != nullptr) ||
+	       (getAction(item, ACTION_ACTIONID) != nullptr) ||
 	       (getAction(item, ACTION_ITEMID) != nullptr) || (getAction(item, ACTION_RUNEID) != nullptr);
 }
 
-ReturnValue Actions::canUse(const Player *player, const Position &pos, const Item *item)
+ReturnValue Actions::canUse(const Player* player, const Position& pos, const Item* item)
 {
-	Action *action = getAction(item, ACTION_UNIQUEID);
+	Action* action = getAction(item, ACTION_UNIQUEID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, pos);
 		if (ret != RET_NOERROR) {
@@ -165,13 +168,13 @@ ReturnValue Actions::canUse(const Player *player, const Position &pos, const Ite
 	return RET_NOERROR;
 }
 
-ReturnValue Actions::canUseFar(const Creature *creature, const Position &toPos, bool checkLineOfSight)
+ReturnValue Actions::canUseFar(const Creature* creature, const Position& toPos, bool checkLineOfSight)
 {
 	if (toPos.x == 0xFFFF) {
 		return RET_NOERROR;
 	}
 
-	const Position &creaturePos = creature->getPosition();
+	const Position& creaturePos = creature->getPosition();
 
 	if (creaturePos.z > toPos.z) {
 		return RET_FIRSTGOUPSTAIRS;
@@ -188,7 +191,7 @@ ReturnValue Actions::canUseFar(const Creature *creature, const Position &toPos, 
 	return RET_NOERROR;
 }
 
-Action *Actions::getAction(const Item *item, ActionType_t type /* = ACTION_ANY*/) const
+Action* Actions::getAction(const Item* item, ActionType_t type /* = ACTION_ANY*/) const
 {
 	if (item->getUniqueId() != 0 && (type == ACTION_ANY || type == ACTION_UNIQUEID)) {
 		ActionUseMap::const_iterator it = uniqueItemMap.find(item->getUniqueId());
@@ -212,7 +215,7 @@ Action *Actions::getAction(const Item *item, ActionType_t type /* = ACTION_ANY*/
 
 	if (type == ACTION_ANY || type == ACTION_RUNEID) {
 		// rune items
-		Action *runeSpell = g_spells->getRuneSpell(item->getID());
+		Action* runeSpell = g_spells->getRuneSpell(item->getID());
 		if (runeSpell) {
 			return runeSpell;
 		}
@@ -221,7 +224,7 @@ Action *Actions::getAction(const Item *item, ActionType_t type /* = ACTION_ANY*/
 	return nullptr;
 }
 
-bool Actions::executeUse(Action *action, Player *player, Item *item, const PositionEx &posEx, uint32_t creatureId)
+bool Actions::executeUse(Action* action, Player* player, Item* item, const PositionEx& posEx, uint32_t creatureId)
 {
 	if (!action->executeUse(player, item, posEx, posEx, false, creatureId)) {
 		return false;
@@ -230,10 +233,10 @@ bool Actions::executeUse(Action *action, Player *player, Item *item, const Posit
 	return true;
 }
 
-ReturnValue Actions::internalUseItem(Player *player, const Position &pos, uint8_t index, Item *item, uint32_t creatureId)
+ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_t index, Item* item, uint32_t creatureId)
 {
 	// check if it is a house door
-	if (Door *door = item->getDoor()) {
+	if (Door* door = item->getDoor()) {
 		if (!door->canUse(player)) {
 			return RET_CANNOTUSETHISOBJECT;
 		}
@@ -243,7 +246,7 @@ ReturnValue Actions::internalUseItem(Player *player, const Position &pos, uint8_
 	PositionEx posEx(pos, stack);
 	bool foundAction = false;
 
-	Action *action = getAction(item, ACTION_UNIQUEID);
+	Action* action = getAction(item, ACTION_UNIQUEID);
 	if (action) {
 		// only continue with next action in the list if the previous returns false
 		if (executeUse(action, player, item, posEx, creatureId)) {
@@ -279,7 +282,7 @@ ReturnValue Actions::internalUseItem(Player *player, const Position &pos, uint8_
 		foundAction = true;
 	}
 
-	if (BedItem *bed = item->getBed()) {
+	if (BedItem* bed = item->getBed()) {
 		if (!bed->canUse(player)) {
 			return RET_CANNOTUSETHISOBJECT;
 		}
@@ -289,12 +292,12 @@ ReturnValue Actions::internalUseItem(Player *player, const Position &pos, uint8_
 	}
 
 	// if it is a container try to open it
-	if (Container *container = item->getContainer()) {
+	if (Container* container = item->getContainer()) {
 
-		Container *openContainer = nullptr;
+		Container* openContainer = nullptr;
 		// depot container
-		if (Depot *depot = container->getDepot()) {
-			Depot *myDepot = player->getDepot(depot->getDepotId(), true);
+		if (Depot* depot = container->getDepot()) {
+			Depot* myDepot = player->getDepot(depot->getDepotId(), true);
 			myDepot->setParent(depot->getParent());
 			openContainer = myDepot;
 		} else {
@@ -332,7 +335,7 @@ ReturnValue Actions::internalUseItem(Player *player, const Position &pos, uint8_
 	return RET_CANNOTUSETHISOBJECT;
 }
 
-bool Actions::useItem(Player *player, const Position &pos, uint8_t index, Item *item)
+bool Actions::useItem(Player* player, const Position& pos, uint8_t index, Item* item)
 {
 	if (!player->canDoAction()) {
 		return false;
@@ -351,7 +354,7 @@ bool Actions::useItem(Player *player, const Position &pos, uint8_t index, Item *
 	return true;
 }
 
-bool Actions::executeUseEx(Action *action, Player *player, Item *item, const PositionEx &fromPosEx, const PositionEx &toPosEx, uint32_t creatureId)
+bool Actions::executeUseEx(Action* action, Player* player, Item* item, const PositionEx& fromPosEx, const PositionEx& toPosEx, uint32_t creatureId)
 {
 	if (!action->executeUse(player, item, fromPosEx, toPosEx, true, creatureId)) {
 		return false;
@@ -360,16 +363,16 @@ bool Actions::executeUseEx(Action *action, Player *player, Item *item, const Pos
 	return true;
 }
 
-ReturnValue Actions::internalUseItemEx(Player *player,
-                                       const PositionEx &fromPosEx,
-                                       const PositionEx &toPosEx,
-                                       Item *item,
+ReturnValue Actions::internalUseItemEx(Player* player,
+                                       const PositionEx& fromPosEx,
+                                       const PositionEx& toPosEx,
+                                       Item* item,
                                        uint32_t creatureId,
-                                       bool &isSuccess)
+                                       bool& isSuccess)
 {
 	isSuccess = false;
 
-	Action *action = getAction(item, ACTION_UNIQUEID);
+	Action* action = getAction(item, ACTION_UNIQUEID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, toPosEx);
 		if (ret != RET_NOERROR) {
@@ -429,11 +432,11 @@ ReturnValue Actions::internalUseItemEx(Player *player,
 	return RET_CANNOTUSETHISOBJECT;
 }
 
-bool Actions::useItemEx(Player *player,
-                        const Position &fromPos,
-                        const Position &toPos,
+bool Actions::useItemEx(Player* player,
+                        const Position& fromPos,
+                        const Position& toPos,
                         uint8_t toStackPos,
-                        Item *item,
+                        Item* item,
                         uint32_t creatureId /* = 0*/)
 {
 	if (!player->canDoAction()) {
@@ -443,7 +446,7 @@ bool Actions::useItemEx(Player *player,
 	player->setNextActionTask(nullptr);
 	player->stopWalk();
 
-	Action *action = getAction(item);
+	Action* action = getAction(item);
 	if (!action) {
 		player->sendCancelMessage(RET_CANNOTUSETHISOBJECT);
 		return false;
@@ -465,7 +468,7 @@ bool Actions::useItemEx(Player *player,
 	return true;
 }
 
-Action::Action(LuaScriptInterface *_interface) : Event(_interface)
+Action::Action(LuaScriptInterface* _interface) : Event(_interface)
 {
 	allowFarUse = false;
 	checkLineOfSight = true;
@@ -498,7 +501,7 @@ std::string Action::getScriptEventName()
 	return "onUse";
 }
 
-ReturnValue Action::canExecuteAction(const Player *player, const Position &toPos)
+ReturnValue Action::canExecuteAction(const Player* player, const Position& toPos)
 {
 	ReturnValue ret = RET_NOERROR;
 
@@ -518,12 +521,11 @@ ReturnValue Action::canExecuteAction(const Player *player, const Position &toPos
 }
 
 
-
-bool Action::executeUse(Player *player, Item *item, const PositionEx &fromPos, const PositionEx &toPos, bool extendedUse, uint32_t creatureId)
+bool Action::executeUse(Player* player, Item* item, const PositionEx& fromPos, const PositionEx& toPos, bool extendedUse, uint32_t creatureId)
 {
 	// onUse(cid, item1, position1, item2, position2)
 	if (m_scriptInterface->reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface->getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface->getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;
@@ -537,7 +539,7 @@ bool Action::executeUse(Player *player, Item *item, const PositionEx &fromPos, c
 		uint32_t cid = env->addThing(player);
 		uint32_t itemid1 = env->addThing(item);
 
-		lua_State *L = m_scriptInterface->getLuaState();
+		lua_State* L = m_scriptInterface->getLuaState();
 
 		m_scriptInterface->pushFunction(m_scriptId);
 		lua_pushnumber(L, cid);
@@ -545,7 +547,7 @@ bool Action::executeUse(Player *player, Item *item, const PositionEx &fromPos, c
 		LuaScriptInterface::pushPosition(L, fromPos, fromPos.stackpos);
 
 
-		Thing *thing = g_game.internalGetThing(player, toPos, toPos.stackpos);
+		Thing* thing = g_game.internalGetThing(player, toPos, toPos.stackpos);
 		if (thing && (!extendedUse || thing != item)) {
 			uint32_t thingId2 = env->addThing(thing);
 			LuaScriptInterface::pushThing(L, thing, thingId2);

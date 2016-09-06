@@ -48,52 +48,52 @@ public:
 	Actions();
 	~Actions() override;
 
-	bool useItem(Player *player, const Position &pos, uint8_t index, Item *item);
-	bool useItemEx(Player *player,
-	               const Position &fromPos,
-	               const Position &toPos,
+	bool useItem(Player* player, const Position& pos, uint8_t index, Item* item);
+	bool useItemEx(Player* player,
+	               const Position& fromPos,
+	               const Position& toPos,
 	               uint8_t toStackPos,
-	               Item *item,
+	               Item* item,
 	               uint32_t creatureId = 0);
 
-	bool openContainer(Player *player, Container *container, const uint8_t index);
+	bool openContainer(Player* player, Container* container, const uint8_t index);
 
-	ReturnValue canUse(const Player *player, const Position &pos);
-	ReturnValue canUse(const Player *player, const Position &pos, const Item *item);
-	ReturnValue canUseFar(const Creature *creature, const Position &toPos, bool checkLineOfSight);
-	bool hasAction(const Item *item) const;
+	ReturnValue canUse(const Player* player, const Position& pos);
+	ReturnValue canUse(const Player* player, const Position& pos, const Item* item);
+	ReturnValue canUseFar(const Creature* creature, const Position& toPos, bool checkLineOfSight);
+	bool hasAction(const Item* item) const;
 
 protected:
-	bool executeUse(Action *action, Player *player, Item *item, const PositionEx &posEx, uint32_t creatureId);
-	ReturnValue internalUseItem(Player *player, const Position &pos, uint8_t index, Item *item, uint32_t creatureId);
+	bool executeUse(Action* action, Player* player, Item* item, const PositionEx& posEx, uint32_t creatureId);
+	ReturnValue internalUseItem(Player* player, const Position& pos, uint8_t index, Item* item, uint32_t creatureId);
 
-	bool executeUseEx(Action *action,
-	                  Player *player,
-	                  Item *item,
-	                  const PositionEx &fromPosEx,
-	                  const PositionEx &toPosEx,
+	bool executeUseEx(Action* action,
+	                  Player* player,
+	                  Item* item,
+	                  const PositionEx& fromPosEx,
+	                  const PositionEx& toPosEx,
 	                  uint32_t creatureId);
 
-	ReturnValue internalUseItemEx(Player *player,
-	                              const PositionEx &fromPosEx,
-	                              const PositionEx &toPosEx,
-	                              Item *item,
+	ReturnValue internalUseItemEx(Player* player,
+	                              const PositionEx& fromPosEx,
+	                              const PositionEx& toPosEx,
+	                              Item* item,
 	                              uint32_t creatureId,
-	                              bool &isSuccess);
+	                              bool& isSuccess);
 
 	void clear() override;
-	LuaScriptInterface &getScriptInterface() override;
+	LuaScriptInterface& getScriptInterface() override;
 	std::string getScriptBaseName() override;
-	Event *getEvent(const std::string &nodeName) override;
-	bool registerEvent(Event *event, xmlNodePtr p) override;
+	Event* getEvent(const std::string& nodeName) override;
+	bool registerEvent(Event* event, xmlNodePtr p) override;
 
-	typedef std::map<unsigned short, Action *> ActionUseMap;
+	typedef std::map<unsigned short, Action*> ActionUseMap;
 	ActionUseMap useItemMap;
 	ActionUseMap uniqueItemMap;
 	ActionUseMap actionItemMap;
 
-	Action *getAction(const Item *item, ActionType_t type = ACTION_ANY) const;
-	void clearMap(ActionUseMap &map);
+	Action* getAction(const Item* item, ActionType_t type = ACTION_ANY) const;
+	void clearMap(ActionUseMap& map);
 
 	LuaScriptInterface m_scriptInterface;
 };
@@ -101,16 +101,16 @@ protected:
 class Action : public Event
 {
 public:
-	Action(LuaScriptInterface *_interface);
+	Action(LuaScriptInterface* _interface);
 	~Action() override;
 
 	bool configureEvent(xmlNodePtr p) override;
 
 	// scripting
-	virtual bool executeUse(Player *player,
-	                        Item *item,
-	                        const PositionEx &posFrom,
-	                        const PositionEx &posTo,
+	virtual bool executeUse(Player* player,
+	                        Item* item,
+	                        const PositionEx& posFrom,
+	                        const PositionEx& posTo,
 	                        bool extendedUse,
 	                        uint32_t creatureId);
 	//
@@ -133,7 +133,7 @@ public:
 		checkLineOfSight = v;
 	}
 
-	virtual ReturnValue canExecuteAction(const Player *player, const Position &toPos);
+	virtual ReturnValue canExecuteAction(const Player* player, const Position& toPos);
 	virtual bool hasOwnErrorHandler()
 	{
 		return false;

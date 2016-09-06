@@ -36,7 +36,7 @@ OutputMessage::OutputMessage()
 OutputMessagePool::OutputMessagePool()
 {
 	for (uint32_t i = 0; i < OUTPUT_POOL_SIZE; ++i) {
-		OutputMessage *msg = new OutputMessage();
+		OutputMessage* msg = new OutputMessage();
 		m_outputMessages.push_back(msg);
 #ifdef __TRACK_NETWORK__
 		m_allOutputMessages.push_back(msg);
@@ -145,13 +145,13 @@ void OutputMessagePool::sendAll()
 	}
 }
 
-void OutputMessagePool::releaseMessage(OutputMessage *msg)
+void OutputMessagePool::releaseMessage(OutputMessage* msg)
 {
 	Dispatcher::getDispatcher().addTask(
 	createTask(boost::bind(&OutputMessagePool::internalReleaseMessage, this, msg)), true);
 }
 
-void OutputMessagePool::internalReleaseMessage(OutputMessage *msg)
+void OutputMessagePool::internalReleaseMessage(OutputMessage* msg)
 {
 	if (msg->getProtocol()) {
 		msg->getProtocol()->unRef();
@@ -182,7 +182,7 @@ void OutputMessagePool::internalReleaseMessage(OutputMessage *msg)
 	m_outputPoolLock.unlock();
 }
 
-OutputMessage_ptr OutputMessagePool::getOutputMessage(Protocol *protocol, bool autosend /*= true*/)
+OutputMessage_ptr OutputMessagePool::getOutputMessage(Protocol* protocol, bool autosend /*= true*/)
 {
 #ifdef __DEBUG_NET_DETAIL__
 	std::cout << "request output message - auto = " << autosend << std::endl;
@@ -199,7 +199,7 @@ OutputMessage_ptr OutputMessagePool::getOutputMessage(Protocol *protocol, bool a
 	}
 
 	if (m_outputMessages.empty()) {
-		OutputMessage *msg = new OutputMessage();
+		OutputMessage* msg = new OutputMessage();
 		m_outputMessages.push_back(msg);
 
 #ifdef __TRACK_NETWORK__
@@ -216,7 +216,7 @@ OutputMessage_ptr OutputMessagePool::getOutputMessage(Protocol *protocol, bool a
 	return outputmessage;
 }
 
-void OutputMessagePool::configureOutputMessage(OutputMessage_ptr msg, Protocol *protocol, bool autosend)
+void OutputMessagePool::configureOutputMessage(OutputMessage_ptr msg, Protocol* protocol, bool autosend)
 {
 	TRACK_MESSAGE(msg);
 	msg->Reset();
@@ -227,7 +227,7 @@ void OutputMessagePool::configureOutputMessage(OutputMessage_ptr msg, Protocol *
 		msg->setState(OutputMessage::STATE_ALLOCATED_NO_AUTOSEND);
 	}
 
-	Connection *connection = protocol->getConnection();
+	Connection* connection = protocol->getConnection();
 	assert(connection != nullptr);
 
 	msg->setProtocol(protocol);

@@ -35,10 +35,10 @@ Dispatcher::Dispatcher()
 {
 	m_taskList.clear();
 	Dispatcher::m_threadState = Dispatcher::STATE_RUNNING;
-	boost::thread(boost::bind(&Dispatcher::dispatcherThread, (void *)nullptr));
+	boost::thread(boost::bind(&Dispatcher::dispatcherThread, (void*)nullptr));
 }
 
-void Dispatcher::dispatcherThread(void *p)
+void Dispatcher::dispatcherThread(void* p)
 {
 #if defined __EXCEPTION_TRACER__
 	ExceptionHandler dispatcherExceptionHandler;
@@ -49,13 +49,13 @@ void Dispatcher::dispatcherThread(void *p)
 	std::cout << "Starting Dispatcher" << std::endl;
 #endif
 
-	OutputMessagePool *outputPool;
+	OutputMessagePool* outputPool;
 
 	// NOTE: second argument defer_lock is to prevent from immediate locking
 	boost::unique_lock<boost::mutex> taskLockUnique(getDispatcher().m_taskLock, boost::defer_lock);
 
 	while (Dispatcher::m_threadState != Dispatcher::STATE_TERMINATED) {
-		Task *task = nullptr;
+		Task* task = nullptr;
 
 		// check if there are tasks waiting
 		taskLockUnique.lock(); // getDispatcher().m_taskLock.lock();
@@ -103,7 +103,7 @@ void Dispatcher::dispatcherThread(void *p)
 #endif
 }
 
-void Dispatcher::addTask(Task *task, bool push_front /*= false*/)
+void Dispatcher::addTask(Task* task, bool push_front /*= false*/)
 {
 	bool do_signal = false;
 	m_taskLock.lock();
@@ -135,7 +135,7 @@ void Dispatcher::addTask(Task *task, bool push_front /*= false*/)
 
 void Dispatcher::flush()
 {
-	Task *task = nullptr;
+	Task* task = nullptr;
 	while (!m_taskList.empty()) {
 		task = getDispatcher().m_taskList.front();
 		m_taskList.pop_front();

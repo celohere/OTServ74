@@ -71,7 +71,7 @@ static unsigned char MD5_PADDING[64] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0
 #define MD5_S44 21
 
 /* Basic MD5 step. MD5_Transform buf based on in */
-void MD5_Transform(UINT4 *buf, UINT4 *in)
+void MD5_Transform(UINT4* buf, UINT4* in)
 {
 	UINT4 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
 
@@ -154,7 +154,7 @@ void MD5_Transform(UINT4 *buf, UINT4 *in)
 }
 
 // Set pseudoRandomNumber to zero for RFC MD5 implementation
-void MD5Init(MD5_CTX *mdContext, unsigned long pseudoRandomNumber)
+void MD5Init(MD5_CTX* mdContext, unsigned long pseudoRandomNumber)
 {
 	mdContext->i[0] = mdContext->i[1] = (UINT4)0;
 
@@ -165,7 +165,7 @@ void MD5Init(MD5_CTX *mdContext, unsigned long pseudoRandomNumber)
 	mdContext->buf[3] = (UINT4)0x10325476 + (pseudoRandomNumber * 97);
 }
 
-void MD5Update(MD5_CTX *mdContext, const unsigned char *inBuf, unsigned int inLen)
+void MD5Update(MD5_CTX* mdContext, const unsigned char* inBuf, unsigned int inLen)
 {
 	UINT4 in[16];
 	int mdi = 0;
@@ -175,7 +175,9 @@ void MD5Update(MD5_CTX *mdContext, const unsigned char *inBuf, unsigned int inLe
 	mdi = (int)((mdContext->i[0] >> 3) & 0x3F);
 
 	/* Update number of bits */
-	if ((mdContext->i[0] + ((UINT4)inLen << 3)) < mdContext->i[0]) mdContext->i[1]++;
+	if ((mdContext->i[0] + ((UINT4)inLen << 3)) < mdContext->i[0]) {
+		mdContext->i[1]++;
+	}
 	mdContext->i[0] += ((UINT4)inLen << 3);
 	mdContext->i[1] += ((UINT4)inLen >> 29);
 
@@ -185,10 +187,11 @@ void MD5Update(MD5_CTX *mdContext, const unsigned char *inBuf, unsigned int inLe
 
 		/* Transform if necessary */
 		if (mdi == 0x40) {
-			for (i = 0, ii = 0; i < 16; i++, ii += 4)
+			for (i = 0, ii = 0; i < 16; i++, ii += 4) {
 				in[i] = (((UINT4)mdContext->in[ii + 3]) << 24) |
 				        (((UINT4)mdContext->in[ii + 2]) << 16) |
 				        (((UINT4)mdContext->in[ii + 1]) << 8) | ((UINT4)mdContext->in[ii]);
+			}
 
 			MD5_Transform(mdContext->buf, in);
 			mdi = 0;
@@ -196,7 +199,7 @@ void MD5Update(MD5_CTX *mdContext, const unsigned char *inBuf, unsigned int inLe
 	}
 }
 
-void MD5Final(MD5_CTX *mdContext)
+void MD5Final(MD5_CTX* mdContext)
 {
 	UINT4 in[16];
 	int mdi = 0;
@@ -214,9 +217,10 @@ void MD5Final(MD5_CTX *mdContext)
 	MD5Update(mdContext, MD5_PADDING, padLen);
 
 	/* Append length in bits and transform */
-	for (i = 0, ii = 0; i < 14; i++, ii += 4)
+	for (i = 0, ii = 0; i < 14; i++, ii += 4) {
 		in[i] = (((UINT4)mdContext->in[ii + 3]) << 24) | (((UINT4)mdContext->in[ii + 2]) << 16) |
 		        (((UINT4)mdContext->in[ii + 1]) << 8) | ((UINT4)mdContext->in[ii]);
+	}
 	MD5_Transform(mdContext->buf, in);
 
 	/* Store buffer in digest */

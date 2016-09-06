@@ -79,8 +79,8 @@ public:
 #endif // _DEBUG
 	}
 
-	HouseTile *getHouseTile();
-	const HouseTile *getHouseTile() const;
+	HouseTile* getHouseTile();
+	const HouseTile* getHouseTile() const;
 	bool isHouseTile() const;
 
 	int getThrowRange() const override
@@ -92,24 +92,24 @@ public:
 		return false;
 	}
 
-	Item *ground;
+	Item* ground;
 	ItemVector topItems;
 	CreatureVector creatures;
 	ItemVector downItems;
-	QTreeLeafNode *qt_node;
+	QTreeLeafNode* qt_node;
 
-	MagicField *getFieldItem() const;
-	Teleport *getTeleportItem() const;
-	TrashHolder *getTrashHolder() const;
-	Mailbox *getMailbox() const;
-	BedItem *getBedItem() const;
+	MagicField* getFieldItem() const;
+	Teleport* getTeleportItem() const;
+	TrashHolder* getTrashHolder() const;
+	Mailbox* getMailbox() const;
+	BedItem* getBedItem() const;
 
-	Creature *getTopCreature();
-	Item *getTopTopItem();
-	Item *getTopDownItem();
+	Creature* getTopCreature();
+	Item* getTopTopItem();
+	Item* getTopDownItem();
 	bool isMoveableBlocking() const;
-	Thing *getTopThing();
-	Item *getItemByTopOrder(uint32_t topOrder);
+	Thing* getTopThing();
+	Item* getItemByTopOrder(uint32_t topOrder);
 
 	uint32_t getThingCount() const
 	{
@@ -117,7 +117,7 @@ public:
 	}
 
 	bool hasProperty(enum ITEMPROPERTY prop) const;
-	bool hasProperty(Item *exclude, enum ITEMPROPERTY prop) const;
+	bool hasProperty(Item* exclude, enum ITEMPROPERTY prop) const;
 
 	bool hasFlag(tileflags_t flag) const
 	{
@@ -164,46 +164,44 @@ public:
 
 	std::string getDescription(int32_t lookDistance) const override;
 
-	void moveCreature(Creature *creature, Cylinder *toCylinder, bool teleport = false);
+	void moveCreature(Creature* creature, Cylinder* toCylinder, bool teleport = false);
 
 	// cylinder implementations
-	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue __queryAdd(int32_t index, const Thing* thing, uint32_t count, uint32_t flags) const override;
 	ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
-	ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const override;
-	Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
+	__queryMaxCount(int32_t index, const Thing* thing, uint32_t count, uint32_t& maxQueryCount, uint32_t flags) const override;
+	ReturnValue __queryRemove(const Thing* thing, uint32_t count, uint32_t flags) const override;
+	Cylinder* __queryDestination(int32_t& index, const Thing* thing, Item** destItem, uint32_t& flags) override;
 
-	void __addThing(Thing *thing) override;
-	void __addThing(int32_t index, Thing *thing) override;
+	void __addThing(Thing* thing) override;
+	void __addThing(int32_t index, Thing* thing) override;
 
-	void __updateThing(Thing *thing, uint16_t itemId, uint32_t count) override;
-	void __replaceThing(uint32_t index, Thing *thing) override;
+	void __updateThing(Thing* thing, uint16_t itemId, uint32_t count) override;
+	void __replaceThing(uint32_t index, Thing* thing) override;
 
-	void __removeThing(Thing *thing, uint32_t count) override;
+	void __removeThing(Thing* thing, uint32_t count) override;
 
-	int32_t __getIndexOfThing(const Thing *thing) const override;
+	int32_t __getIndexOfThing(const Thing* thing) const override;
 	int32_t __getFirstIndex() const override;
 	int32_t __getLastIndex() const override;
 	uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1, bool itemCount = true) const override;
-	Thing *__getThing(uint32_t index) const override;
+	Thing* __getThing(uint32_t index) const override;
 
-	void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
-	void postRemoveNotification(Thing *thing,
-	                                    const Cylinder *newParent,
-	                                    int32_t index,
-	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER) override;
+	void postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing* thing,
+	                            const Cylinder* newParent,
+	                            int32_t index,
+	                            bool isCompleteRemoval,
+	                            cylinderlink_t link = LINK_OWNER) override;
 
-	void __internalAddThing(Thing *thing) override;
-	void __internalAddThing(uint32_t index, Thing *thing) override;
+	void __internalAddThing(Thing* thing) override;
+	void __internalAddThing(uint32_t index, Thing* thing) override;
 
-	const Position &getPosition() const override
+	const Position& getPosition() const override
 	{
 		return tilePos;
 	}
-	const Position &getTilePosition() const
+	const Position& getTilePosition() const
 	{
 		return tilePos;
 	}
@@ -214,12 +212,12 @@ public:
 	}
 
 private:
-	void onAddTileItem(Item *item);
-	void onUpdateTileItem(uint32_t index, Item *oldItem, const ItemType &oldType, Item *newItem, const ItemType &newType);
-	void onRemoveTileItem(uint32_t index, Item *item);
+	void onAddTileItem(Item* item);
+	void onUpdateTileItem(uint32_t index, Item* oldItem, const ItemType& oldType, Item* newItem, const ItemType& newType);
+	void onRemoveTileItem(uint32_t index, Item* item);
 	void onUpdateTile();
 
-	void updateTileFlags(Item *item, bool removing);
+	void updateTileFlags(Item* item, bool removing);
 
 protected:
 	uint32_t thingCount;

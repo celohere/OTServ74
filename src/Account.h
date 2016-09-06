@@ -1,8 +1,8 @@
 #ifndef __OTSERV_ACCOUNT_H__
 #define __OTSERV_ACCOUNT_H__
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "definitions.h"
 

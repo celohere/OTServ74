@@ -5,11 +5,11 @@
 #include <list>
 #include <vector>
 
+#include "ItemAttributes.h"
 #include "definitions.h"
 #include "items.h"
-#include "thing.h"
 #include "log.h"
-#include "ItemAttributes.h"
+#include "thing.h"
 
 
 class Creature;
@@ -22,7 +22,6 @@ class Mailbox;
 class Door;
 class MagicField;
 class BedItem;
-
 
 
 enum ITEMPROPERTY {
@@ -57,7 +56,6 @@ struct TeleportDest {
 #pragma pack()
 
 
-
 enum AttrTypes_t {
 	// attr 0 means end of attribute list
 	// ATTR_DESCRIPTION = 1,
@@ -86,109 +84,98 @@ enum AttrTypes_t {
 };
 
 
-
-
-
-
-
-
-
 class Item : virtual public Thing, public ItemAttributes
 {
 public:
 	// Factory member to create item of right type based on type
 	static Item* CreateItem(const uint16_t _type, uint16_t _count = 1);
-	static Item* CreateItem(PropStream &propStream);
+	static Item* CreateItem(PropStream& propStream);
 	static Items items;
 
 	// Constructor for items
 	Item(const uint16_t _type, uint16_t _count = 0);
-	Item(const Item &i);
-	virtual Item *clone() const;
-	virtual void copyAttributes(Item *item);
+	Item(const Item& i);
+	virtual Item* clone() const;
+	virtual void copyAttributes(Item* item);
 
 	~Item() override;
 
-	Item *getItem() override
+	Item* getItem() override
 	{
 		return this;
 	}
-	const Item *getItem() const override
+	const Item* getItem() const override
 	{
 		return this;
 	}
-	virtual Container *getContainer()
+	virtual Container* getContainer()
 	{
 		return nullptr;
 	}
-	virtual const Container *getContainer() const
+	virtual const Container* getContainer() const
 	{
 		return nullptr;
 	}
-	virtual Teleport *getTeleport()
+	virtual Teleport* getTeleport()
 	{
 		return nullptr;
 	}
-	virtual const Teleport *getTeleport() const
+	virtual const Teleport* getTeleport() const
 	{
 		return nullptr;
 	}
-	virtual TrashHolder *getTrashHolder()
+	virtual TrashHolder* getTrashHolder()
 	{
 		return nullptr;
 	}
-	virtual const TrashHolder *getTrashHolder() const
+	virtual const TrashHolder* getTrashHolder() const
 	{
 		return nullptr;
 	}
-	virtual Mailbox *getMailbox()
+	virtual Mailbox* getMailbox()
 	{
 		return nullptr;
 	}
-	virtual const Mailbox *getMailbox() const
+	virtual const Mailbox* getMailbox() const
 	{
 		return nullptr;
 	}
-	virtual Door *getDoor()
+	virtual Door* getDoor()
 	{
 		return nullptr;
 	}
-	virtual const Door *getDoor() const
+	virtual const Door* getDoor() const
 	{
 		return nullptr;
 	}
-	virtual MagicField *getMagicField()
+	virtual MagicField* getMagicField()
 	{
 		return nullptr;
 	}
-	virtual const MagicField *getMagicField() const
-	{
-		return nullptr;
-	}
-
-	virtual BedItem *getBed()
-	{
-		return nullptr;
-	}
-	virtual const BedItem *getBed() const
+	virtual const MagicField* getMagicField() const
 	{
 		return nullptr;
 	}
 
-	static std::string getDescription(const ItemType& it,
-                                          int32_t lookDistance,
-                                          const Item* item = nullptr,
-                                          int32_t subType = -1);
+	virtual BedItem* getBed()
+	{
+		return nullptr;
+	}
+	virtual const BedItem* getBed() const
+	{
+		return nullptr;
+	}
 
-	static std::string getWeightDescription(const ItemType& it,
-                                                double weight,
-                                                uint32_t count = 1);
+	static std::string
+	getDescription(const ItemType& it, int32_t lookDistance, const Item* item = nullptr, int32_t subType = -1);
 
-	virtual Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream);
-	virtual bool unserializeAttr(PropStream &propStream);
-	virtual bool unserializeItemNode(FileLoader &f, NODE node, PropStream &propStream);
+	static std::string getWeightDescription(const ItemType& it, double weight, uint32_t count = 1);
 
-	virtual bool serializeAttr(PropWriteStream &propWriteStream) const;
+	virtual Attr_ReadValue readAttr(AttrTypes_t attr, PropStream& propStream);
+	virtual bool unserializeAttr(PropStream& propStream);
+	virtual bool unserializeItemNode(FileLoader& f, NODE node, PropStream& propStream);
+
+	virtual bool serializeAttr(PropWriteStream& propWriteStream) const;
 
 	bool isPushable() const override
 	{
@@ -214,8 +201,8 @@ public:
 	void setID(uint16_t newid);
 
 	// Returns the player that is holding this item in his inventory
-	Player *getHoldingPlayer();
-	const Player *getHoldingPlayer() const;
+	Player* getHoldingPlayer();
+	const Player* getHoldingPlayer() const;
 
 	WeaponType_t getWeaponType() const
 	{
@@ -270,7 +257,7 @@ public:
 	}
 
 	int getWorth() const;
-	void getLight(LightInfo &lightInfo);
+	void getLight(LightInfo& lightInfo);
 
 	bool hasProperty(enum ITEMPROPERTY prop) const;
 	bool isBlocking() const
@@ -331,7 +318,7 @@ public:
 	}
 	bool isRoteable() const
 	{
-		const ItemType &it = items[id];
+		const ItemType& it = items[id];
 		return it.rotable && it.rotateTo;
 	}
 	bool isDoor() const
@@ -368,11 +355,11 @@ public:
 		return items[id].floorChangeWest;
 	}
 
-	const std::string &getName() const
+	const std::string& getName() const
 	{
 		return items[id].name;
 	}
-	const std::string &getPluralName() const
+	const std::string& getPluralName() const
 	{
 		return items[id].pluralName;
 	}
@@ -387,7 +374,7 @@ public:
 		count = n;
 	}
 
-	static uint32_t countByType(const Item *i, int checkType, bool multiCount);
+	static uint32_t countByType(const Item* i, int checkType, bool multiCount);
 
 	void setDefaultSubtype();
 	bool hasSubType() const;
@@ -418,7 +405,7 @@ public:
 		return true;
 	}
 	virtual void onRemoved(){};
-	virtual bool onTradeEvent(TradeEvents_t event, Player *owner)
+	virtual bool onTradeEvent(TradeEvents_t event, Player* owner)
 	{
 		return true;
 	}
@@ -444,27 +431,24 @@ protected:
 	// Don't add variables here, use the ItemAttribute class.
 };
 
-typedef std::list<Item *> ItemList;
+typedef std::list<Item*> ItemList;
 
-inline uint32_t Item::countByType(const Item *i, int checkType, bool multiCount)
+inline uint32_t Item::countByType(const Item* i, int checkType, bool multiCount)
 {
 	if (checkType == -1 || checkType == i->getSubType()) {
-		if (multiCount) return i->getItemCount();
+		if (multiCount) {
+			return i->getItemCount();
+		}
 
-		if (i->isRune()) return i->getCharges();
+		if (i->isRune()) {
+			return i->getCharges();
+		}
 
 		return i->getItemCount();
 	}
 
 	return 0;
 }
-
-
-
-
-
-
-
 
 
 #endif

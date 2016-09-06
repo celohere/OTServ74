@@ -39,14 +39,14 @@ private:
 
 #if defined _MSC_VER || defined __USE_MINIDUMP__
 
-	static long __stdcall MiniDumpExceptionHandler(struct _EXCEPTION_POINTERS *pExceptionInfo);
+	static long __stdcall MiniDumpExceptionHandler(struct _EXCEPTION_POINTERS* pExceptionInfo);
 	static int ref_counter;
 
 #elif __GNUC__
 
 	struct SEHChain {
-		SEHChain *prev;
-		void *SEHfunction;
+		SEHChain* prev;
+		void* SEHfunction;
 	};
 	SEHChain chain;
 	bool LoadMap();

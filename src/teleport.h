@@ -30,50 +30,48 @@ public:
 	Teleport(uint16_t _type);
 	~Teleport() override;
 
-	Teleport *getTeleport() override
+	Teleport* getTeleport() override
 	{
 		return this;
 	}
-	const Teleport *getTeleport() const override
+	const Teleport* getTeleport() const override
 	{
 		return this;
 	}
 
-	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream) override;
-	bool serializeAttr(PropWriteStream &propWriteStream) const override;
+	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream& propStream) override;
+	bool serializeAttr(PropWriteStream& propWriteStream) const override;
 
-	void setDestPos(const Position &pos)
+	void setDestPos(const Position& pos)
 	{
 		destPos = pos;
 	}
-	const Position &getDestPos() const
+	const Position& getDestPos() const
 	{
 		return destPos;
 	}
 
 	// cylinder implementations
-	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue __queryAdd(int32_t index, const Thing* thing, uint32_t count, uint32_t flags) const override;
 	ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
-	ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const override;
-	Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
+	__queryMaxCount(int32_t index, const Thing* thing, uint32_t count, uint32_t& maxQueryCount, uint32_t flags) const override;
+	ReturnValue __queryRemove(const Thing* thing, uint32_t count, uint32_t flags) const override;
+	Cylinder* __queryDestination(int32_t& index, const Thing* thing, Item** destItem, uint32_t& flags) override;
 
-	void __addThing(Thing *thing) override;
-	void __addThing(int32_t index, Thing *thing) override;
+	void __addThing(Thing* thing) override;
+	void __addThing(int32_t index, Thing* thing) override;
 
-	void __updateThing(Thing *thing, uint16_t itemId, uint32_t count) override;
-	void __replaceThing(uint32_t index, Thing *thing) override;
+	void __updateThing(Thing* thing, uint16_t itemId, uint32_t count) override;
+	void __replaceThing(uint32_t index, Thing* thing) override;
 
-	void __removeThing(Thing *thing, uint32_t count) override;
+	void __removeThing(Thing* thing, uint32_t count) override;
 
-	void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
-	void postRemoveNotification(Thing *thing,
-	                                    const Cylinder *newParent,
-	                                    int32_t index,
-	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER) override;
+	void postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing* thing,
+	                            const Cylinder* newParent,
+	                            int32_t index,
+	                            bool isCompleteRemoval,
+	                            cylinderlink_t link = LINK_OWNER) override;
 
 private:
 	Position destPos;

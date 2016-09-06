@@ -1,6 +1,6 @@
-#include <algorithm>
-#include "Assert.h"
 #include "ItemAttributes.h"
+#include "Assert.h"
+#include <algorithm>
 
 static std::string s_emptyString;
 
@@ -13,8 +13,9 @@ bool ItemAttributes::hasAttribute(ItemAttrType type) const
 
 const std::string& ItemAttributes::getStrAttr(ItemAttrType type) const
 {
-	if (!(m_attrFlags & type))
+	if (!(m_attrFlags & type)) {
 		return s_emptyString;
+	}
 
 	auto attr = getAttr(type);
 	return attr ? attr->str : s_emptyString;
@@ -33,16 +34,10 @@ uint32_t ItemAttributes::getIntAttr(ItemAttrType type) const
 const ItemAttribute* ItemAttributes::getAttr(ItemAttrType type) const
 {
 	const auto itr = std::find_if(m_attributes.begin(), m_attributes.end(),
-		[=](const ItemAttribute& attr) {
-			return attr.type == type; 
-		});
+	                              [=](const ItemAttribute& attr) { return attr.type == type; });
 
 	return itr != m_attributes.end() ? &(*itr) : nullptr;
 }
-
-
-
-
 
 
 void ItemAttributes::setStrAttr(ItemAttrType type, const std::string& value)
@@ -51,11 +46,9 @@ void ItemAttributes::setStrAttr(ItemAttrType type, const std::string& value)
 
 	if (m_attrFlags & type) {
 		auto itr = std::find_if(m_attributes.begin(), m_attributes.end(),
-			[=](const ItemAttribute& attr) {
-				return attr.type == type;
-			});
+		                        [=](const ItemAttribute& attr) { return attr.type == type; });
 
-		if(itr != m_attributes.end()) {
+		if (itr != m_attributes.end()) {
 			itr->str = value;
 		} else {
 			ItemAttribute newAttr = type;
@@ -66,14 +59,12 @@ void ItemAttributes::setStrAttr(ItemAttrType type, const std::string& value)
 }
 
 
-
 void ItemAttributes::removeAttribute(ItemAttrType type)
 {
 	if (m_attrFlags & type) {
-		auto itr = std::remove_if(m_attributes.begin(), m_attributes.end(),
-			[=](const ItemAttribute& attr) {
-				return attr.type == type;
-			});
+		auto itr =
+		std::remove_if(m_attributes.begin(), m_attributes.end(),
+		               [=](const ItemAttribute& attr) { return attr.type == type; });
 
 		m_attributes.erase(itr, m_attributes.end());
 		m_attrFlags &= ~type;
@@ -81,26 +72,25 @@ void ItemAttributes::removeAttribute(ItemAttrType type)
 }
 
 
-
 void ItemAttributes::setIntAttr(ItemAttrType type, int32_t value)
 {
 	assert(validateIntAttrType(type));
 
 	ItemAttribute* const attr = getAttr(type);
-	if (attr)
+	if (attr) {
 		attr->integer = value;
+	}
 }
-
 
 
 void ItemAttributes::increaseIntAttr(ItemAttrType type, int32_t value)
 {
 	assert(validateIntAttrType(type));
 	ItemAttribute* const attr = getAttr(type);
-	if (attr)
+	if (attr) {
 		attr->integer += value;
+	}
 }
-
 
 
 bool ItemAttributes::validateIntAttrType(ItemAttrType type)
@@ -125,7 +115,6 @@ bool ItemAttributes::validateIntAttrType(ItemAttrType type)
 }
 
 
-
 bool ItemAttributes::validateStrAttrType(ItemAttrType type)
 {
 	// list of text type attributes
@@ -143,14 +132,12 @@ bool ItemAttributes::validateStrAttrType(ItemAttrType type)
 }
 
 
-
 void ItemAttributes::addAttr(ItemAttribute attr)
 {
 	assert(!(m_attrFlags & attr.type));
 	m_attributes.push_back(attr);
 	m_attrFlags |= attr.type;
 }
-
 
 
 ItemAttribute* ItemAttributes::getAttr(ItemAttrType type)

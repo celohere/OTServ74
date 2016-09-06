@@ -43,7 +43,7 @@ Vocations::~Vocations()
 	vocationsMap.clear();
 }
 
-bool Vocations::loadFromXml(const std::string &datadir)
+bool Vocations::loadFromXml(const std::string& datadir)
 {
 	std::string filename = datadir + "vocations.xml";
 
@@ -52,7 +52,7 @@ bool Vocations::loadFromXml(const std::string &datadir)
 		xmlNodePtr root, p;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"vocations") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"vocations") != 0) {
 			xmlFreeDoc(doc);
 			return false;
 		}
@@ -63,8 +63,8 @@ bool Vocations::loadFromXml(const std::string &datadir)
 			std::string str;
 			int intVal;
 			float floatVal;
-			if (xmlStrcmp(p->name, (const xmlChar *)"vocation") == 0) {
-				Vocation *voc = new Vocation();
+			if (xmlStrcmp(p->name, (const xmlChar*)"vocation") == 0) {
+				Vocation* voc = new Vocation();
 				uint32_t voc_id;
 				xmlNodePtr skillNode;
 				if (readXMLInteger(p, "id", intVal)) {
@@ -113,7 +113,7 @@ bool Vocations::loadFromXml(const std::string &datadir)
 					skillNode = p->children;
 					while (skillNode) {
 						if (xmlStrcmp(skillNode->name,
-						              (const xmlChar *)"skill") == 0) {
+						              (const xmlChar*)"skill") == 0) {
 							uint32_t skill_id;
 							if (readXMLInteger(skillNode, "id", intVal)) {
 								skill_id = intVal;
@@ -133,7 +133,7 @@ bool Vocations::loadFromXml(const std::string &datadir)
 								std::cout << "Missing skill id." << std::endl;
 							}
 						} else if (xmlStrcmp(skillNode->name,
-						                     (const xmlChar *)"formula") == 0) {
+						                     (const xmlChar*)"formula") == 0) {
 							if (readXMLFloat(skillNode, "meleeDamage", floatVal)) {
 								voc->meleeDamageMultiplier = floatVal;
 							}
@@ -171,7 +171,7 @@ bool Vocations::loadFromXml(const std::string &datadir)
 	return true;
 }
 
-bool Vocations::getVocation(const uint32_t &vocationId, Vocation *&vocation)
+bool Vocations::getVocation(const uint32_t& vocationId, Vocation*& vocation)
 {
 	VocationsMap::const_iterator it = vocationsMap.find(vocationId);
 	if (it != vocationsMap.end()) {
@@ -182,7 +182,7 @@ bool Vocations::getVocation(const uint32_t &vocationId, Vocation *&vocation)
 	return false;
 }
 
-bool Vocations::getVocationId(const std::string &name, int32_t &vocationId) const
+bool Vocations::getVocationId(const std::string& name, int32_t& vocationId) const
 {
 	for (VocationsMap::const_iterator it = vocationsMap.begin(); it != vocationsMap.end(); ++it) {
 		if (boost::algorithm::iequals(it->second->name, name)) {
@@ -239,7 +239,7 @@ uint32_t Vocation::getReqSkillTries(int skill, int level)
 	if (skill < SKILL_FIRST || skill > SKILL_LAST) {
 		return 0;
 	}
-	cacheMap &skillMap = cacheSkill[skill];
+	cacheMap& skillMap = cacheSkill[skill];
 	cacheMap::iterator it = skillMap.find(level);
 	if (it != cacheSkill[skill].end()) {
 		return it->second;

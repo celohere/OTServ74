@@ -1,31 +1,31 @@
 #ifndef __OTSERV_DATABASE_H__
 #define __OTSERV_DATABASE_H__
 
-#include <sstream>
-#include <boost/thread.hpp>
 #include "definitions.h"
+#include <boost/thread.hpp>
+#include <sstream>
 
 
 #ifdef MULTI_SQL_DRIVERS
-	#define DATABASE_VIRTUAL virtual
-	#define DATABASE_CLASS _Database
-	#define DBRES_CLASS _DBResult
-	class _Database;
-	class _DBResult;
+#define DATABASE_VIRTUAL virtual
+#define DATABASE_CLASS _Database
+#define DBRES_CLASS _DBResult
+class _Database;
+class _DBResult;
 #else
-	#define DATABASE_VIRTUAL
-	#if defined(__USE_MYSQL__)
-		#define DATABASE_CLASS DatabaseMySQL
-		#define DBRES_CLASS MySQLResult
-		class DatabaseMySQL;
-		class MySQLResult;
-	
-	#elif defined(__USE_SQLITE__)
-		#define DATABASE_CLASS DatabaseSQLite
-		#define DBRES_CLASS SQLiteResult
-		class DatabaseSQLite;
-		class SQLiteResult;
-	#endif
+#define DATABASE_VIRTUAL
+#if defined(__USE_MYSQL__)
+#define DATABASE_CLASS DatabaseMySQL
+#define DBRES_CLASS MySQLResult
+class DatabaseMySQL;
+class MySQLResult;
+
+#elif defined(__USE_SQLITE__)
+#define DATABASE_CLASS DatabaseSQLite
+#define DBRES_CLASS SQLiteResult
+class DatabaseSQLite;
+class SQLiteResult;
+#endif
 #endif
 
 typedef DATABASE_CLASS Database;
@@ -33,8 +33,6 @@ typedef DBRES_CLASS DBResult;
 
 class DBQuery;
 enum DBParam_t { DBPARAM_MULTIINSERT = 1 };
-
-
 
 
 class _Database
@@ -50,7 +48,7 @@ public:
 	*
 	* @return database connection handler singletor
 	*/
-	static Database *instance();
+	static Database* instance();
 
 	/**
 	* Database information.
@@ -112,7 +110,7 @@ public:
 	* @param std::string query command
 	* @return true on success, false on error
 	*/
-	DATABASE_VIRTUAL bool executeQuery(const std::string &query)
+	DATABASE_VIRTUAL bool executeQuery(const std::string& query)
 	{
 		return 0;
 	}
@@ -125,7 +123,7 @@ public:
 	* @param std::string query
 	* @return results object (null on error)
 	*/
-	DATABASE_VIRTUAL DBResult *storeQuery(const std::string &query)
+	DATABASE_VIRTUAL DBResult* storeQuery(const std::string& query)
 	{
 		return nullptr;
 	}
@@ -149,7 +147,7 @@ public:
 	* @param std::string string to be escaped
 	* @return quoted string
 	*/
-	DATABASE_VIRTUAL std::string escapeString(const std::string &s)
+	DATABASE_VIRTUAL std::string escapeString(const std::string& s)
 	{
 		return "''";
 	}
@@ -162,7 +160,7 @@ public:
 	* @param long stream length
 	* @return quoted string
 	*/
-	DATABASE_VIRTUAL std::string escapeBlob(const char *s, uint32_t length)
+	DATABASE_VIRTUAL std::string escapeBlob(const char* s, uint32_t length)
 	{
 		return "''";
 	};
@@ -172,7 +170,7 @@ public:
 	*
 	* @param DBResult* resource to be freed
 	*/
-	DATABASE_VIRTUAL void freeResult(DBResult *res){};
+	DATABASE_VIRTUAL void freeResult(DBResult* res){};
 
 	/**
 	 * Retrieve id of last inserted row
@@ -203,12 +201,12 @@ protected:
 	_Database() : m_connected(false){};
 	DATABASE_VIRTUAL ~_Database(){};
 
-	DBResult *verifyResult(DBResult *result);
+	DBResult* verifyResult(DBResult* result);
 
 	bool m_connected;
 
 private:
-	static Database *_instance;
+	static Database* _instance;
 };
 
 class _DBResult
@@ -221,7 +219,7 @@ public:
 	*\return The Integer value of the selected field and row
 	*\param s The name of the field
 	*/
-	DATABASE_VIRTUAL int32_t getDataInt(const std::string &s)
+	DATABASE_VIRTUAL int32_t getDataInt(const std::string& s)
 	{
 		return 0;
 	}
@@ -229,7 +227,7 @@ public:
 	*\return The Long value of the selected field and row
 	*\param s The name of the field
 	*/
-	DATABASE_VIRTUAL int64_t getDataLong(const std::string &s)
+	DATABASE_VIRTUAL int64_t getDataLong(const std::string& s)
 	{
 		return 0;
 	}
@@ -237,7 +235,7 @@ public:
 	*\return The String of the selected field and row
 	*\param s The name of the field
 	*/
-	DATABASE_VIRTUAL std::string getDataString(const std::string &s)
+	DATABASE_VIRTUAL std::string getDataString(const std::string& s)
 	{
 		return "''";
 	}
@@ -246,7 +244,7 @@ public:
 	*NULL.
 	*\param s The name of the field
 	*/
-	DATABASE_VIRTUAL const char *getDataStream(const std::string &s, unsigned long &size)
+	DATABASE_VIRTUAL const char* getDataStream(const std::string& s, unsigned long& size)
 	{
 		return nullptr;
 	}
@@ -295,7 +293,7 @@ public:
 	*
 	* @param Database* database wrapper
 	*/
-	DBInsert(Database *db);
+	DBInsert(Database* db);
 	~DBInsert(){};
 
 	/**
@@ -303,7 +301,7 @@ public:
 	*
 	* @param std::string& INSERT query
 	*/
-	void setQuery(const std::string &query);
+	void setQuery(const std::string& query);
 
 	/**
 	* Adds new row to INSERT statement.
@@ -312,11 +310,11 @@ public:
 	*
 	* @param std::string& row data
 	*/
-	bool addRow(const std::string &row);
+	bool addRow(const std::string& row);
 	/**
 	* Allows to use addRow() with stringstream as parameter.
 	*/
-	bool addRow(std::stringstream &row);
+	bool addRow(std::stringstream& row);
 
 	/**
 	* Executes current buffer.
@@ -324,7 +322,7 @@ public:
 	bool execute();
 
 protected:
-	Database *m_db;
+	Database* m_db;
 	bool m_multiLine;
 	uint32_t m_rows;
 	std::string m_query;
@@ -347,7 +345,7 @@ protected:
 class DBTransaction
 {
 public:
-	DBTransaction(Database *database)
+	DBTransaction(Database* database)
 	{
 		m_database = database;
 		m_state = STATE_NO_START;
@@ -379,7 +377,7 @@ public:
 private:
 	enum TransactionStates_t { STATE_NO_START, STATE_START, STEATE_COMMIT };
 	TransactionStates_t m_state;
-	Database *m_database;
+	Database* m_database;
 };
 
 #endif

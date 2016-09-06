@@ -41,7 +41,7 @@ public:
 		list.clear();
 	}
 
-	void addList(T *t)
+	void addList(T* t)
 	{
 		list[t->getID()] = t;
 	}
@@ -51,7 +51,7 @@ public:
 		list.erase(_id);
 	}
 
-	typedef std::map<uint32_t, T *> list_type;
+	typedef std::map<uint32_t, T*> list_type;
 	list_type list;
 
 	typedef typename list_type::iterator listiterator;
@@ -64,13 +64,16 @@ public:
 	{
 		boost::recursive_mutex::scoped_lock lockClass(autoIDLock);
 		count++;
-		if (count >= 0xFFFFFF) count = 1000;
+		if (count >= 0xFFFFFF) {
+			count = 1000;
+		}
 
 		while (list.find(count) != list.end()) {
-			if (count >= 0xFFFFFF)
+			if (count >= 0xFFFFFF) {
 				count = 1000;
-			else
+			} else {
 				count++;
+			}
 		}
 		list.insert(count);
 		auto_id = count;
@@ -78,7 +81,9 @@ public:
 	virtual ~AutoID()
 	{
 		list_type::iterator it = list.find(auto_id);
-		if (it != list.end()) list.erase(it);
+		if (it != list.end()) {
+			list.erase(it);
+		}
 	}
 
 	typedef std::set<uint32_t> list_type;

@@ -25,7 +25,7 @@
 #include "map.h"
 #include "spawn.h"
 
-bool IOMapXML::loadMap(Map *map, const std::string &identifier)
+bool IOMapXML::loadMap(Map* map, const std::string& identifier)
 {
 	IOMapSerialize xmlMap;
 	return xmlMap.loadMap(map);

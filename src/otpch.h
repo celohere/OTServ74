@@ -34,8 +34,8 @@
 #include <vector>
 // lua
 extern "C" {
-#include <lua.h>
 #include <lauxlib.h>
+#include <lua.h>
 #include <lualib.h>
 }
 // otserv

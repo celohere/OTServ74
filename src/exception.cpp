@@ -41,7 +41,7 @@ extern ConfigManager g_config;
 #include "dbghelp.h"
 
 // based on dbghelp.h
-typedef BOOL(WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess,
+typedef BOOL(WINAPI* MINIDUMPWRITEDUMP)(HANDLE hProcess,
                                         DWORD dwPid,
                                         HANDLE hFile,
                                         MINIDUMP_TYPE DumpType,
@@ -58,17 +58,17 @@ int ExceptionHandler::ref_counter = 0;
 
 unsigned long max_off;
 unsigned long min_off;
-typedef std::map<unsigned long, char *> FunctionMap;
+typedef std::map<unsigned long, char*> FunctionMap;
 FunctionMap functionMap;
 bool ExceptionHandler::isMapLoaded = false;
 boost::recursive_mutex maploadlock;
 
 EXCEPTION_DISPOSITION
-__cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
-                    void *EstablisherFrame,
-                    struct _CONTEXT *ContextRecord,
-                    void *DispatcherContext);
-void printPointer(std::ostream *output, unsigned long p);
+__cdecl _SEHHandler(struct _EXCEPTION_RECORD* ExceptionRecord,
+                    void* EstablisherFrame,
+                    struct _CONTEXT* ContextRecord,
+                    void* DispatcherContext);
+void printPointer(std::ostream* output, unsigned long p);
 #endif
 
 #else // Unix/Linux
@@ -76,11 +76,11 @@ void printPointer(std::ostream *output, unsigned long p);
 #include <signal.h>
 #include <ucontext.h>
 
-#include <sys/time.h>
 #include <sys/resource.h> /* POSIX.1-2001 */
+#include <sys/time.h>
 
 extern time_t start_time;
-void _SigHandler(int signum, siginfo_t *info, void *secret);
+void _SigHandler(int signum, siginfo_t* info, void* secret);
 #endif
 
 #ifndef COMPILER_STRING
@@ -120,10 +120,10 @@ bool ExceptionHandler::InstallHandler()
 	if (isMapLoaded == false) LoadMap();
 	if (isInstalled == true) return false;
 
-	SEHChain *prevSEH;
+	SEHChain* prevSEH;
 	__asm__("movl %%fs:0,%%eax;movl %%eax,%0;" : "=r"(prevSEH)::"%eax");
 	chain.prev = prevSEH;
-	chain.SEHfunction = (void *)&_SEHHandler;
+	chain.SEHfunction = (void*)&_SEHHandler;
 	__asm__("movl %0,%%eax;movl %%eax,%%fs:0;" : : "g"(&chain) : "%eax");
 #endif
 
@@ -182,7 +182,7 @@ bool ExceptionHandler::RemoveHandler()
 #if defined WIN32 || defined __WINDOWS__
 #if defined _MSC_VER || defined __USE_MINIDUMP__
 
-long ExceptionHandler::MiniDumpExceptionHandler(struct _EXCEPTION_POINTERS *pExceptionInfo)
+long ExceptionHandler::MiniDumpExceptionHandler(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
 	HMODULE hDll = NULL;
 	char szAppPath[_MAX_PATH];
@@ -253,7 +253,7 @@ long ExceptionHandler::MiniDumpExceptionHandler(struct _EXCEPTION_POINTERS *pExc
 
 #elif __GNUC__
 
-char *getFunctionName(unsigned long addr, unsigned long &start)
+char* getFunctionName(unsigned long addr, unsigned long& start)
 {
 	FunctionMap::iterator functions;
 	if (addr >= min_off && addr <= max_off) {
@@ -270,22 +270,22 @@ char *getFunctionName(unsigned long addr, unsigned long &start)
 }
 
 EXCEPTION_DISPOSITION
-__cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
-                    void *EstablisherFrame,
-                    struct _CONTEXT *ContextRecord,
-                    void *DispatcherContext)
+__cdecl _SEHHandler(struct _EXCEPTION_RECORD* ExceptionRecord,
+                    void* EstablisherFrame,
+                    struct _CONTEXT* ContextRecord,
+                    void* DispatcherContext)
 {
 	//
-	unsigned long *esp;
-	unsigned long *next_ret;
+	unsigned long* esp;
+	unsigned long* next_ret;
 	unsigned long stack_val;
-	unsigned long *stacklimit;
-	unsigned long *stackstart;
+	unsigned long* stacklimit;
+	unsigned long* stackstart;
 	unsigned long nparameters = 0;
 	unsigned long file, foundRetAddress = 0;
 	_MEMORY_BASIC_INFORMATION mbi;
 
-	std::ostream *outdriver;
+	std::ostream* outdriver;
 	std::cout << "Error: generating report file..." << std::endl;
 	std::ofstream output("report.txt", std::ios_base::app);
 	if (output.fail()) {
@@ -368,7 +368,7 @@ __cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
 	           << " at eip = " << (unsigned long)ExceptionRecord->ExceptionAddress;
 	FunctionMap::iterator functions;
 	unsigned long functionAddr;
-	char *functionName = getFunctionName((unsigned long)ExceptionRecord->ExceptionAddress, functionAddr);
+	char* functionName = getFunctionName((unsigned long)ExceptionRecord->ExceptionAddress, functionAddr);
 	if (functionName) {
 		*outdriver << "(" << functionName << " - " << functionAddr << ")";
 	}
@@ -403,15 +403,15 @@ __cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
 	*outdriver << std::endl;
 
 	// stack dump
-	esp = (unsigned long *)(ContextRecord->Esp);
+	esp = (unsigned long*)(ContextRecord->Esp);
 	VirtualQuery(esp, &mbi, sizeof(mbi));
-	stacklimit = (unsigned long *)((unsigned long)(mbi.BaseAddress) + mbi.RegionSize);
+	stacklimit = (unsigned long*)((unsigned long)(mbi.BaseAddress) + mbi.RegionSize);
 
 	*outdriver << "---Stack Trace---" << std::endl;
 	*outdriver << "From: " << (unsigned long)esp << " to: " << (unsigned long)stacklimit << std::endl;
 
 	stackstart = esp;
-	next_ret = (unsigned long *)(ContextRecord->Ebp);
+	next_ret = (unsigned long*)(ContextRecord->Ebp);
 	unsigned long frame_param_counter;
 	frame_param_counter = 0;
 	while (esp < stacklimit) {
@@ -427,7 +427,7 @@ __cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
 			} else if (esp - next_ret == 1) {
 				*outdriver << " <-- ret";
 			} else if (esp - next_ret == 2) {
-				next_ret = (unsigned long *)*(esp - 2);
+				next_ret = (unsigned long*)*(esp - 2);
 				frame_param_counter = 0;
 			}
 			frame_param_counter++;
@@ -437,14 +437,14 @@ __cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
 			foundRetAddress++;
 			//
 			unsigned long functionAddr;
-			char *functionName = getFunctionName(stack_val, functionAddr);
+			char* functionName = getFunctionName(stack_val, functionAddr);
 			output << (unsigned long)esp << "  " << functionName << "(" << functionAddr
 			       << ")" << std::endl;
 		}
 		esp++;
 	}
 	*outdriver << "*****************************************************" << std::endl;
-	if (file) ((std::ofstream *)outdriver)->close();
+	if (file) ((std::ofstream*)outdriver)->close();
 	if (g_config.getNumber(ConfigManager::SHOW_CRASH_WINDOW))
 		MessageBoxA(NULL, "Please send the file report.txt to support service. Thanks",
 		            "Error", MB_OK | MB_ICONERROR);
@@ -453,11 +453,11 @@ __cdecl _SEHHandler(struct _EXCEPTION_RECORD *ExceptionRecord,
 	return ExceptionContinueSearch;
 }
 
-void printPointer(std::ostream *output, unsigned long p)
+void printPointer(std::ostream* output, unsigned long p)
 {
 	*output << p;
-	if (IsBadReadPtr((void *)p, 4) == 0) {
-		*output << " -> " << *(unsigned long *)p;
+	if (IsBadReadPtr((void*)p, 4) == 0) {
+		*output << " -> " << *(unsigned long*)p;
 	}
 }
 
@@ -471,7 +471,7 @@ bool ExceptionHandler::LoadMap()
 	isInstalled = false;
 	// load map file if exists
 	char line[1024];
-	FILE *input = fopen("otserv.map", "r");
+	FILE* input = fopen("otserv.map", "r");
 	min_off = 0xFFFFFF;
 	max_off = 0;
 	long n = 0;
@@ -495,7 +495,7 @@ bool ExceptionHandler::LoadMap()
 	char tofind[] = "0x";
 	char lib[] = ".a(";
 	while (fgets(line, 1024, input)) {
-		char *pos = strstr(line, lib);
+		char* pos = strstr(line, lib);
 		if (pos) break; // not load libs
 		pos = strstr(line, tofind);
 		if (pos) {
@@ -503,18 +503,18 @@ bool ExceptionHandler::LoadMap()
 			char hexnumber[12];
 			strncpy(hexnumber, pos, 10);
 			hexnumber[10] = 0;
-			char *pEnd;
+			char* pEnd;
 			unsigned long offset = strtol(hexnumber, &pEnd, 0);
 			if (offset) {
 				// read function name
-				char *pos2 = pos + 12;
+				char* pos2 = pos + 12;
 				while (*pos2 != 0) {
 					if (*pos2 != ' ') break;
 					pos2++;
 				}
 				if (*pos2 == 0 || (*pos2 == '0' && *(pos2 + 1) == 'x')) continue;
 
-				char *name = new char[strlen(pos2) + 1];
+				char* name = new char[strlen(pos2) + 1];
 				strcpy(name, pos2);
 				name[strlen(pos2) - 1] = 0;
 				functionMap[offset] = name;
@@ -533,11 +533,11 @@ bool ExceptionHandler::LoadMap()
 
 void ExceptionHandler::dumpStack()
 {
-	unsigned long *esp;
-	unsigned long *next_ret;
+	unsigned long* esp;
+	unsigned long* next_ret;
 	unsigned long stack_val;
-	unsigned long *stacklimit;
-	unsigned long *stackstart;
+	unsigned long* stacklimit;
+	unsigned long* stackstart;
 	unsigned long nparameters = 0;
 	unsigned long foundRetAddress = 0;
 	_MEMORY_BASIC_INFORMATION mbi;
@@ -555,7 +555,7 @@ void ExceptionHandler::dumpStack()
 	__asm__("movl %%esp, %0;" : "=r"(esp)::);
 
 	VirtualQuery(esp, &mbi, sizeof(mbi));
-	stacklimit = (unsigned long *)((unsigned long)(mbi.BaseAddress) + mbi.RegionSize);
+	stacklimit = (unsigned long*)((unsigned long)(mbi.BaseAddress) + mbi.RegionSize);
 
 	output << "---Stack Trace---" << std::endl;
 	output << "From: " << (unsigned long)esp << " to: " << (unsigned long)stacklimit << std::endl;
@@ -578,7 +578,7 @@ void ExceptionHandler::dumpStack()
 			} else if (esp - next_ret == 1) {
 				output << " <-- ret";
 			} else if (esp - next_ret == 2) {
-				next_ret = (unsigned long *)*(esp - 2);
+				next_ret = (unsigned long*)*(esp - 2);
 				frame_param_counter = 0;
 			}
 			frame_param_counter++;
@@ -587,7 +587,7 @@ void ExceptionHandler::dumpStack()
 		if (stack_val >= min_off && stack_val <= max_off) {
 			foundRetAddress++;
 			unsigned long functionAddr;
-			char *functionName = getFunctionName(stack_val, functionAddr);
+			char* functionName = getFunctionName(stack_val, functionAddr);
 			output << (unsigned long)esp << "  " << functionName << "(" << functionAddr
 			       << ")" << std::endl;
 		}
@@ -601,22 +601,22 @@ void ExceptionHandler::dumpStack()
 // Unix/Linux
 #else
 #define BACKTRACE_DEPTH 128
-void _SigHandler(int signum, siginfo_t *info, void *secret)
+void _SigHandler(int signum, siginfo_t* info, void* secret)
 {
 	bool file;
 
 	int addrs;
-	void *buffer[BACKTRACE_DEPTH];
-	char **symbols;
+	void* buffer[BACKTRACE_DEPTH];
+	char** symbols;
 
-	ucontext_t context = *(ucontext_t *)secret;
+	ucontext_t context = *(ucontext_t*)secret;
 	rusage resources;
 	rlimit resourcelimit;
 	greg_t esp = 0;
-	tm *ts;
+	tm* ts;
 	char date_buff[80];
 
-	std::ostream *outdriver;
+	std::ostream* outdriver;
 	std::cout << "Error: generating report file..." << std::endl;
 	std::ofstream output("report.txt", std::ios_base::app);
 	if (output.fail()) {
@@ -715,7 +715,7 @@ void _SigHandler(int signum, siginfo_t *info, void *secret)
 	outdriver->flush();
 
 	if (file) {
-		((std::ofstream *)outdriver)->close();
+		((std::ofstream*)outdriver)->close();
 	}
 
 	_exit(1);

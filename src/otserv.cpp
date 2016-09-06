@@ -45,7 +45,7 @@
 
 #ifdef BOOST_NO_EXCEPTIONS
 #include <exception>
-void boost::throw_exception(std::exception const &e)
+void boost::throw_exception(std::exception const& e)
 {
 	std::cout << "Boost exception: " << e.what() << std::endl;
 }
@@ -61,10 +61,10 @@ Npcs g_npcs;
 Monsters g_monsters;
 BanManager g_bans;
 Vocations g_vocations;
-Server *g_server = nullptr;
+Server* g_server = nullptr;
 
 #ifdef __PROTOCOL_77__
-RSA *g_otservRSA = NULL;
+RSA* g_otservRSA = NULL;
 #endif
 
 boost::mutex g_loaderLock;
@@ -80,7 +80,7 @@ boost::unique_lock<boost::mutex> g_loaderUniqueLock(g_loaderLock);
 time_t start_time;
 #endif
 
-void ErrorMessage(const char *message)
+void ErrorMessage(const char* message)
 {
 	std::cout << std::endl << std::endl << "Error: " << message << std::endl;
 
@@ -103,8 +103,8 @@ struct CommandLineOptions {
 
 CommandLineOptions g_command_opts;
 
-bool parseCommandLine(CommandLineOptions &opts, std::vector<std::string> args);
-void mainLoader(const CommandLineOptions &command_opts);
+bool parseCommandLine(CommandLineOptions& opts, std::vector<std::string> args);
+void mainLoader(const CommandLineOptions& command_opts);
 
 #if !defined(__WINDOWS__)
 // Runfile, for running OT as daemon in the background. If the server is shutdown by internal
@@ -117,7 +117,7 @@ void closeRunfile(void)
 }
 #endif
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	if (parseCommandLine(g_command_opts, std::vector<std::string>(argv, argv + argc)) == false) {
 		return 0;
@@ -233,7 +233,7 @@ defined __DEBUG_LUASCRIPTS__ || defined __DEBUG_RAID__ || defined __DEBUG_NET__ 
 #endif
 }
 
-bool parseCommandLine(CommandLineOptions &opts, std::vector<std::string> args)
+bool parseCommandLine(CommandLineOptions& opts, std::vector<std::string> args)
 {
 	std::vector<std::string>::iterator argi = args.begin();
 	opts.truncate_log = false;
@@ -311,7 +311,7 @@ bool parseCommandLine(CommandLineOptions &opts, std::vector<std::string> args)
 	return true;
 }
 
-void mainLoader(const CommandLineOptions &command_opts)
+void mainLoader(const CommandLineOptions& command_opts)
 {
 	// dispatcher thread
 	g_game.setGameState(GAME_STATE_STARTUP);
@@ -322,11 +322,11 @@ void mainLoader(const CommandLineOptions &command_opts)
 	std::cout << "[done]" << std::endl;
 
 #if defined LUA_CONFIGFILE
-	const char *configname = LUA_CONFIGFILE;
+	const char* configname = LUA_CONFIGFILE;
 #elif defined __LUA_NAME_ALTER__
-	const char *configname = "otserv.lua";
+	const char* configname = "otserv.lua";
 #else
-	const char *configname = "config.lua";
+	const char* configname = "config.lua";
 #endif
 
 	if (command_opts.configfile != "") {
@@ -409,7 +409,7 @@ void mainLoader(const CommandLineOptions &command_opts)
 	std::cout << "[done]" << std::endl;
 
 	std::cout << ":: Checking Database Connection... ";
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	if (db == nullptr || !db->isConnected()) {
 		ErrorMessage("Database Connection Failed!");
 		exit(-1);
@@ -422,13 +422,13 @@ void mainLoader(const CommandLineOptions &command_opts)
 #ifdef __PROTOCOL_77__
 	// load RSA key
 	std::cout << ":: Loading RSA key..." << std::flush;
-	const char *p("1429962396241639952007017738289889555079540334546615321747051608293473758277"
+	const char* p("1429962396241639952007017738289889555079540334546615321747051608293473758277"
 	              "6038882967213386204600674145392845853859217990626450972452084065728686565928"
 	              "113");
-	const char *q("7630979195970404721891201847792002125535401292779123937207447574596692788513"
+	const char* q("7630979195970404721891201847792002125535401292779123937207447574596692788513"
 	              "6471792353355293072513505707284073737055647088717620330170968099103152128841"
 	              "01");
-	const char *d("4673033022358411862216018001503683214873298680851934467521055526294025873980"
+	const char* d("4673033022358411862216018001503683214873298680851934467521055526294025873980"
 	              "5766860224610646919605860206328024326703361630109888417839241959507572247284"
 	              "8070352355696191737922927869078457919049551036016528225191219083671878855092"
 	              "7002538864170082173534522208794057838121087911682301377680897576685182902065"
@@ -503,13 +503,13 @@ void mainLoader(const CommandLineOptions &command_opts)
 
 	std::string worldType = g_config.getString(ConfigManager::WORLD_TYPE);
 
-	if (asLowerCaseString(worldType) == "pvp")
+	if (asLowerCaseString(worldType) == "pvp") {
 		g_game.setWorldType(WORLD_TYPE_PVP);
-	else if (asLowerCaseString(worldType) == "no-pvp")
+	} else if (asLowerCaseString(worldType) == "no-pvp") {
 		g_game.setWorldType(WORLD_TYPE_NO_PVP);
-	else if (asLowerCaseString(worldType) == "pvp-enforced")
+	} else if (asLowerCaseString(worldType) == "pvp-enforced") {
 		g_game.setWorldType(WORLD_TYPE_PVP_ENFORCED);
-	else {
+	} else {
 		ErrorMessage("Unknown world type!");
 		exit(-1);
 	}
@@ -562,18 +562,18 @@ void mainLoader(const CommandLineOptions &command_opts)
 	if (gethostname(szHostName, 128) == 0) {
 		std::cout << "::" << std::endl << ":: Running on host " << szHostName << std::endl;
 
-		hostent *he = gethostbyname(szHostName);
+		hostent* he = gethostbyname(szHostName);
 
 		if (he) {
 			std::cout << ":: Local IP address(es):  ";
-			unsigned char **addr = (unsigned char **)he->h_addr_list;
+			unsigned char** addr = (unsigned char**)he->h_addr_list;
 
 			while (addr[0] != nullptr) {
 				std::cout
 				<< (unsigned int)(addr[0][0]) << "." << (unsigned int)(addr[0][1]) << "."
 				<< (unsigned int)(addr[0][2]) << "." << (unsigned int)(addr[0][3]) << "  ";
 
-				IpNetMask.first = *(uint32_t *)(*addr);
+				IpNetMask.first = *(uint32_t*)(*addr);
 				IpNetMask.second = 0x0000FFFF;
 				serverIPs.push_back(IpNetMask);
 
@@ -593,9 +593,9 @@ void mainLoader(const CommandLineOptions &command_opts)
 
 	uint32_t resolvedIp = inet_addr(ip.c_str());
 	if (resolvedIp == INADDR_NONE) {
-		struct hostent *he = gethostbyname(ip.c_str());
+		struct hostent* he = gethostbyname(ip.c_str());
 		if (he != nullptr) {
-			resolvedIp = *(uint32_t *)he->h_addr;
+			resolvedIp = *(uint32_t*)he->h_addr;
 		} else {
 			std::string error_msg = "Can't resolve: " + ip;
 			ErrorMessage(error_msg.c_str());
@@ -612,7 +612,7 @@ void mainLoader(const CommandLineOptions &command_opts)
 	serverIPs.push_back(IpNetMask);
 	std::cout << ":: Starting Server... ";
 
-	Status *status = Status::instance();
+	Status* status = Status::instance();
 	status->setMaxPlayersOnline(g_config.getNumber(ConfigManager::MAX_PLAYERS));
 
 	g_game.setGameState(GAME_STATE_NORMAL);

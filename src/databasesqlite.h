@@ -45,15 +45,15 @@ public:
 	DATABASE_VIRTUAL bool rollback();
 	DATABASE_VIRTUAL bool commit();
 
-	DATABASE_VIRTUAL bool executeQuery(const std::string &query);
-	DATABASE_VIRTUAL DBResult *storeQuery(const std::string &query);
+	DATABASE_VIRTUAL bool executeQuery(const std::string& query);
+	DATABASE_VIRTUAL DBResult* storeQuery(const std::string& query);
 
 	DATABASE_VIRTUAL uint64_t getLastInsertedRowID();
 
-	DATABASE_VIRTUAL std::string escapeString(const std::string &s);
-	DATABASE_VIRTUAL std::string escapeBlob(const char *s, uint32_t length);
+	DATABASE_VIRTUAL std::string escapeString(const std::string& s);
+	DATABASE_VIRTUAL std::string escapeBlob(const char* s, uint32_t length);
 
-	DATABASE_VIRTUAL void freeResult(DBResult *res);
+	DATABASE_VIRTUAL void freeResult(DBResult* res);
 
 	DATABASE_VIRTUAL uint64_t getLastInsertId()
 	{
@@ -70,38 +70,37 @@ public:
 	}
 
 protected:
-	std::string _parse(const std::string &s);
+	std::string _parse(const std::string& s);
 
 	boost::recursive_mutex sqliteLock;
-	sqlite3 *m_handle;
+	sqlite3* m_handle;
 };
 
 class SQLiteResult : public _DBResult
 {
 	friend class DatabaseSQLite;
+
 public:
-	DATABASE_VIRTUAL int32_t getDataInt(const std::string &s);
-	DATABASE_VIRTUAL int64_t getDataLong(const std::string &s);
-	DATABASE_VIRTUAL std::string getDataString(const std::string &s);
-	DATABASE_VIRTUAL const char *getDataStream(const std::string &s, unsigned long &size);
+	DATABASE_VIRTUAL int32_t getDataInt(const std::string& s);
+	DATABASE_VIRTUAL int64_t getDataLong(const std::string& s);
+	DATABASE_VIRTUAL std::string getDataString(const std::string& s);
+	DATABASE_VIRTUAL const char* getDataStream(const std::string& s, unsigned long& size);
 	DATABASE_VIRTUAL bool next();
 	size_t size() const;
 
 protected:
-	SQLiteResult(sqlite3_stmt *stmt);
+	SQLiteResult(sqlite3_stmt* stmt);
 	DATABASE_VIRTUAL ~SQLiteResult();
 
 	std::map<const std::string, uint32_t> m_listNames;
-	sqlite3_stmt *m_handle;
+	sqlite3_stmt* m_handle;
 };
 
 
-inline size_t SQLiteResult::size() const {
+inline size_t SQLiteResult::size() const
+{
 	return m_listNames.size();
 }
-
-
-
 
 
 #endif

@@ -51,7 +51,7 @@ class IOMap;
 
 struct AStarNode {
 	int32_t x, y;
-	AStarNode *parent;
+	AStarNode* parent;
 	int32_t f, g, h;
 };
 
@@ -67,17 +67,17 @@ public:
 	AStarNodes();
 	~AStarNodes(){};
 
-	AStarNode *createOpenNode();
-	AStarNode *getBestNode();
-	void closeNode(AStarNode *node);
-	void openNode(AStarNode *node);
+	AStarNode* createOpenNode();
+	AStarNode* getBestNode();
+	void closeNode(AStarNode* node);
+	void openNode(AStarNode* node);
 	uint32_t countClosedNodes();
 	uint32_t countOpenNodes();
 	bool isInList(int32_t x, int32_t y);
-	AStarNode *getNodeInList(int32_t x, int32_t y);
+	AStarNode* getNodeInList(int32_t x, int32_t y);
 
-	int32_t getMapWalkCost(const Creature *creature, AStarNode *node, const Tile *neighbourTile, const Position &neighbourPos);
-	static int32_t getTileWalkCost(const Creature *creature, const Tile *tile);
+	int32_t getMapWalkCost(const Creature* creature, AStarNode* node, const Tile* neighbourTile, const Position& neighbourPos);
+	static int32_t getTileWalkCost(const Creature* creature, const Tile* tile);
 	int getEstimatedDistance(int32_t x, int32_t y, int32_t xGoal, int32_t yGoal);
 
 private:
@@ -86,17 +86,17 @@ private:
 	uint32_t curNode;
 };
 
-template <class T> class lessPointer : public std::binary_function<T *, T *, bool>
+template <class T> class lessPointer : public std::binary_function<T*, T*, bool>
 {
 public:
-	bool operator()(T *&t1, T *&t2)
+	bool operator()(T*& t1, T*& t2)
 	{
 		return *t1 < *t2;
 	}
 };
 
-typedef std::list<Creature *> SpectatorVec;
-typedef std::list<Player *> PlayerList;
+typedef std::list<Creature*> SpectatorVec;
+typedef std::list<Player*> PlayerList;
 typedef std::map<Position, boost::shared_ptr<SpectatorVec>> SpectatorCache;
 
 #define FLOOR_BITS 3
@@ -105,7 +105,7 @@ typedef std::map<Position, boost::shared_ptr<SpectatorVec>> SpectatorCache;
 
 struct Floor {
 	Floor();
-	Tile *tiles[FLOOR_SIZE][FLOOR_SIZE];
+	Tile* tiles[FLOOR_SIZE][FLOOR_SIZE];
 };
 
 class FrozenPathingConditionCall;
@@ -121,13 +121,13 @@ public:
 	{
 		return m_isLeaf;
 	}
-	QTreeLeafNode *getLeaf(uint32_t x, uint32_t y);
-	static QTreeLeafNode *getLeafStatic(QTreeNode *root, uint32_t x, uint32_t y);
-	QTreeLeafNode *createLeaf(uint32_t x, uint32_t y, uint32_t level);
+	QTreeLeafNode* getLeaf(uint32_t x, uint32_t y);
+	static QTreeLeafNode* getLeafStatic(QTreeNode* root, uint32_t x, uint32_t y);
+	QTreeLeafNode* createLeaf(uint32_t x, uint32_t y, uint32_t level);
 
 protected:
 	bool m_isLeaf;
-	QTreeNode *m_child[4];
+	QTreeNode* m_child[4];
 
 	friend class Map;
 };
@@ -138,29 +138,29 @@ public:
 	QTreeLeafNode();
 	~QTreeLeafNode() override;
 
-	Floor *createFloor(uint32_t z);
-	Floor *getFloor(uint16_t z)
+	Floor* createFloor(uint32_t z);
+	Floor* getFloor(uint16_t z)
 	{
 		return m_array[z];
 	}
 
-	QTreeLeafNode *stepSouth()
+	QTreeLeafNode* stepSouth()
 	{
 		return m_leafS;
 	}
-	QTreeLeafNode *stepEast()
+	QTreeLeafNode* stepEast()
 	{
 		return m_leafE;
 	}
 
-	void addCreature(Creature *c);
-	void removeCreature(Creature *c);
+	void addCreature(Creature* c);
+	void removeCreature(Creature* c);
 
 protected:
 	static bool newLeaf;
-	QTreeLeafNode *m_leafS;
-	QTreeLeafNode *m_leafE;
-	Floor *m_array[MAP_MAX_LAYERS];
+	QTreeLeafNode* m_leafS;
+	QTreeLeafNode* m_leafE;
+	Floor* m_array[MAP_MAX_LAYERS];
 	CreatureVector creature_list;
 
 	friend class Map;
@@ -190,7 +190,7 @@ public:
 	* \param type map type "OTBM", "XML"
 	* \return true if the map was loaded successfully
 	*/
-	bool loadMap(const std::string &identifier, const std::string &type);
+	bool loadMap(const std::string& identifier, const std::string& type);
 
 	/**
 	* Save a map.
@@ -203,10 +203,10 @@ public:
 	* Get a single tile.
 	* \return A pointer to that tile.
 	*/
-	Tile *getTile(uint16_t x, uint16_t y, uint16_t z);
-	Tile *getTile(const Position &pos);
+	Tile* getTile(uint16_t x, uint16_t y, uint16_t z);
+	Tile* getTile(const Position& pos);
 
-	QTreeLeafNode *getLeaf(uint16_t x, uint16_t y)
+	QTreeLeafNode* getLeaf(uint16_t x, uint16_t y)
 	{
 		return root.getLeaf(x, y);
 	}
@@ -215,8 +215,8 @@ public:
 	* Set a single tile.
 	* \param a tile to set for the
 	*/
-	void setTile(uint16_t _x, uint16_t _y, uint16_t _z, Tile *newtile);
-	void setTile(const Position &pos, Tile *newtile)
+	void setTile(uint16_t _x, uint16_t _y, uint16_t _z, Tile* newtile);
+	void setTile(const Position& pos, Tile* newtile)
 	{
 		setTile(pos.x, pos.y, pos.z, newtile);
 	}
@@ -229,13 +229,13 @@ public:
 	* \param forceLogin If true, placing the creature will not fail becase of obstacles
 	* (creatures/chests)
 	*/
-	bool placeCreature(const Position &centerPos, Creature *creature, bool extendedPos = false, bool forceLogin = false);
+	bool placeCreature(const Position& centerPos, Creature* creature, bool extendedPos = false, bool forceLogin = false);
 
 	/**
 	* Remove a creature from the map.
 	* \param c Creature pointer to the creature to remove
 	*/
-	bool removeCreature(Creature *c);
+	bool removeCreature(Creature* c);
 
 	/**
 	* Checks if you can throw an object to that position
@@ -246,8 +246,8 @@ public:
 	*   \param checkLineOfSight checks if there is any blocking objects in the way
 	*	\return The result if you can throw there or not
 	*/
-	bool canThrowObjectTo(const Position &fromPos,
-	                      const Position &toPos,
+	bool canThrowObjectTo(const Position& fromPos,
+	                      const Position& toPos,
 	                      bool checkLineOfSight = true,
 	                      int32_t rangex = Map::maxClientViewportX,
 	                      int32_t rangey = Map::maxClientViewportY);
@@ -262,10 +262,10 @@ public:
 	*toPos.z
 	*	\return The result if there is no obstacles
 	*/
-	bool isSightClear(const Position &fromPos, const Position &toPos, bool floorCheck) const;
-	bool checkSightLine(const Position &fromPos, const Position &toPos) const;
+	bool isSightClear(const Position& fromPos, const Position& toPos, bool floorCheck) const;
+	bool checkSightLine(const Position& fromPos, const Position& toPos) const;
 
-	const Tile *canWalkTo(const Creature *creature, const Position &pos);
+	const Tile* canWalkTo(const Creature* creature, const Position& pos);
 
 	/**
 	* Get the path to a specific position on the map.
@@ -276,15 +276,15 @@ public:
 	* limit)
 	* \returns returns true if a path was found
 	*/
-	bool getPathTo(const Creature *creature,
-	               const Position &destPos,
-	               std::list<Direction> &listDir,
+	bool getPathTo(const Creature* creature,
+	               const Position& destPos,
+	               std::list<Direction>& listDir,
 	               int32_t maxDist = -1);
 
-	bool getPathMatching(const Creature *creature,
-	                     std::list<Direction> &dirList,
-	                     const FrozenPathingConditionCall &pathCondition,
-	                     const FindPathParams &fpp);
+	bool getPathMatching(const Creature* creature,
+	                     std::list<Direction>& dirList,
+	                     const FrozenPathingConditionCall& pathCondition,
+	                     const FindPathParams& fpp);
 
 	// Waypoints on the map
 	Waypoints waypoints;
@@ -296,8 +296,8 @@ protected:
 	SpectatorCache spectatorCache;
 
 	// Actually scans the map for spectators
-	void getSpectatorsInternal(SpectatorVec &list,
-	                           const Position &centerPos,
+	void getSpectatorsInternal(SpectatorVec& list,
+	                           const Position& centerPos,
 	                           bool checkforduplicate,
 	                           int32_t minRangeX,
 	                           int32_t maxRangeX,
@@ -308,8 +308,8 @@ protected:
 
 	// Use this when a custom spectator vector is needed, this support many
 	// more parameters than the heavily cached version below.
-	void getSpectators(SpectatorVec &list,
-	                   const Position &centerPos,
+	void getSpectators(SpectatorVec& list,
+	                   const Position& centerPos,
 	                   bool checkforduplicate = false,
 	                   bool multifloor = false,
 	                   int32_t minRangeX = 0,
@@ -319,7 +319,7 @@ protected:
 	// The returned SpectatorVec is a temporary and should not be kept around
 	// Take special heed in that the vector will be destroyed if any function
 	// that calls clearSpectatorCache is called.
-	const SpectatorVec &getSpectators(const Position &centerPos);
+	const SpectatorVec& getSpectators(const Position& centerPos);
 
 	void clearSpectatorCache();
 
@@ -331,7 +331,7 @@ protected:
 		uint64_t lastRefresh;
 	};
 
-	typedef std::map<Tile *, RefreshBlock_t> TileMap;
+	typedef std::map<Tile*, RefreshBlock_t> TileMap;
 	TileMap refreshTileMap;
 
 	friend class Game;
@@ -342,12 +342,12 @@ protected:
 	friend class IOMapSerialize;
 };
 
-inline void QTreeLeafNode::addCreature(Creature *c)
+inline void QTreeLeafNode::addCreature(Creature* c)
 {
 	creature_list.push_back(c);
 }
 
-inline void QTreeLeafNode::removeCreature(Creature *c)
+inline void QTreeLeafNode::removeCreature(Creature* c)
 {
 	CreatureVector::iterator iter = std::find(creature_list.begin(), creature_list.end(), c);
 	assert(iter != creature_list.end());

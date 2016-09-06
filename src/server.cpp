@@ -54,7 +54,7 @@ void Server::accept()
 #endif
 		return;
 	}
-	Connection *connection = ConnectionManager::getInstance()->createConnection(m_io_service);
+	Connection* connection = ConnectionManager::getInstance()->createConnection(m_io_service);
 
 	m_acceptor->async_accept(connection->getHandle(), boost::bind(&Server::onAccept, this, connection,
 	                                                              boost::asio::placeholders::error));
@@ -84,7 +84,7 @@ void Server::openListenSocket()
 	accept();
 }
 
-void Server::onAccept(Connection *connection, const boost::system::error_code &error)
+void Server::onAccept(Connection* connection, const boost::system::error_code& error)
 {
 	if (!error) {
 		connection->acceptConnection();

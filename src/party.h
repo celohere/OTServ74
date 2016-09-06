@@ -32,49 +32,49 @@ class Player;
 class Party;
 class Creature;
 
-typedef std::vector<Player *> PlayerVector;
+typedef std::vector<Player*> PlayerVector;
 
 class Party
 {
 public:
-	Party(Player *_leader);
+	Party(Player* _leader);
 	~Party();
 
-	Player *getLeader() const
+	Player* getLeader() const
 	{
 		return leader;
 	}
-	void setLeader(Player *_leader)
+	void setLeader(Player* _leader)
 	{
 		leader = _leader;
 	}
 
 	void disband();
-	bool invitePlayer(Player *player);
-	bool joinParty(Player *player);
-	bool revokeInvitation(Player *player);
-	bool passPartyLeadership(Player *player);
-	bool leaveParty(Player *player);
+	bool invitePlayer(Player* player);
+	bool joinParty(Player* player);
+	bool revokeInvitation(Player* player);
+	bool passPartyLeadership(Player* player);
+	bool leaveParty(Player* player);
 
-	bool removeInvite(Player *player);
+	bool removeInvite(Player* player);
 
-	bool isPlayerMember(const Player *player) const;
-	bool isPlayerInvited(const Player *player) const;
-	void updatePartyIcons(Player *player, PartyShields_t shield);
-	void updateInvitationIcons(Player *player, PartyShields_t shield);
-	void broadcastPartyMessage(MessageClasses msgClass, const std::string &msg, bool sendToInvitations = false);
+	bool isPlayerMember(const Player* player) const;
+	bool isPlayerInvited(const Player* player) const;
+	void updatePartyIcons(Player* player, PartyShields_t shield);
+	void updateInvitationIcons(Player* player, PartyShields_t shield);
+	void broadcastPartyMessage(MessageClasses msgClass, const std::string& msg, bool sendToInvitations = false);
 	bool disbandParty()
 	{
 		return (memberList.empty() && inviteList.empty());
 	}
 
-	const PlayerVector &getMemberList()
+	const PlayerVector& getMemberList()
 	{
 		return memberList;
 	}
 
 protected:
-	Player *leader;
+	Player* leader;
 	PlayerVector memberList;
 	PlayerVector inviteList;
 };

@@ -29,28 +29,27 @@ class House;
 class HouseTile : public Tile
 {
 public:
-	HouseTile(int x, int y, int z, House *_house);
+	HouseTile(int x, int y, int z, House* _house);
 	~HouseTile() override;
 
 	// cylinder implementations
-	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue __queryAdd(int32_t index, const Thing* thing, uint32_t count, uint32_t flags) const override;
 
-	Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
+	Cylinder* __queryDestination(int32_t& index, const Thing* thing, Item** destItem, uint32_t& flags) override;
 
-	void __addThing(int32_t index, Thing *thing) override;
-	void __internalAddThing(uint32_t index, Thing *thing) override;
+	void __addThing(int32_t index, Thing* thing) override;
+	void __internalAddThing(uint32_t index, Thing* thing) override;
 
-	House *getHouse()
+	House* getHouse()
 	{
 		return house;
 	}
 
 
 private:
-	void updateHouse(Item *item);
+	void updateHouse(Item* item);
 
-	House *house;
+	House* house;
 };
 
 #endif

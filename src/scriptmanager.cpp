@@ -34,18 +34,18 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 
-Actions *g_actions = nullptr;
-TalkActions *g_talkactions = nullptr;
-Spells *g_spells = nullptr;
-MoveEvents *g_moveEvents = nullptr;
-Weapons *g_weapons = nullptr;
-CreatureEvents *g_creatureEvents = nullptr;
-GlobalEvents *g_globalEvents = nullptr;
+Actions* g_actions = nullptr;
+TalkActions* g_talkactions = nullptr;
+Spells* g_spells = nullptr;
+MoveEvents* g_moveEvents = nullptr;
+Weapons* g_weapons = nullptr;
+CreatureEvents* g_creatureEvents = nullptr;
+GlobalEvents* g_globalEvents = nullptr;
 
 extern ConfigManager g_config;
-extern void ErrorMessage(const char *message);
+extern void ErrorMessage(const char* message);
 
-ScriptingManager *ScriptingManager::_instance = nullptr;
+ScriptingManager* ScriptingManager::_instance = nullptr;
 
 ScriptingManager::ScriptingManager()
 {
@@ -57,7 +57,7 @@ ScriptingManager::~ScriptingManager()
 	//
 }
 
-ScriptingManager *ScriptingManager::getInstance()
+ScriptingManager* ScriptingManager::getInstance()
 {
 	if (_instance == nullptr) {
 		_instance = new ScriptingManager();

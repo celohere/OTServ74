@@ -34,11 +34,11 @@ public:
 	IOMapXML(){};
 	~IOMapXML() override{};
 
-	const char *getSourceDescription() override
+	const char* getSourceDescription() override
 	{
 		return "OTX";
 	};
-	bool loadMap(Map *map, const std::string &identifier) override;
+	bool loadMap(Map* map, const std::string& identifier) override;
 };
 
 #endif

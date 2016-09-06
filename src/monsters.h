@@ -65,7 +65,7 @@ struct summonBlock_t {
 class BaseSpell;
 
 struct spellBlock_t {
-	BaseSpell *spell;
+	BaseSpell* spell;
 	uint32_t chance;
 	uint32_t speed;
 	uint32_t range;
@@ -144,9 +144,9 @@ public:
 
 	MonsterScriptList scriptList;
 
-	void createLoot(Container *corpse);
-	void createLootContainer(Container *parent, const LootBlock &lootblock);
-	Item *createLootItem(const LootBlock &lootblock);
+	void createLoot(Container* corpse);
+	void createLootContainer(Container* parent, const LootBlock& lootblock);
+	Item* createLootItem(const LootBlock& lootblock);
 };
 
 class Monsters
@@ -155,36 +155,36 @@ public:
 	Monsters();
 	~Monsters();
 
-	bool loadFromXml(const std::string &_datadir, bool reloading = false);
+	bool loadFromXml(const std::string& _datadir, bool reloading = false);
 	bool isLoaded()
 	{
 		return loaded;
 	}
 	bool reload();
 
-	MonsterType *getMonsterType(const std::string &name);
-	MonsterType *getMonsterType(uint32_t mid);
-	uint32_t getIdByName(const std::string &name);
+	MonsterType* getMonsterType(const std::string& name);
+	MonsterType* getMonsterType(uint32_t mid);
+	uint32_t getIdByName(const std::string& name);
 
 	static uint32_t getLootRandom();
 
 private:
-	ConditionDamage *getDamageCondition(ConditionType_t conditionType,
+	ConditionDamage* getDamageCondition(ConditionType_t conditionType,
 	                                    int32_t maxDamage,
 	                                    int32_t minDamage,
 	                                    int32_t startDamage,
 	                                    uint32_t tickInterval);
-	bool deserializeSpell(xmlNodePtr node, spellBlock_t &sb, const std::string &description = "");
+	bool deserializeSpell(xmlNodePtr node, spellBlock_t& sb, const std::string& description = "");
 
-	bool loadMonster(const std::string &file, const std::string &monster_name, bool reloading = false);
+	bool loadMonster(const std::string& file, const std::string& monster_name, bool reloading = false);
 
-	bool loadLootContainer(xmlNodePtr, LootBlock &);
-	bool loadLootItem(xmlNodePtr, LootBlock &);
+	bool loadLootContainer(xmlNodePtr, LootBlock&);
+	bool loadLootItem(xmlNodePtr, LootBlock&);
 
 	typedef std::map<std::string, uint32_t> MonsterNameMap;
 	MonsterNameMap monsterNames;
 
-	typedef std::map<uint32_t, MonsterType *> MonsterMap;
+	typedef std::map<uint32_t, MonsterType*> MonsterMap;
 	MonsterMap monsters;
 
 	bool loaded;

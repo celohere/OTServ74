@@ -58,7 +58,7 @@ void Protocol::onSendMessage(OutputMessage_ptr msg)
 	}
 }
 
-void Protocol::onRecvMessage(NetworkMessage &msg)
+void Protocol::onRecvMessage(NetworkMessage& msg)
 {
 #ifdef __DEBUG_NET_DETAIL__
 	std::cout << "Protocol::onRecvMessage" << std::endl;
@@ -119,7 +119,7 @@ uint32_t Protocol::getIP() const
 }
 
 #ifdef __PROTOCOL_77__
-void Protocol::XTEA_encrypt(OutputMessage &msg)
+void Protocol::XTEA_encrypt(OutputMessage& msg)
 {
 	uint32_t k[4];
 	k[0] = m_key[0];
@@ -135,7 +135,7 @@ void Protocol::XTEA_encrypt(OutputMessage &msg)
 	}
 
 	int read_pos = 0;
-	uint32_t *buffer = (uint32_t *)msg.getBodyBuffer();
+	uint32_t* buffer = (uint32_t*)msg.getBodyBuffer();
 	int32_t messageLength = msg.getMessageLength();
 	while (read_pos < messageLength / 4) {
 		uint32_t v0 = buffer[read_pos], v1 = buffer[read_pos + 1];
@@ -155,7 +155,7 @@ void Protocol::XTEA_encrypt(OutputMessage &msg)
 	msg.addCryptoHeader();
 }
 
-bool Protocol::XTEA_decrypt(NetworkMessage &msg)
+bool Protocol::XTEA_decrypt(NetworkMessage& msg)
 {
 	if ((msg.getMessageLength() - 2) % 8 != 0) {
 		std::cout << "Failure: [Protocol::XTEA_decrypt]. Not valid encrypted message size" << std::endl;
@@ -168,7 +168,7 @@ bool Protocol::XTEA_decrypt(NetworkMessage &msg)
 	k[2] = m_key[2];
 	k[3] = m_key[3];
 
-	uint32_t *buffer = (uint32_t *)msg.getBodyBuffer();
+	uint32_t* buffer = (uint32_t*)msg.getBodyBuffer();
 	int read_pos = 0;
 	int32_t messageLength = msg.getMessageLength();
 	while (read_pos < messageLength / 4) {
@@ -197,14 +197,14 @@ bool Protocol::XTEA_decrypt(NetworkMessage &msg)
 	return true;
 }
 
-bool Protocol::RSA_decrypt(RSA *rsa, NetworkMessage &msg)
+bool Protocol::RSA_decrypt(RSA* rsa, NetworkMessage& msg)
 {
 	if (msg.getMessageLength() - msg.getReadPos() != 128) {
 		std::cout << "Warning: [Protocol::RSA_decrypt]. Not valid packet size" << std::endl;
 		return false;
 	}
 
-	if (!rsa->decrypt((char *)(msg.getBuffer() + msg.getReadPos()), 128)) {
+	if (!rsa->decrypt((char*)(msg.getBuffer() + msg.getReadPos()), 128)) {
 		return false;
 	}
 

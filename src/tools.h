@@ -64,46 +64,46 @@ inline int32_t swap_int32(int32_t x)
         return *((float *)(void *)&ui);
 }*/
 
-bool fileExists(const char *filename);
-void replaceString(std::string &str, const std::string sought, const std::string replacement);
-void trim_right(std::string &source, const std::string &t);
-void trim_left(std::string &source, const std::string &t);
-void toLowerCaseString(std::string &source);
-void toUpperCaseString(std::string &source);
-std::string asLowerCaseString(const std::string &source);
-std::string asUpperCaseString(const std::string &source);
-bool utf8ToLatin1(char *intext, std::string &outtext);
-bool readXMLInteger(xmlNodePtr node, const char *tag, int &value);
-bool readXMLInteger64(xmlNodePtr node, const char *tag, uint64_t &value);
-bool readXMLFloat(xmlNodePtr node, const char *tag, float &value);
-bool readXMLString(xmlNodePtr node, const char *tag, std::string &value);
-bool readXMLContentString(xmlNodePtr node, std::string &value);
-std::vector<std::string> explodeString(const std::string &inString, const std::string &separator);
+bool fileExists(const char* filename);
+void replaceString(std::string& str, const std::string sought, const std::string replacement);
+void trim_right(std::string& source, const std::string& t);
+void trim_left(std::string& source, const std::string& t);
+void toLowerCaseString(std::string& source);
+void toUpperCaseString(std::string& source);
+std::string asLowerCaseString(const std::string& source);
+std::string asUpperCaseString(const std::string& source);
+bool utf8ToLatin1(char* intext, std::string& outtext);
+bool readXMLInteger(xmlNodePtr node, const char* tag, int& value);
+bool readXMLInteger64(xmlNodePtr node, const char* tag, uint64_t& value);
+bool readXMLFloat(xmlNodePtr node, const char* tag, float& value);
+bool readXMLString(xmlNodePtr node, const char* tag, std::string& value);
+bool readXMLContentString(xmlNodePtr node, std::string& value);
+std::vector<std::string> explodeString(const std::string& inString, const std::string& separator);
 bool hasBitSet(uint32_t flag, uint32_t flags);
 
 int random_range(int lowest_number, int highest_number, DistributionType_t type = DISTRO_UNIFORM);
 
-void hexdump(unsigned char *_data, int _len);
+void hexdump(unsigned char* _data, int _len);
 char upchar(char c);
 
-std::string urlEncode(const char *str);
-std::string urlEncode(const std::string &str);
+std::string urlEncode(const char* str);
+std::string urlEncode(const std::string& str);
 
-bool passwordTest(const std::string &plain, std::string &hash);
+bool passwordTest(const std::string& plain, std::string& hash);
 
 Position getNextPosition(Direction direction, Position pos);
 
 // buffer should be at least 17 bytes
-void formatIP(uint32_t ip, char *buffer);
+void formatIP(uint32_t ip, char* buffer);
 // buffer should have at least 21 bytes. dd/mm/yyyy  hh:mm:ss
-void formatDate(time_t time, char *buffer);
+void formatDate(time_t time, char* buffer);
 // buffer should have at least 16 bytes
-void formatDate2(time_t time, char *buffer);
+void formatDate2(time_t time, char* buffer);
 std::string formatTime(int32_t hours, int32_t minutes);
 
-MagicEffectClasses getMagicEffect(const std::string &strValue);
-ShootType_t getShootType(const std::string &strValue);
-Ammo_t getAmmoType(const std::string &strValue);
-AmmoAction_t getAmmoAction(const std::string &strValue);
+MagicEffectClasses getMagicEffect(const std::string& strValue);
+ShootType_t getShootType(const std::string& strValue);
+Ammo_t getAmmoType(const std::string& strValue);
+AmmoAction_t getAmmoAction(const std::string& strValue);
 
 #endif

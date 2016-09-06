@@ -44,7 +44,7 @@ enum MoveEvent_t {
 class MoveEvent;
 
 struct MoveEventList {
-	std::list<MoveEvent *> moveEvent[MOVE_EVENT_LAST];
+	std::list<MoveEvent*> moveEvent[MOVE_EVENT_LAST];
 };
 
 typedef std::map<int32_t, bool> VocEquipMap;
@@ -55,30 +55,30 @@ public:
 	MoveEvents();
 	~MoveEvents() override;
 
-	uint32_t onCreatureMove(Creature *creature, const Tile *fromTile, const Tile *toTile, bool isIn);
-	uint32_t onPlayerEquip(Player *player, Item *item, slots_t slot);
-	uint32_t onPlayerDeEquip(Player *player, Item *item, slots_t slot, bool isRemoval);
-	uint32_t onItemMove(Item *item, Tile *tile, bool isAdd);
-	ReturnValue canPlayerWearEquip(Player *player, Item *item, slots_t slot);
+	uint32_t onCreatureMove(Creature* creature, const Tile* fromTile, const Tile* toTile, bool isIn);
+	uint32_t onPlayerEquip(Player* player, Item* item, slots_t slot);
+	uint32_t onPlayerDeEquip(Player* player, Item* item, slots_t slot, bool isRemoval);
+	uint32_t onItemMove(Item* item, Tile* tile, bool isAdd);
+	ReturnValue canPlayerWearEquip(Player* player, Item* item, slots_t slot);
 
-	MoveEvent *getEvent(Item *item, MoveEvent_t eventType);
-	void onRemoveTileItem(const Tile *tile, Item *item);
-	void onAddTileItem(const Tile *tile, Item *item);
+	MoveEvent* getEvent(Item* item, MoveEvent_t eventType);
+	void onRemoveTileItem(const Tile* tile, Item* item);
+	void onAddTileItem(const Tile* tile, Item* item);
 
 protected:
 	typedef std::map<int32_t, MoveEventList> MoveListMap;
 	typedef std::map<Position, MoveEventList> MovePosListMap;
 	void clear() override;
-	LuaScriptInterface &getScriptInterface() override;
+	LuaScriptInterface& getScriptInterface() override;
 	std::string getScriptBaseName() override;
-	Event *getEvent(const std::string &nodeName) override;
-	bool registerEvent(Event *event, xmlNodePtr p) override;
+	Event* getEvent(const std::string& nodeName) override;
+	bool registerEvent(Event* event, xmlNodePtr p) override;
 
-	void addEvent(MoveEvent *moveEvent, int32_t id, MoveListMap &map);
-	void addEvent(MoveEvent *moveEvent, Position pos, MovePosListMap &map);
-	MoveEvent *getEvent(const Tile *tile, MoveEvent_t eventType);
-	MoveEvent *getEvent(Item *item, MoveEvent_t eventType, slots_t slot);
-	bool hasTileEvent(Item *item);
+	void addEvent(MoveEvent* moveEvent, int32_t id, MoveListMap& map);
+	void addEvent(MoveEvent* moveEvent, Position pos, MovePosListMap& map);
+	MoveEvent* getEvent(const Tile* tile, MoveEvent_t eventType);
+	MoveEvent* getEvent(Item* item, MoveEvent_t eventType, slots_t slot);
+	bool hasTileEvent(Item* item);
 
 	MoveListMap m_uniqueIdMap;
 	MoveListMap m_actionIdMap;
@@ -86,29 +86,29 @@ protected:
 	MovePosListMap m_positionMap;
 
 	LuaScriptInterface m_scriptInterface;
-	const Tile *m_lastCacheTile;
-	std::vector<Item *> m_lastCacheItemVector;
+	const Tile* m_lastCacheTile;
+	std::vector<Item*> m_lastCacheItemVector;
 };
 
-typedef uint32_t(StepFunction)(Creature *creature, Item *item, const Position &fromPos, const Position &toPos);
-typedef uint32_t(MoveFunction)(Item *item, Item *tileItem, const Position &pos);
-typedef uint32_t(EquipFunction)(MoveEvent *moveEvent, Player *player, Item *item, slots_t slot, bool isRemoval);
+typedef uint32_t(StepFunction)(Creature* creature, Item* item, const Position& fromPos, const Position& toPos);
+typedef uint32_t(MoveFunction)(Item* item, Item* tileItem, const Position& pos);
+typedef uint32_t(EquipFunction)(MoveEvent* moveEvent, Player* player, Item* item, slots_t slot, bool isRemoval);
 
 class MoveEvent : public Event
 {
 public:
-	MoveEvent(LuaScriptInterface *_interface);
+	MoveEvent(LuaScriptInterface* _interface);
 	~MoveEvent() override;
 
 	MoveEvent_t getEventType() const;
 	void setEventType(MoveEvent_t type);
 
 	bool configureEvent(xmlNodePtr p) override;
-	bool loadFunction(const std::string &functionName) override;
+	bool loadFunction(const std::string& functionName) override;
 
-	uint32_t fireStepEvent(Creature *creature, Item *item, const Position &fromPos, const Position &toPos);
-	uint32_t fireAddRemItem(Item *item, Item *tileItem, const Position &pos);
-	uint32_t fireEquip(Player *player, Item *item, slots_t slot, bool isRemoval);
+	uint32_t fireStepEvent(Creature* creature, Item* item, const Position& fromPos, const Position& toPos);
+	uint32_t fireAddRemItem(Item* item, Item* tileItem, const Position& pos);
+	uint32_t fireEquip(Player* player, Item* item, slots_t slot, bool isRemoval);
 
 	uint32_t getSlot() const
 	{
@@ -116,12 +116,12 @@ public:
 	}
 
 	// scripting
-	uint32_t executeStep(Creature *creature, Item *item, const Position &fromPos, const Position &toPos);
-	uint32_t executeEquip(Player *player, Item *item, slots_t slot);
-	uint32_t executeAddRemItem(Item *item, Item *tileItem, const Position &pos);
+	uint32_t executeStep(Creature* creature, Item* item, const Position& fromPos, const Position& toPos);
+	uint32_t executeEquip(Player* player, Item* item, slots_t slot);
+	uint32_t executeAddRemItem(Item* item, Item* tileItem, const Position& pos);
 	//
 
-	ReturnValue canPlayerWearEquip(Player *player, slots_t slot);
+	ReturnValue canPlayerWearEquip(Player* player, slots_t slot);
 
 	// onEquip information
 	int32_t getReqLevel() const
@@ -136,7 +136,7 @@ public:
 	{
 		return premium;
 	}
-	const std::string &getVocationString() const
+	const std::string& getVocationString() const
 	{
 		return vocationString;
 	}
@@ -144,7 +144,7 @@ public:
 	{
 		return wieldInfo;
 	}
-	const VocEquipMap &getVocEquipMap() const
+	const VocEquipMap& getVocEquipMap() const
 	{
 		return vocEquipMap;
 	}
@@ -161,9 +161,9 @@ protected:
 	static EquipFunction DeEquipItem;
 
 	MoveEvent_t m_eventType;
-	StepFunction *stepFunction;
-	MoveFunction *moveFunction;
-	EquipFunction *equipFunction;
+	StepFunction* stepFunction;
+	MoveFunction* moveFunction;
+	EquipFunction* equipFunction;
 	uint32_t slot;
 
 	// onEquip information

@@ -47,7 +47,7 @@ void BanManager::loadSettings()
 
 bool BanManager::clearTemporaryBans()
 {
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
 	query << "UPDATE `bans` SET `active` = 0 WHERE `expires` = 0";
 	return db->executeQuery(query.str());
@@ -56,9 +56,9 @@ bool BanManager::clearTemporaryBans()
 bool BanManager::isIpBanished(uint32_t clientip, uint32_t mask /*= 0xFFFFFFFF*/) const
 {
 	if (clientip != 0) {
-		Database *db = Database::instance();
+		Database* db = Database::instance();
 		DBQuery query;
-		DBResult *result;
+		DBResult* result;
 
 		uint32_t currentTime = std::time(nullptr);
 		query << "SELECT "
@@ -88,8 +88,8 @@ bool BanManager::isIpBanished(uint32_t clientip, uint32_t mask /*= 0xFFFFFFFF*/)
 
 bool BanManager::isNameLocked(std::string name) const
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
 	uint32_t _guid;
@@ -99,7 +99,9 @@ bool BanManager::isNameLocked(std::string name) const
 
 	query << "SELECT `id` FROM `bans` WHERE `value` = " << _guid
 	      << " AND `type` = " << BANTYPE_NAMELOCK << " AND `active` = 1";
-	if (!(result = db->storeQuery(query.str()))) return false;
+	if (!(result = db->storeQuery(query.str()))) {
+		return false;
+	}
 
 	db->freeResult(result);
 	return true;
@@ -107,30 +109,36 @@ bool BanManager::isNameLocked(std::string name) const
 
 bool BanManager::isBanished(uint32_t account) const
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
 	query << "SELECT `expires` FROM `bans` WHERE `value` = " << account
 	      << " AND `type` = " << BANTYPE_BANISHMENT << " AND `active` = 1";
-	if (!(result = db->storeQuery(query.str()))) return false;
+	if (!(result = db->storeQuery(query.str()))) {
+		return false;
+	}
 
 	uint64_t expires = result->getDataInt("expires");
 	db->freeResult(result);
-	if (expires == 0 || (uint64_t)time(nullptr) <= expires) return true;
+	if (expires == 0 || (uint64_t)time(nullptr) <= expires) {
+		return true;
+	}
 
 	return false;
 }
 
 bool BanManager::isDeleted(uint32_t account) const
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
 	query << "SELECT `id` FROM `bans` WHERE `value` = " << account
 	      << " AND `type` = " << BANTYPE_DELETION << " AND `active` = 1";
-	if (!(result = db->storeQuery(query.str()))) return false;
+	if (!(result = db->storeQuery(query.str()))) {
+		return false;
+	}
 
 	db->freeResult(result);
 	return true;
@@ -138,7 +146,9 @@ bool BanManager::isDeleted(uint32_t account) const
 
 bool BanManager::isIpDisabled(uint32_t clientip) const
 {
-	if (maxLoginTries == 0) return false;
+	if (maxLoginTries == 0) {
+		return false;
+	}
 
 	if (clientip != 0) {
 		banLock.lock();
@@ -161,7 +171,9 @@ bool BanManager::isIpDisabled(uint32_t clientip) const
 
 bool BanManager::acceptConnection(uint32_t clientip)
 {
-	if (clientip == 0) return false;
+	if (clientip == 0) {
+		return false;
+	}
 
 	banLock.lock();
 
@@ -224,17 +236,20 @@ void BanManager::addLoginAttempt(uint32_t clientip, bool isSuccess)
 
 void BanManager::addIpBanishment(uint32_t ip, uint32_t time, uint32_t adminId, std::string reason, std::string comment)
 {
-	if (ip == 0 || isIpBanished(ip)) return;
+	if (ip == 0 || isIpBanished(ip)) {
+		return;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBInsert stmt(db);
 	DBQuery query;
 
 	stmt.setQuery("INSERT INTO `bans` (`type`, `value`, `param`, `expires`, `added`, "
 	              "`admin_id`, `reason`, `comment`) VALUES ");
 
-	query << BANTYPE_IP_BANISHMENT << ", " << ip << ", 4294967295, " << time << ", " << std::time(nullptr)
-	      << ", " << adminId << ", \"" << reason << "\", " << db->escapeString(comment);
+	query << BANTYPE_IP_BANISHMENT << ", " << ip << ", 4294967295, " << time << ", "
+	      << std::time(nullptr) << ", " << adminId << ", \"" << reason << "\", "
+	      << db->escapeString(comment);
 	if (!stmt.addRow(query.str())) {
 		return;
 	}
@@ -247,9 +262,11 @@ void BanManager::addIpBanishment(uint32_t ip, uint32_t time, uint32_t adminId, s
 void BanManager::addNamelock(std::string name, uint32_t adminId, std::string reason, std::string comment)
 {
 	uint32_t _guid;
-	if (!IOPlayer::instance()->getGuidByName(_guid, name) || isNameLocked(name)) return;
+	if (!IOPlayer::instance()->getGuidByName(_guid, name) || isNameLocked(name)) {
+		return;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBInsert stmt(db);
 	DBQuery query;
 
@@ -270,9 +287,11 @@ void BanManager::addNamelock(std::string name, uint32_t adminId, std::string rea
 void BanManager::addBanishment(std::string name, uint32_t time, uint32_t adminId, std::string reason, std::string comment)
 {
 	uint32_t account = IOPlayer::instance()->getAccountIdByName(name);
-	if (!account || isBanished(account) || isDeleted(account)) return;
+	if (!account || isBanished(account) || isDeleted(account)) {
+		return;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBInsert stmt(db);
 	DBQuery query;
 
@@ -293,16 +312,18 @@ void BanManager::addBanishment(std::string name, uint32_t time, uint32_t adminId
 void BanManager::addDeletion(std::string name, uint32_t adminId, std::string reason, std::string comment)
 {
 	uint32_t account = IOPlayer::instance()->getAccountIdByName(name);
-	if (!account || isDeleted(account)) return;
+	if (!account || isDeleted(account)) {
+		return;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBInsert stmt(db);
 	DBQuery query;
 
 	stmt.setQuery("INSERT INTO `bans` (`type`, `value`, `expires`, `added`, `admin_id`, "
 	              "`reason`, `comment`) VALUES");
-	query << BANTYPE_DELETION << ", " << account << ", '-1', " << time(nullptr) << ", " << adminId
-	      << ", \"" << reason << "\", " << db->escapeString(comment);
+	query << BANTYPE_DELETION << ", " << account << ", '-1', " << time(nullptr) << ", "
+	      << adminId << ", \"" << reason << "\", " << db->escapeString(comment);
 	if (!stmt.addRow(query.str())) {
 		return;
 	}
@@ -315,16 +336,18 @@ void BanManager::addDeletion(std::string name, uint32_t adminId, std::string rea
 void BanManager::addNotation(std::string name, uint32_t adminId, std::string reason, std::string comment)
 {
 	uint32_t account = IOPlayer::instance()->getAccountIdByName(name);
-	if (!account) return;
+	if (!account) {
+		return;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBInsert stmt(db);
 	DBQuery query;
 
 	stmt.setQuery("INSERT INTO `bans` (`type`, `value`, `expires`, `added`, `admin_id`, "
 	              "`reason`, `comment`) VALUES");
-	query << BANTYPE_NOTATION << ", " << account << ", '-1', " << time(nullptr) << ", " << adminId
-	      << ", \"" << reason << "\", " << db->escapeString(comment);
+	query << BANTYPE_NOTATION << ", " << account << ", '-1', " << time(nullptr) << ", "
+	      << adminId << ", \"" << reason << "\", " << db->escapeString(comment);
 	if (!stmt.addRow(query.str())) {
 		return;
 	}
@@ -336,7 +359,7 @@ void BanManager::addNotation(std::string name, uint32_t adminId, std::string rea
 
 bool BanManager::removeIpBanishment(uint32_t ip)
 {
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
 	query << "UPDATE `bans` SET `active` = 0 WHERE `type` = " << BANTYPE_IP_BANISHMENT
 	      << " AND `value` = " << ip << " AND `active` = 1";
@@ -346,9 +369,11 @@ bool BanManager::removeIpBanishment(uint32_t ip)
 bool BanManager::removeNamelock(std::string name)
 {
 	uint32_t _guid;
-	if (!IOPlayer::instance()->getGuidByName(_guid, name)) return false;
+	if (!IOPlayer::instance()->getGuidByName(_guid, name)) {
+		return false;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
 	query << "UPDATE `bans` SET `active` = 0 WHERE `value` = " << _guid
 	      << " AND `type` = " << BANTYPE_NAMELOCK << " AND `active` = 1";
@@ -358,9 +383,11 @@ bool BanManager::removeNamelock(std::string name)
 bool BanManager::removeBanishment(std::string name)
 {
 	uint32_t account = IOPlayer::instance()->getAccountIdByName(name);
-	if (!account) return false;
+	if (!account) {
+		return false;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
 	query << "UPDATE `bans` SET `active` = 0 WHERE `value` = " << account
 	      << " AND `type` = " << BANTYPE_BANISHMENT << " AND `active` = 1";
@@ -370,9 +397,11 @@ bool BanManager::removeBanishment(std::string name)
 bool BanManager::removeDeletion(std::string name)
 {
 	uint32_t account = IOPlayer::instance()->getAccountIdByName(name);
-	if (!account) return false;
+	if (!account) {
+		return false;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
 	query << "UPDATE `bans` SET `active` = 0 WHERE `value` = " << account
 	      << " AND `type` = " << BANTYPE_DELETION << " AND `active` = 1";
@@ -382,9 +411,11 @@ bool BanManager::removeDeletion(std::string name)
 bool BanManager::removeNotations(std::string name)
 {
 	uint32_t account = IOPlayer::instance()->getAccountIdByName(name);
-	if (!account) return false;
+	if (!account) {
+		return false;
+	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
 	query << "UPDATE `bans` SET `active` = 0 WHERE `value` = " << account
 	      << " AND `type` = " << BANTYPE_NOTATION << " AND `active` = 1";
@@ -393,13 +424,15 @@ bool BanManager::removeNotations(std::string name)
 
 uint32_t BanManager::getNotationsCount(uint32_t account)
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
 	query << "SELECT COUNT(`id`) AS `count` FROM `bans` WHERE `value` = " << account
 	      << " AND `type` = " << BANTYPE_NOTATION << " AND `active` = 1";
-	if (!(result = db->storeQuery(query.str()))) return 0;
+	if (!(result = db->storeQuery(query.str()))) {
+		return 0;
+	}
 
 	const uint32_t count = result->getDataInt("count");
 	db->freeResult(result);
@@ -410,9 +443,9 @@ std::vector<Ban> BanManager::getBans(BanType_t type) const
 {
 	assert(type == BANTYPE_IP_BANISHMENT || type == BANTYPE_NAMELOCK || type == BANTYPE_BANISHMENT);
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
-	DBResult *result;
+	DBResult* result;
 
 	uint32_t currentTime = std::time(nullptr);
 	query << "SELECT "

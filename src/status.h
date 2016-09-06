@@ -34,7 +34,7 @@ public:
 	static uint32_t protocolStatusCount;
 #endif
 
-	ProtocolStatus(Connection *connection) : Protocol(connection)
+	ProtocolStatus(Connection* connection) : Protocol(connection)
 	{
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 		protocolStatusCount++;
@@ -48,7 +48,7 @@ public:
 #endif
 	}
 
-	void onRecvFirstMessage(NetworkMessage &msg) override;
+	void onRecvFirstMessage(NetworkMessage& msg) override;
 
 protected:
 	static std::map<uint32_t, int64_t> ipConnectMap;
@@ -62,7 +62,7 @@ class Status
 {
 public:
 	// procs
-	static Status *instance()
+	static Status* instance()
 	{
 		static Status status;
 		return &status;
@@ -73,7 +73,7 @@ public:
 	bool hasSlot() const;
 
 	std::string getStatusString() const;
-	void getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMessage &msg) const;
+	void getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMessage& msg) const;
 
 	uint32_t getPlayersOnline() const
 	{

@@ -44,7 +44,7 @@ public:
 	void stop();
 
 private:
-	void onAccept(Connection *connection, const boost::system::error_code &error);
+	void onAccept(Connection* connection, const boost::system::error_code& error);
 	void onStopServer();
 
 	void accept();
@@ -53,7 +53,7 @@ private:
 	void closeListenSocekt();
 
 	boost::asio::io_service m_io_service;
-	boost::asio::ip::tcp::acceptor *m_acceptor;
+	boost::asio::ip::tcp::acceptor* m_acceptor;
 
 	uint32_t m_listenErrors;
 

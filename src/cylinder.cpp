@@ -1,7 +1,5 @@
-#include "otpch.h"
 #include "cylinder.h"
-
-
+#include "otpch.h"
 
 
 int32_t Cylinder::__getIndexOfThing(const Thing* thing) const
@@ -24,7 +22,8 @@ uint32_t Cylinder::__getItemTypeCount(uint16_t itemId, int32_t subType, bool ite
 	return 0;
 }
 
-std::map<uint32_t, uint32_t>& Cylinder::__getAllItemTypeCount(std::map<uint32_t, uint32_t>& countMap, bool itemCount) const
+std::map<uint32_t, uint32_t>&
+Cylinder::__getAllItemTypeCount(std::map<uint32_t, uint32_t>& countMap, bool itemCount) const
 {
 	return countMap;
 }

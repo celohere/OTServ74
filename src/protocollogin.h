@@ -33,7 +33,7 @@ public:
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 	static uint32_t protocolLoginCount;
 #endif
-	ProtocolLogin(Connection *connection) : Protocol(connection)
+	ProtocolLogin(Connection* connection) : Protocol(connection)
 	{
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 		protocolLoginCount++;
@@ -46,12 +46,12 @@ public:
 #endif
 	}
 
-	void onRecvFirstMessage(NetworkMessage &msg) override;
+	void onRecvFirstMessage(NetworkMessage& msg) override;
 
 protected:
-	void disconnectClient(uint8_t error, const char *message);
+	void disconnectClient(uint8_t error, const char* message);
 
-	bool parseFirstPacket(NetworkMessage &msg);
+	bool parseFirstPacket(NetworkMessage& msg);
 
 #ifdef __DEBUG_NET_DETAIL__
 	virtual void deleteProtocolTask();

@@ -32,10 +32,10 @@ Scheduler::Scheduler()
 {
 	m_lastEventId = 0;
 	Scheduler::m_threadState = STATE_RUNNING;
-	boost::thread(boost::bind(&Scheduler::schedulerThread, (void *)nullptr));
+	boost::thread(boost::bind(&Scheduler::schedulerThread, (void*)nullptr));
 }
 
-void Scheduler::schedulerThread(void *p)
+void Scheduler::schedulerThread(void* p)
 {
 #if defined __EXCEPTION_TRACER__
 	ExceptionHandler schedulerExceptionHandler;
@@ -50,7 +50,7 @@ void Scheduler::schedulerThread(void *p)
 	boost::unique_lock<boost::mutex> eventLockUnique(getScheduler().m_eventLock, boost::defer_lock);
 
 	while (Scheduler::m_threadState != Scheduler::STATE_TERMINATED) {
-		SchedulerTask *task = nullptr;
+		SchedulerTask* task = nullptr;
 		bool runTask = false;
 		bool ret = true;
 
@@ -110,7 +110,7 @@ void Scheduler::schedulerThread(void *p)
 #endif
 }
 
-uint32_t Scheduler::addEvent(SchedulerTask *task)
+uint32_t Scheduler::addEvent(SchedulerTask* task)
 {
 	bool do_signal = false;
 	m_eventLock.lock();
@@ -155,7 +155,9 @@ uint32_t Scheduler::addEvent(SchedulerTask *task)
 
 bool Scheduler::stopEvent(uint32_t eventid)
 {
-	if (eventid == 0) return false;
+	if (eventid == 0) {
+		return false;
+	}
 
 #ifdef __DEBUG_SCHEDULER__
 	std::cout << "Scheduler: Stopping event " << eventid << std::endl;

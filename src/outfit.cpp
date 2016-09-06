@@ -43,7 +43,7 @@ OutfitList::~OutfitList()
 	m_list.clear();
 }
 
-void OutfitList::addOutfit(const Outfit &outfit)
+void OutfitList::addOutfit(const Outfit& outfit)
 {
 	OutfitListType::iterator it;
 	for (it = m_list.begin(); it != m_list.end(); ++it) {
@@ -52,13 +52,13 @@ void OutfitList::addOutfit(const Outfit &outfit)
 		}
 	}
 	// adding a new outfit
-	Outfit *new_outfit = new Outfit;
+	Outfit* new_outfit = new Outfit;
 	new_outfit->looktype = outfit.looktype;
 	new_outfit->premium = outfit.premium;
 	m_list.push_back(new_outfit);
 }
 
-bool OutfitList::remOutfit(const Outfit &outfit)
+bool OutfitList::remOutfit(const Outfit& outfit)
 {
 	OutfitListType::iterator it;
 	for (it = m_list.begin(); it != m_list.end(); ++it) {
@@ -111,7 +111,7 @@ Outfits::~Outfits()
 	m_list.clear();
 }
 
-bool Outfits::loadFromXml(const std::string &datadir)
+bool Outfits::loadFromXml(const std::string& datadir)
 {
 	std::string filename = datadir + "outfits.xml";
 
@@ -120,7 +120,7 @@ bool Outfits::loadFromXml(const std::string &datadir)
 		xmlNodePtr root, p;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"outfits") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"outfits") != 0) {
 			xmlFreeDoc(doc);
 			std::cout << "Warning: outfits.xml not found, using defaults." << std::endl;
 			return true;
@@ -131,13 +131,13 @@ bool Outfits::loadFromXml(const std::string &datadir)
 		while (p) {
 			std::string str;
 			int intVal;
-			if (xmlStrcmp(p->name, (const xmlChar *)"outfit") == 0) {
+			if (xmlStrcmp(p->name, (const xmlChar*)"outfit") == 0) {
 				if (readXMLInteger(p, "type", intVal)) {
 					if (intVal > 9 || intVal < 0) {
 						std::cout << "Warning: No valid outfit type "
 						          << intVal << std::endl;
 					} else {
-						OutfitList *list;
+						OutfitList* list;
 
 						if (m_list[intVal] != nullptr) {
 							list = m_list[intVal];
@@ -157,8 +157,9 @@ bool Outfits::loadFromXml(const std::string &datadir)
 							<< "Missing looktype on an outfit." << std::endl;
 						}
 
-						if (readXMLInteger(p, "premium", intVal))
+						if (readXMLInteger(p, "premium", intVal)) {
 							outfit.premium = (intVal != 0);
+						}
 
 
 						if (readXMLInteger(p, "enabled", intVal)) {
@@ -168,8 +169,8 @@ bool Outfits::loadFromXml(const std::string &datadir)
 						outfitNamesMap[outfit.looktype] = outfitName;
 
 						if (enabled) { // This way you can add names for
-						               // outfits without adding them to
-						               // default list
+							// outfits without adding them to
+							// default list
 							list->addOutfit(outfit);
 						}
 					}

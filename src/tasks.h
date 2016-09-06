@@ -47,10 +47,10 @@ protected:
 
 	boost::function<void(void)> m_f;
 
-	friend Task *createTask(boost::function<void(void)>);
+	friend Task* createTask(boost::function<void(void)>);
 };
 
-inline Task *createTask(boost::function<void(void)> f)
+inline Task* createTask(boost::function<void(void)> f)
 {
 	return new Task(f);
 }
@@ -68,17 +68,17 @@ public:
 	{
 	}
 
-	static Dispatcher &getDispatcher()
+	static Dispatcher& getDispatcher()
 	{
 		static Dispatcher dispatcher;
 		return dispatcher;
 	}
 
-	void addTask(Task *task, bool push_front = false);
+	void addTask(Task* task, bool push_front = false);
 	void stop();
 	void shutdown();
 
-	static void dispatcherThread(void *p);
+	static void dispatcherThread(void* p);
 
 	enum DispatcherState {
 		STATE_RUNNING,
@@ -93,7 +93,7 @@ protected:
 	boost::mutex m_taskLock;
 	boost::condition_variable m_taskSignal;
 
-	std::list<Task *> m_taskList;
+	std::list<Task*> m_taskList;
 	static DispatcherState m_threadState;
 };
 

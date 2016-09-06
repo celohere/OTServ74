@@ -17,7 +17,7 @@ public:
 	{
 	}
 
-	static IOAccount *instance()
+	static IOAccount* instance()
 	{
 		static IOAccount instance;
 		return &instance;
@@ -25,7 +25,7 @@ public:
 
 	Account loadAccount(uint32_t accno);
 	bool saveAccount(Account acc);
-	bool getPassword(uint32_t accno, const std::string &name, std::string &password);
+	bool getPassword(uint32_t accno, const std::string& name, std::string& password);
 };
 
 #endif

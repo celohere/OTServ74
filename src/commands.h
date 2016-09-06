@@ -37,66 +37,66 @@ public:
 	// Commands():game(NULL),loaded(false){};
 	Commands();
 
-	bool loadXml(const std::string &_datadir);
+	bool loadXml(const std::string& _datadir);
 	bool isLoaded()
 	{
 		return loaded;
 	}
 	bool reload();
 
-	bool exeCommand(Creature *creature, const std::string &cmd);
+	bool exeCommand(Creature* creature, const std::string& cmd);
 
 protected:
 	bool loaded;
 	std::string datadir;
 
 	// commands
-	bool placeNpc(Creature *creature, const std::string &cmd, const std::string &param);
-	bool placeMonster(Creature *creature, const std::string &cmd, const std::string &param);
-	bool placeSummon(Creature *creature, const std::string &cmd, const std::string &param);
-	bool broadcastMessage(Creature *creature, const std::string &cmd, const std::string &param);
-	bool banPlayer(Creature *creature, const std::string &cmd, const std::string &param);
-	bool teleportMasterPos(Creature *creature, const std::string &cmd, const std::string &param);
-	bool teleportHere(Creature *creature, const std::string &cmd, const std::string &param);
-	bool teleportToTown(Creature *creature, const std::string &cmd, const std::string &param);
-	bool teleportTo(Creature *creature, const std::string &cmd, const std::string &param);
-	bool createItemById(Creature *creature, const std::string &cmd, const std::string &param);
-	bool createItemByName(Creature *creature, const std::string &cmd, const std::string &param);
-	bool subtractMoney(Creature *creature, const std::string &cmd, const std::string &param);
-	bool reloadInfo(Creature *creature, const std::string &cmd, const std::string &param);
-	bool testCommand(Creature *creature, const std::string &cmd, const std::string &param);
-	bool getInfo(Creature *creature, const std::string &cmd, const std::string &param);
-	bool saveServer(Creature *creature, const std::string &cmd, const std::string &param);
-	bool closeServer(Creature *creature, const std::string &cmd, const std::string &param);
-	bool openServer(Creature *creature, const std::string &cmd, const std::string &param);
-	bool onlineList(Creature *creature, const std::string &cmd, const std::string &param);
-	bool teleportNTiles(Creature *creature, const std::string &cmd, const std::string &param);
-	bool kickPlayer(Creature *creature, const std::string &cmd, const std::string &param);
-	bool setHouseOwner(Creature *creature, const std::string &cmd, const std::string &param);
-	bool sellHouse(Creature *creature, const std::string &cmd, const std::string &param);
-	bool buyHouse(Creature *creature, const std::string &cmd, const std::string &param);
-	bool getHouse(Creature *creature, const std::string &cmd, const std::string &param);
+	bool placeNpc(Creature* creature, const std::string& cmd, const std::string& param);
+	bool placeMonster(Creature* creature, const std::string& cmd, const std::string& param);
+	bool placeSummon(Creature* creature, const std::string& cmd, const std::string& param);
+	bool broadcastMessage(Creature* creature, const std::string& cmd, const std::string& param);
+	bool banPlayer(Creature* creature, const std::string& cmd, const std::string& param);
+	bool teleportMasterPos(Creature* creature, const std::string& cmd, const std::string& param);
+	bool teleportHere(Creature* creature, const std::string& cmd, const std::string& param);
+	bool teleportToTown(Creature* creature, const std::string& cmd, const std::string& param);
+	bool teleportTo(Creature* creature, const std::string& cmd, const std::string& param);
+	bool createItemById(Creature* creature, const std::string& cmd, const std::string& param);
+	bool createItemByName(Creature* creature, const std::string& cmd, const std::string& param);
+	bool subtractMoney(Creature* creature, const std::string& cmd, const std::string& param);
+	bool reloadInfo(Creature* creature, const std::string& cmd, const std::string& param);
+	bool testCommand(Creature* creature, const std::string& cmd, const std::string& param);
+	bool getInfo(Creature* creature, const std::string& cmd, const std::string& param);
+	bool saveServer(Creature* creature, const std::string& cmd, const std::string& param);
+	bool closeServer(Creature* creature, const std::string& cmd, const std::string& param);
+	bool openServer(Creature* creature, const std::string& cmd, const std::string& param);
+	bool onlineList(Creature* creature, const std::string& cmd, const std::string& param);
+	bool teleportNTiles(Creature* creature, const std::string& cmd, const std::string& param);
+	bool kickPlayer(Creature* creature, const std::string& cmd, const std::string& param);
+	bool setHouseOwner(Creature* creature, const std::string& cmd, const std::string& param);
+	bool sellHouse(Creature* creature, const std::string& cmd, const std::string& param);
+	bool buyHouse(Creature* creature, const std::string& cmd, const std::string& param);
+	bool getHouse(Creature* creature, const std::string& cmd, const std::string& param);
 	// bool bansManager(Creature* creature, const std::string& cmd, const std::string& param);
-	bool serverInfo(Creature *creature, const std::string &cmd, const std::string &param);
-	bool forceRaid(Creature *creature, const std::string &cmd, const std::string &param);
-	bool whoIsOnline(Creature *creature, const std::string &cmd, const std::string &param);
-	bool goUp(Creature *creature, const std::string &cmd, const std::string &param);
-	bool goDown(Creature *creature, const std::string &cmd, const std::string &param);
-	bool playerKills(Creature *creature, const std::string &cmd, const std::string &param);
-	bool refreshMap(Creature *creature, const std::string &cmd, const std::string &param);
+	bool serverInfo(Creature* creature, const std::string& cmd, const std::string& param);
+	bool forceRaid(Creature* creature, const std::string& cmd, const std::string& param);
+	bool whoIsOnline(Creature* creature, const std::string& cmd, const std::string& param);
+	bool goUp(Creature* creature, const std::string& cmd, const std::string& param);
+	bool goDown(Creature* creature, const std::string& cmd, const std::string& param);
+	bool playerKills(Creature* creature, const std::string& cmd, const std::string& param);
+	bool refreshMap(Creature* creature, const std::string& cmd, const std::string& param);
 
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
-	bool serverDiag(Creature *creature, const std::string &cmd, const std::string &param);
+	bool serverDiag(Creature* creature, const std::string& cmd, const std::string& param);
 #endif
 
 	// table of commands
 	static s_defcommands defined_commands[];
 
-	typedef std::map<std::string, Command *> CommandMap;
+	typedef std::map<std::string, Command*> CommandMap;
 	CommandMap commandMap;
 };
 
-typedef bool (Commands::*CommandFunc)(Creature *, const std::string &, const std::string &);
+typedef bool (Commands::*CommandFunc)(Creature*, const std::string&, const std::string&);
 
 struct Command {
 	CommandFunc f;
@@ -105,7 +105,7 @@ struct Command {
 };
 
 struct s_defcommands {
-	const char *name;
+	const char* name;
 	CommandFunc f;
 };
 

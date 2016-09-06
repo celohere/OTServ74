@@ -53,7 +53,7 @@ class Logger
 {
 public:
 	~Logger();
-	static Logger *getInstance()
+	static Logger* getInstance()
 	{
 		static Logger instance;
 		return &instance;
@@ -62,10 +62,10 @@ public:
 	                std::string message, std::string func,
 	                int line, std::string file);
 	*/
-	void logMessage(const char *channel, eLogType type, int level, std::string message, const char *func);
+	void logMessage(const char* channel, eLogType type, int level, std::string message, const char* func);
 
 private:
-	FILE *m_file;
+	FILE* m_file;
 	Logger();
 };
 

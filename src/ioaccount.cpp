@@ -15,9 +15,9 @@ Account IOAccount::loadAccount(uint32_t accno)
 {
 	Account acc;
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
-	DBResult *result;
+	DBResult* result;
 
 	query << "SELECT `id`, `password`, `premend`, `warnings` FROM `accounts` WHERE `id` = " << accno;
 	if ((result = db->storeQuery(query.str()))) {
@@ -46,7 +46,7 @@ Account IOAccount::loadAccount(uint32_t accno)
 
 bool IOAccount::saveAccount(Account acc)
 {
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
 
 	if (acc.premEnd > 0 && acc.premEnd < std::time(nullptr)) {
@@ -58,11 +58,11 @@ bool IOAccount::saveAccount(Account acc)
 	return db->executeQuery(query.str());
 }
 
-bool IOAccount::getPassword(uint32_t accno, const std::string &name, std::string &password)
+bool IOAccount::getPassword(uint32_t accno, const std::string& name, std::string& password)
 {
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
-	DBResult *result;
+	DBResult* result;
 
 	query << "SELECT `accounts`.`password` AS `password` FROM `accounts`, `players` WHERE "
 	         "`accounts`.`id` = "

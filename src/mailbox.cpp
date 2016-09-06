@@ -42,9 +42,9 @@ Mailbox::~Mailbox()
 	//
 }
 
-ReturnValue Mailbox::__queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const
+ReturnValue Mailbox::__queryAdd(int32_t index, const Thing* thing, uint32_t count, uint32_t flags) const
 {
-	if (const Item *item = thing->getItem()) {
+	if (const Item* item = thing->getItem()) {
 		if (canSend(item)) {
 			return RET_NOERROR;
 		}
@@ -54,58 +54,58 @@ ReturnValue Mailbox::__queryAdd(int32_t index, const Thing *thing, uint32_t coun
 }
 
 ReturnValue
-Mailbox::__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const
+Mailbox::__queryMaxCount(int32_t index, const Thing* thing, uint32_t count, uint32_t& maxQueryCount, uint32_t flags) const
 {
 	maxQueryCount = std::max((uint32_t)1, count);
 	return RET_NOERROR;
 }
 
-ReturnValue Mailbox::__queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const
+ReturnValue Mailbox::__queryRemove(const Thing* thing, uint32_t count, uint32_t flags) const
 {
 	return RET_NOTPOSSIBLE;
 }
 
-Cylinder *Mailbox::__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags)
+Cylinder* Mailbox::__queryDestination(int32_t& index, const Thing* thing, Item** destItem, uint32_t& flags)
 {
 	return this;
 }
 
-void Mailbox::__addThing(Thing *thing)
+void Mailbox::__addThing(Thing* thing)
 {
 	return __addThing(0, thing);
 }
 
-void Mailbox::__addThing(int32_t index, Thing *thing)
+void Mailbox::__addThing(int32_t index, Thing* thing)
 {
-	if (Item *item = thing->getItem()) {
+	if (Item* item = thing->getItem()) {
 		if (canSend(item)) {
 			sendItem(item);
 		}
 	}
 }
 
-void Mailbox::__updateThing(Thing *thing, uint16_t itemId, uint32_t count)
+void Mailbox::__updateThing(Thing* thing, uint16_t itemId, uint32_t count)
 {
 	//
 }
 
-void Mailbox::__replaceThing(uint32_t index, Thing *thing)
+void Mailbox::__replaceThing(uint32_t index, Thing* thing)
 {
 	//
 }
 
-void Mailbox::__removeThing(Thing *thing, uint32_t count)
+void Mailbox::__removeThing(Thing* thing, uint32_t count)
 {
 	//
 }
 
-void Mailbox::postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link /*= LINK_OWNER*/)
+void Mailbox::postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t link /*= LINK_OWNER*/)
 {
 	getParent()->postAddNotification(thing, oldParent, index, LINK_PARENT);
 }
 
-void Mailbox::postRemoveNotification(Thing *thing,
-                                     const Cylinder *newParent,
+void Mailbox::postRemoveNotification(Thing* thing,
+                                     const Cylinder* newParent,
                                      int32_t index,
                                      bool isCompleteRemoval,
                                      cylinderlink_t link /*= LINK_OWNER*/)
@@ -113,7 +113,7 @@ void Mailbox::postRemoveNotification(Thing *thing,
 	getParent()->postRemoveNotification(thing, newParent, index, isCompleteRemoval, LINK_PARENT);
 }
 
-bool Mailbox::sendItem(Item *item)
+bool Mailbox::sendItem(Item* item)
 {
 	std::string receiver = std::string("");
 	uint32_t dp = 0;
@@ -132,8 +132,8 @@ bool Mailbox::sendItem(Item *item)
 		return false;
 	}
 
-	if (Player *player = g_game.getPlayerByName(receiver)) {
-		Depot *depot = player->getDepot(dp, true);
+	if (Player* player = g_game.getPlayerByName(receiver)) {
+		Depot* depot = player->getDepot(dp, true);
 
 		if (depot) {
 			if (g_game.internalMoveItem(item->getParent(), depot, INDEX_WHEREEVER, item,
@@ -144,7 +144,7 @@ bool Mailbox::sendItem(Item *item)
 			return true;
 		}
 	} else if (IOPlayer::instance()->playerExists(receiver)) {
-		Player *player = new Player(receiver, nullptr);
+		Player* player = new Player(receiver, nullptr);
 
 		if (!IOPlayer::instance()->loadPlayer(player, receiver)) {
 #ifdef __DEBUG_MAILBOX__
@@ -165,7 +165,7 @@ bool Mailbox::sendItem(Item *item)
 		}
 #endif
 
-		Depot *depot = player->getDepot(dp, true);
+		Depot* depot = player->getDepot(dp, true);
 		if (depot) {
 			if (g_game.internalMoveItem(item->getParent(), depot, INDEX_WHEREEVER, item,
 			                            item->getItemCount(), nullptr, FLAG_NOLIMIT) == RET_NOERROR) {
@@ -184,7 +184,7 @@ bool Mailbox::sendItem(Item *item)
 	return false;
 }
 
-bool Mailbox::getReceiver(Item *item, std::string &name, uint32_t &dp)
+bool Mailbox::getReceiver(Item* item, std::string& name, uint32_t& dp)
 {
 	if (!item) {
 		return false;
@@ -192,7 +192,7 @@ bool Mailbox::getReceiver(Item *item, std::string &name, uint32_t &dp)
 
 	if (item->getID() ==
 	    ITEM_PARCEL) { /**We need to get the text from the label incase its a parcel**/
-		Container *parcel = item->getContainer();
+		Container* parcel = item->getContainer();
 
 		for (ItemList::const_iterator cit = parcel->getItems(); cit != parcel->getEnd(); cit++) {
 			if ((*cit)->getID() == ITEM_LABEL) {
@@ -232,7 +232,7 @@ bool Mailbox::getReceiver(Item *item, std::string &name, uint32_t &dp)
 		++curLine;
 	}
 
-	Town *town = Towns::getInstance().getTown(strTown);
+	Town* town = Towns::getInstance().getTown(strTown);
 	if (town && town->getTownID() != g_config.getNumber(ConfigManager::ROOK_TEMPLE_ID)) {
 		dp = town->getTownID();
 	} else {
@@ -242,7 +242,7 @@ bool Mailbox::getReceiver(Item *item, std::string &name, uint32_t &dp)
 	return true;
 }
 
-bool Mailbox::canSend(const Item *item) const
+bool Mailbox::canSend(const Item* item) const
 {
 	if (item->getID() == ITEM_PARCEL || item->getID() == ITEM_LETTER) {
 		return true;

@@ -22,7 +22,7 @@
 #include "position.h"
 #include <iomanip>
 
-std::ostream &operator<<(std::ostream &os, const Position &pos)
+std::ostream& operator<<(std::ostream& os, const Position& pos)
 {
 	os << "( " << std::setw(5) << std::setfill('0') << pos.x;
 	os << " / " << std::setw(5) << std::setfill('0') << pos.y;
@@ -32,7 +32,7 @@ std::ostream &operator<<(std::ostream &os, const Position &pos)
 	return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const Direction &dir)
+std::ostream& operator<<(std::ostream& os, const Direction& dir)
 {
 	switch (dir) {
 	case NORTH:

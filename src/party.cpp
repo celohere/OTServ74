@@ -24,7 +24,7 @@
 
 #include <sstream>
 
-Party::Party(Player *_leader)
+Party::Party(Player* _leader)
 {
 	if (_leader) {
 		setLeader(_leader);
@@ -57,7 +57,7 @@ void Party::disband()
 	delete this;
 }
 
-bool Party::invitePlayer(Player *player)
+bool Party::invitePlayer(Player* player)
 {
 	if (!player || player->isRemoved()) {
 		return false;
@@ -85,7 +85,7 @@ bool Party::invitePlayer(Player *player)
 	return true;
 }
 
-bool Party::joinParty(Player *player)
+bool Party::joinParty(Player* player)
 {
 	if (!player || player->isRemoved()) {
 		return false;
@@ -112,7 +112,7 @@ bool Party::joinParty(Player *player)
 	return true;
 }
 
-bool Party::removeInvite(Player *player)
+bool Party::removeInvite(Player* player)
 {
 	if (!player || player->isRemoved() || !isPlayerInvited(player)) {
 		return false;
@@ -134,7 +134,7 @@ bool Party::removeInvite(Player *player)
 	return true;
 }
 
-bool Party::revokeInvitation(Player *player)
+bool Party::revokeInvitation(Player* player)
 {
 	std::stringstream ss;
 	ss << getLeader()->getName() << " has revoked "
@@ -149,7 +149,7 @@ bool Party::revokeInvitation(Player *player)
 	return true;
 }
 
-bool Party::passPartyLeadership(Player *player)
+bool Party::passPartyLeadership(Player* player)
 {
 	if (!player || getLeader() == player || !isPlayerMember(player)) {
 		return false;
@@ -165,7 +165,7 @@ bool Party::passPartyLeadership(Player *player)
 	ss << player->getName() << " is now the leader of the party.";
 	broadcastPartyMessage(MSG_INFO_DESCR, ss.str(), true);
 
-	Player *oldLeader = getLeader();
+	Player* oldLeader = getLeader();
 	setLeader(player);
 
 	memberList.insert(memberList.begin(), oldLeader);
@@ -178,7 +178,7 @@ bool Party::passPartyLeadership(Player *player)
 	return true;
 }
 
-bool Party::leaveParty(Player *player)
+bool Party::leaveParty(Player* player)
 {
 	if (!player) {
 		return false;
@@ -224,7 +224,7 @@ bool Party::leaveParty(Player *player)
 	return true;
 }
 
-bool Party::isPlayerMember(const Player *player) const
+bool Party::isPlayerMember(const Player* player) const
 {
 	PlayerVector::const_iterator it = std::find(memberList.begin(), memberList.end(), player);
 	if (it != memberList.end()) {
@@ -234,7 +234,7 @@ bool Party::isPlayerMember(const Player *player) const
 	return false;
 }
 
-bool Party::isPlayerInvited(const Player *player) const
+bool Party::isPlayerInvited(const Player* player) const
 {
 	PlayerVector::const_iterator it = std::find(inviteList.begin(), inviteList.end(), player);
 	if (it != inviteList.end()) {
@@ -244,7 +244,7 @@ bool Party::isPlayerInvited(const Player *player) const
 	return false;
 }
 
-void Party::updatePartyIcons(Player *player, PartyShields_t shield)
+void Party::updatePartyIcons(Player* player, PartyShields_t shield)
 {
 	if (!memberList.empty()) {
 		for (PlayerVector::iterator it = memberList.begin(); it != memberList.end(); ++it) {
@@ -268,7 +268,7 @@ void Party::updatePartyIcons(Player *player, PartyShields_t shield)
 	player->sendPlayerPartyIcons(player);
 }
 
-void Party::updateInvitationIcons(Player *player, PartyShields_t shield)
+void Party::updateInvitationIcons(Player* player, PartyShields_t shield)
 {
 	if (!inviteList.empty()) {
 		for (PlayerVector::iterator it = inviteList.begin(); it != inviteList.end(); ++it) {
@@ -282,7 +282,7 @@ void Party::updateInvitationIcons(Player *player, PartyShields_t shield)
 	}
 }
 
-void Party::broadcastPartyMessage(MessageClasses msgClass, const std::string &msg, bool sendToInvitations /*= false*/)
+void Party::broadcastPartyMessage(MessageClasses msgClass, const std::string& msg, bool sendToInvitations /*= false*/)
 {
 	PlayerVector::iterator it;
 	if (!memberList.empty()) {

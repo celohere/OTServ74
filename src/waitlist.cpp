@@ -36,7 +36,7 @@ WaitingList::~WaitingList()
 	waitList.clear();
 }
 
-WaitListIterator WaitingList::findClient(const Player *player, uint32_t &slot)
+WaitListIterator WaitingList::findClient(const Player* player, uint32_t& slot)
 {
 	slot = 1;
 	for (WaitListIterator it = waitList.begin(); it != waitList.end(); ++it) {
@@ -72,7 +72,7 @@ int32_t WaitingList::getTimeOut(int32_t slot)
 	return getTime(slot) + 15;
 }
 
-bool WaitingList::clientLogin(const Player *player)
+bool WaitingList::clientLogin(const Player* player)
 {
 	if (player->hasFlag(PlayerFlag_CanAlwaysLogin)) {
 		return true;
@@ -104,7 +104,7 @@ bool WaitingList::clientLogin(const Player *player)
 		}
 	}
 
-	Wait *wait = new Wait();
+	Wait* wait = new Wait();
 
 	if (player->isPremium()) {
 		slot = 1;
@@ -135,7 +135,7 @@ bool WaitingList::clientLogin(const Player *player)
 	return false;
 }
 
-int32_t WaitingList::getClientSlot(const Player *player)
+int32_t WaitingList::getClientSlot(const Player* player)
 {
 	uint32_t slot;
 	WaitListIterator it = findClient(player, slot);

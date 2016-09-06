@@ -34,26 +34,26 @@
 uint32_t Connection::connectionCount = 0;
 #endif
 
-Connection *ConnectionManager::createConnection(boost::asio::io_service &io_service)
+Connection* ConnectionManager::createConnection(boost::asio::io_service& io_service)
 {
 #ifdef __DEBUG_NET_DETAIL__
 	std::cout << "Create new Connection" << std::endl;
 #endif
 
 	boost::recursive_mutex::scoped_lock lockClass(m_connectionManagerLock);
-	Connection *connection = new Connection(io_service);
+	Connection* connection = new Connection(io_service);
 	m_connections.push_back(connection);
 	return connection;
 }
 
-void ConnectionManager::releaseConnection(Connection *connection)
+void ConnectionManager::releaseConnection(Connection* connection)
 {
 #ifdef __DEBUG_NET_DETAIL__
 	std::cout << "Releasing connection" << std::endl;
 #endif
 
 	boost::recursive_mutex::scoped_lock lockClass(m_connectionManagerLock);
-	std::list<Connection *>::iterator it = std::find(m_connections.begin(), m_connections.end(), connection);
+	std::list<Connection*>::iterator it = std::find(m_connections.begin(), m_connections.end(), connection);
 
 	if (it != m_connections.end()) {
 		m_connections.erase(it);
@@ -68,7 +68,7 @@ void ConnectionManager::closeAll()
 	std::cout << "Closing all connections" << std::endl;
 #endif
 	boost::recursive_mutex::scoped_lock lockClass(m_connectionManagerLock);
-	std::list<Connection *>::iterator it = m_connections.begin();
+	std::list<Connection*>::iterator it = m_connections.begin();
 	while (it != m_connections.end()) {
 		boost::system::error_code error;
 		(*it)->m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
@@ -89,7 +89,9 @@ void Connection::closeConnection()
 #endif
 
 	boost::recursive_mutex::scoped_lock lockClass(m_connectionLock);
-	if (m_closeState != CLOSE_STATE_NONE) return;
+	if (m_closeState != CLOSE_STATE_NONE) {
+		return;
+	}
 
 	m_closeState = CLOSE_STATE_REQUESTED;
 
@@ -197,7 +199,7 @@ void Connection::acceptConnection()
 	                        boost::bind(&Connection::parseHeader, this, boost::asio::placeholders::error));
 }
 
-void Connection::parseHeader(const boost::system::error_code &error)
+void Connection::parseHeader(const boost::system::error_code& error)
 {
 	m_connectionLock.lock();
 	m_pendingRead--;
@@ -222,7 +224,7 @@ void Connection::parseHeader(const boost::system::error_code &error)
 	m_connectionLock.unlock();
 }
 
-void Connection::parsePacket(const boost::system::error_code &error)
+void Connection::parsePacket(const boost::system::error_code& error)
 {
 	m_connectionLock.lock();
 	m_pendingRead--;
@@ -272,7 +274,7 @@ void Connection::parsePacket(const boost::system::error_code &error)
 	m_connectionLock.unlock();
 }
 
-void Connection::handleReadError(const boost::system::error_code &error)
+void Connection::handleReadError(const boost::system::error_code& error)
 {
 #ifdef __DEBUG_NET_DETAIL__
 	PRINT_ASIO_ERROR("Reading - detail");
@@ -320,7 +322,7 @@ bool Connection::send(OutputMessage_ptr msg)
 #endif
 
 		TRACK_MESSAGE(msg);
-		OutputMessagePool *outputPool = OutputMessagePool::getInstance();
+		OutputMessagePool* outputPool = OutputMessagePool::getInstance();
 		outputPool->addToAutoSend(msg);
 	}
 	m_connectionLock.unlock();
@@ -350,7 +352,7 @@ uint32_t Connection::getIP() const
 	}
 }
 
-void Connection::onWriteOperation(OutputMessage_ptr msg, const boost::system::error_code &error)
+void Connection::onWriteOperation(OutputMessage_ptr msg, const boost::system::error_code& error)
 {
 #ifdef __DEBUG_NET_DETAIL__
 	std::cout << "onWriteOperation" << std::endl;
@@ -376,7 +378,7 @@ void Connection::onWriteOperation(OutputMessage_ptr msg, const boost::system::er
 	m_connectionLock.unlock();
 }
 
-void Connection::handleWriteError(const boost::system::error_code &error)
+void Connection::handleWriteError(const boost::system::error_code& error)
 {
 #ifdef __DEBUG_NET_DETAIL__
 	PRINT_ASIO_ERROR("Writing - detail");

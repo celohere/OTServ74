@@ -129,7 +129,7 @@ bool DatabaseMySQL::commit()
 	return true;
 }
 
-bool DatabaseMySQL::executeQuery(const std::string &query)
+bool DatabaseMySQL::executeQuery(const std::string& query)
 {
 	if (!m_connected) return false;
 
@@ -154,14 +154,14 @@ bool DatabaseMySQL::executeQuery(const std::string &query)
 
 	// we should call that every time as someone would call executeQuery('SELECT...')
 	// as it is described in MySQL manual: "it doesn't hurt" :P
-	MYSQL_RES *m_res = mysql_store_result(&m_handle);
+	MYSQL_RES* m_res = mysql_store_result(&m_handle);
 
 	if (m_res) mysql_free_result(m_res);
 
 	return state;
 }
 
-DBResult *DatabaseMySQL::storeQuery(const std::string &query)
+DBResult* DatabaseMySQL::storeQuery(const std::string& query)
 {
 	if (!m_connected) return NULL;
 
@@ -182,7 +182,7 @@ DBResult *DatabaseMySQL::storeQuery(const std::string &query)
 
 	// we should call that every time as someone would call executeQuery('SELECT...')
 	// as it is described in MySQL manual: "it doesn't hurt" :P
-	MYSQL_RES *m_res = mysql_store_result(&m_handle);
+	MYSQL_RES* m_res = mysql_store_result(&m_handle);
 
 	// error occured
 	if (!m_res) {
@@ -198,7 +198,7 @@ DBResult *DatabaseMySQL::storeQuery(const std::string &query)
 	}
 
 	// retriving results of query
-	DBResult *res = new MySQLResult(m_res);
+	DBResult* res = new MySQLResult(m_res);
 	return verifyResult(res);
 }
 
@@ -207,18 +207,18 @@ uint64_t DatabaseMySQL::getLastInsertedRowID()
 	return (uint64_t)mysql_insert_id(&m_handle);
 }
 
-std::string DatabaseMySQL::escapeString(const std::string &s)
+std::string DatabaseMySQL::escapeString(const std::string& s)
 {
 	return escapeBlob(s.c_str(), s.length());
 }
 
-std::string DatabaseMySQL::escapeBlob(const char *s, uint32_t length)
+std::string DatabaseMySQL::escapeBlob(const char* s, uint32_t length)
 {
 	// remember about quoiting even an empty string!
 	if (!s) return std::string("''");
 
 	// the worst case is 2n + 1
-	char *output = new char[length * 2 + 1];
+	char* output = new char[length * 2 + 1];
 
 	// quotes escaped string and frees temporary buffer
 	mysql_real_escape_string(&m_handle, output, s, length);
@@ -229,14 +229,14 @@ std::string DatabaseMySQL::escapeBlob(const char *s, uint32_t length)
 	return r;
 }
 
-void DatabaseMySQL::freeResult(DBResult *res)
+void DatabaseMySQL::freeResult(DBResult* res)
 {
-	delete (MySQLResult *)res;
+	delete (MySQLResult*)res;
 }
 
 /** MySQLResult definitions */
 
-int32_t MySQLResult::getDataInt(const std::string &s)
+int32_t MySQLResult::getDataInt(const std::string& s)
 {
 	listNames_t::iterator it = m_listNames.find(s);
 	if (it != m_listNames.end()) {
@@ -251,7 +251,7 @@ int32_t MySQLResult::getDataInt(const std::string &s)
 	return 0; // Failed
 }
 
-int64_t MySQLResult::getDataLong(const std::string &s)
+int64_t MySQLResult::getDataLong(const std::string& s)
 {
 	listNames_t::iterator it = m_listNames.find(s);
 	if (it != m_listNames.end()) {
@@ -266,7 +266,7 @@ int64_t MySQLResult::getDataLong(const std::string &s)
 	return 0; // Failed
 }
 
-std::string MySQLResult::getDataString(const std::string &s)
+std::string MySQLResult::getDataString(const std::string& s)
 {
 	listNames_t::iterator it = m_listNames.find(s);
 	if (it != m_listNames.end()) {
@@ -280,7 +280,7 @@ std::string MySQLResult::getDataString(const std::string &s)
 	return std::string(""); // Failed
 }
 
-const char *MySQLResult::getDataStream(const std::string &s, unsigned long &size)
+const char* MySQLResult::getDataStream(const std::string& s, unsigned long& size)
 {
 	listNames_t::iterator it = m_listNames.find(s);
 	if (it != m_listNames.end()) {
@@ -304,12 +304,12 @@ bool MySQLResult::next()
 	return m_row != NULL;
 }
 
-MySQLResult::MySQLResult(MYSQL_RES *res)
+MySQLResult::MySQLResult(MYSQL_RES* res)
 {
 	m_handle = res;
 	m_listNames.clear();
 
-	MYSQL_FIELD *field;
+	MYSQL_FIELD* field;
 	int32_t i = 0;
 	while ((field = mysql_fetch_field(m_handle))) {
 		m_listNames[field->name] = i;

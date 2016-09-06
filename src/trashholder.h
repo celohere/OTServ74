@@ -32,38 +32,36 @@ public:
 	TrashHolder(uint16_t _type, MagicEffectClasses _effect = NM_ME_NONE);
 	~TrashHolder() override;
 
-	TrashHolder *getTrashHolder() override
+	TrashHolder* getTrashHolder() override
 	{
 		return this;
 	}
-	const TrashHolder *getTrashHolder() const override
+	const TrashHolder* getTrashHolder() const override
 	{
 		return this;
 	}
 
 	// cylinder implementations
-	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue __queryAdd(int32_t index, const Thing* thing, uint32_t count, uint32_t flags) const override;
 	ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
-	ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const override;
-	Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
+	__queryMaxCount(int32_t index, const Thing* thing, uint32_t count, uint32_t& maxQueryCount, uint32_t flags) const override;
+	ReturnValue __queryRemove(const Thing* thing, uint32_t count, uint32_t flags) const override;
+	Cylinder* __queryDestination(int32_t& index, const Thing* thing, Item** destItem, uint32_t& flags) override;
 
-	void __addThing(Thing *thing) override;
-	void __addThing(int32_t index, Thing *thing) override;
+	void __addThing(Thing* thing) override;
+	void __addThing(int32_t index, Thing* thing) override;
 
-	void __updateThing(Thing *thing, uint16_t itemId, uint32_t count) override;
-	void __replaceThing(uint32_t index, Thing *thing) override;
+	void __updateThing(Thing* thing, uint16_t itemId, uint32_t count) override;
+	void __replaceThing(uint32_t index, Thing* thing) override;
 
-	void __removeThing(Thing *thing, uint32_t count) override;
+	void __removeThing(Thing* thing, uint32_t count) override;
 
-	void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
-	void postRemoveNotification(Thing *thing,
-	                                    const Cylinder *newParent,
-	                                    int32_t index,
-	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER) override;
+	void postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing* thing,
+	                            const Cylinder* newParent,
+	                            int32_t index,
+	                            bool isCompleteRemoval,
+	                            cylinderlink_t link = LINK_OWNER) override;
 
 private:
 	MagicEffectClasses effect;

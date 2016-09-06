@@ -35,7 +35,7 @@ uint32_t Items::dwMajorVersion = 0;
 uint32_t Items::dwMinorVersion = 0;
 uint32_t Items::dwBuildNumber = 0;
 
-extern Spells *g_spells;
+extern Spells* g_spells;
 
 ItemType::ItemType()
 {
@@ -193,7 +193,7 @@ int Items::loadFromOtb(std::string file)
 			VERSIONINFO vi;
 			if (!props.GET_UINT32(vi.dwMajorVersion) ||
 			    !props.GET_UINT32(vi.dwMinorVersion) || !props.GET_UINT32(vi.dwBuildNumber) ||
-			    !props.GET_RAWSTRING((char *)&vi.CSDVersion, sizeof(vi.CSDVersion))) {
+			    !props.GET_RAWSTRING((char*)&vi.CSDVersion, sizeof(vi.CSDVersion))) {
 				return ERROR_INVALID_FORMAT;
 			}
 
@@ -225,7 +225,7 @@ int Items::loadFromOtb(std::string file)
 		}
 
 		flags_t flags;
-		ItemType *iType = new ItemType();
+		ItemType* iType = new ItemType();
 		iType->group = (itemgroup_t)type;
 
 		switch (type) {
@@ -295,37 +295,53 @@ int Items::loadFromOtb(std::string file)
 			}
 			switch (attrib) {
 			case ITEM_ATTR_SERVERID: {
-				if (datalen != sizeof(uint16_t)) return ERROR_INVALID_FORMAT;
+				if (datalen != sizeof(uint16_t)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				uint16_t serverid;
-				if (!props.GET_UINT16(serverid)) return ERROR_INVALID_FORMAT;
+				if (!props.GET_UINT16(serverid)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
-				if (serverid > 20000) return ERROR_INVALID_FORMAT;
+				if (serverid > 20000) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				iType->id = serverid;
 				break;
 			}
 			case ITEM_ATTR_CLIENTID: {
-				if (datalen != sizeof(uint16_t)) return ERROR_INVALID_FORMAT;
+				if (datalen != sizeof(uint16_t)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				uint16_t clientid;
-				if (!props.GET_UINT16(clientid)) return ERROR_INVALID_FORMAT;
+				if (!props.GET_UINT16(clientid)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				iType->clientId = clientid;
 				break;
 			}
 			case ITEM_ATTR_SPEED: {
-				if (datalen != sizeof(uint16_t)) return ERROR_INVALID_FORMAT;
+				if (datalen != sizeof(uint16_t)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				uint16_t speed;
-				if (!props.GET_UINT16(speed)) return ERROR_INVALID_FORMAT;
+				if (!props.GET_UINT16(speed)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				iType->speed = speed;
 
 				break;
 			}
 			case ITEM_ATTR_LIGHT2: {
-				if (datalen != sizeof(lightBlock2)) return ERROR_INVALID_FORMAT;
+				if (datalen != sizeof(lightBlock2)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				lightBlock2 lb2;
 				if (!props.GET_UINT16(lb2.lightLevel) || !props.GET_UINT16(lb2.lightColor)) {
@@ -337,17 +353,23 @@ int Items::loadFromOtb(std::string file)
 				break;
 			}
 			case ITEM_ATTR_TOPORDER: {
-				if (datalen != sizeof(uint8_t)) return ERROR_INVALID_FORMAT;
+				if (datalen != sizeof(uint8_t)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				uint8_t v;
-				if (!props.GET_UINT8(v)) return ERROR_INVALID_FORMAT;
+				if (!props.GET_UINT8(v)) {
+					return ERROR_INVALID_FORMAT;
+				}
 
 				iType->alwaysOnTopOrder = v;
 				break;
 			}
 			default:
 				// skip unknown attributes
-				if (!props.SKIP_N(datalen)) return ERROR_INVALID_FORMAT;
+				if (!props.SKIP_N(datalen)) {
+					return ERROR_INVALID_FORMAT;
+				}
 				break;
 			}
 		}
@@ -362,7 +384,7 @@ int Items::loadFromOtb(std::string file)
 	return ERROR_NONE;
 }
 
-bool Items::loadFromXml(const std::string &datadir)
+bool Items::loadFromXml(const std::string& datadir)
 {
 	m_datadir = datadir;
 	std::string filename = m_datadir + "/items/items.xml";
@@ -375,26 +397,26 @@ bool Items::loadFromXml(const std::string &datadir)
 	if (doc) {
 		xmlNodePtr root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"items") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"items") != 0) {
 			xmlFreeDoc(doc);
 			return false;
 		}
 
 		xmlNodePtr itemNode = root->children;
 		while (itemNode) {
-			if (xmlStrcmp(itemNode->name, (const xmlChar *)"item") == 0) {
+			if (xmlStrcmp(itemNode->name, (const xmlChar*)"item") == 0) {
 				if (readXMLInteger(itemNode, "id", intValue)) {
 					id = intValue;
 
 					if (id > 20000 && id < 20100) {
 						id = id - 20000;
 
-						ItemType *iType = new ItemType();
+						ItemType* iType = new ItemType();
 						iType->id = id;
 						items.addElement(iType, iType->id);
 					}
 
-					ItemType &it = Item::items.getItemType(id);
+					ItemType& it = Item::items.getItemType(id);
 
 					if (readXMLString(itemNode, "name", strValue)) {
 						it.name = strValue;
@@ -1076,7 +1098,7 @@ bool Items::loadFromXml(const std::string &datadir)
 								it.group = ITEM_GROUP_MAGICFIELD;
 								it.type = ITEM_TYPE_MAGICFIELD;
 								CombatType_t combatType = COMBAT_NONE;
-								ConditionDamage *conditionDamage = nullptr;
+								ConditionDamage* conditionDamage = nullptr;
 
 								if (readXMLString(itemAttributesNode,
 								                  "value", strValue)) {
@@ -1102,11 +1124,11 @@ bool Items::loadFromXml(const std::string &datadir)
 									// if(asLowerCaseString(strValue)
 									// == "physical"){
 									//	damageCondition =
-									//new
-									//ConditionDamage(CONDITIONID_COMBAT,
-									//CONDITION_PHYSICAL);
+									// new
+									// ConditionDamage(CONDITIONID_COMBAT,
+									// CONDITION_PHYSICAL);
 									//	combatType =
-									//COMBAT_PHYSICALDAMAGE;
+									// COMBAT_PHYSICALDAMAGE;
 									//}
 									else {
 										std::cout
@@ -1238,27 +1260,29 @@ bool Items::loadFromXml(const std::string &datadir)
 								if (readXMLInteger(itemAttributesNode,
 								                   "value", intValue)) {
 									it.maleSleeperID = intValue;
-									ItemType &other = getItemType(intValue);
+									ItemType& other = getItemType(intValue);
 									if (other.id != 0 &&
 									    other.noSleeperID == 0) {
 										other.noSleeperID =
 										it.id;
 									}
-									if (it.femaleSleeperID == 0)
+									if (it.femaleSleeperID == 0) {
 										it.femaleSleeperID = intValue;
+									}
 								}
 							} else if (asLowerCaseString(strValue) == "femalesleeper") {
 								if (readXMLInteger(itemAttributesNode,
 								                   "value", intValue)) {
 									it.femaleSleeperID = intValue;
-									ItemType &other = getItemType(intValue);
+									ItemType& other = getItemType(intValue);
 									if (other.id != 0 &&
 									    other.noSleeperID == 0) {
 										other.noSleeperID =
 										it.id;
 									}
-									if (it.maleSleeperID == 0)
+									if (it.maleSleeperID == 0) {
 										it.maleSleeperID = intValue;
+									}
 								}
 							}
 							/*
@@ -1318,7 +1342,7 @@ bool Items::loadFromXml(const std::string &datadir)
 
 	// Lets do some checks..
 	for (uint32_t i = 0; i < Item::items.size(); ++i) {
-		const ItemType *it = Item::items.getElement(i);
+		const ItemType* it = Item::items.getElement(i);
 
 		if (!it) {
 			continue;
@@ -1369,9 +1393,9 @@ bool Items::loadFromXml(const std::string &datadir)
 	return true;
 }
 
-ItemType &Items::getItemType(int32_t id)
+ItemType& Items::getItemType(int32_t id)
 {
-	ItemType *iType = items.getElement(id);
+	ItemType* iType = items.getElement(id);
 	if (iType) {
 		return *iType;
 	} else {
@@ -1380,9 +1404,9 @@ ItemType &Items::getItemType(int32_t id)
 	}
 }
 
-const ItemType &Items::getItemType(int32_t id) const
+const ItemType& Items::getItemType(int32_t id) const
 {
-	ItemType *iType = items.getElement(id);
+	ItemType* iType = items.getElement(id);
 	if (iType) {
 		return *iType;
 	} else {
@@ -1391,10 +1415,10 @@ const ItemType &Items::getItemType(int32_t id) const
 	}
 }
 
-const ItemType &Items::getItemIdByClientId(int32_t spriteId) const
+const ItemType& Items::getItemIdByClientId(int32_t spriteId) const
 {
 	uint32_t i = 100;
-	ItemType *iType;
+	ItemType* iType;
 	do {
 		iType = items.getElement(i);
 		if (iType && iType->clientId == spriteId) {
@@ -1438,14 +1462,18 @@ Abilities::Abilities()
 bool Abilities::Absorb::any() const
 {
 	for (int c = 0; c != COMBAT_COUNT; ++c) {
-		if (resistances[c] != 0) return true;
+		if (resistances[c] != 0) {
+			return true;
+		}
 	}
 	return false;
 }
 
-std::ostream &Abilities::Absorb::getDescription(std::ostream &os, bool &first, unsigned int type) const
+std::ostream& Abilities::Absorb::getDescription(std::ostream& os, bool& first, unsigned int type) const
 {
-	if (resistances[type] == 0) return os;
+	if (resistances[type] == 0) {
+		return os;
+	}
 	os << (first ? " " : ", ")
 	   << CombatTypeName(type == 0 ? COMBAT_NONE : (CombatType_t)(1 << (type - 1))) << " "
 	   << std::noshowpos << resistances[type] << "%";
@@ -1453,7 +1481,7 @@ std::ostream &Abilities::Absorb::getDescription(std::ostream &os, bool &first, u
 	return os;
 }
 
-std::ostream &Abilities::Absorb::getDescription(std::ostream &os) const
+std::ostream& Abilities::Absorb::getDescription(std::ostream& os) const
 {
 	bool first = true;
 	for (int c = 0; c != COMBAT_COUNT; ++c) {
@@ -1462,7 +1490,7 @@ std::ostream &Abilities::Absorb::getDescription(std::ostream &os) const
 	return os;
 }
 
-bool Abilities::Absorb::reduce(CombatType_t ctype, int32_t &dmg) const
+bool Abilities::Absorb::reduce(CombatType_t ctype, int32_t& dmg) const
 {
 	bool r = false;
 	if (resistances[0] > 0) {
@@ -1470,23 +1498,27 @@ bool Abilities::Absorb::reduce(CombatType_t ctype, int32_t &dmg) const
 		dmg = (int32_t)std::ceil((double)dmg * (100 - resistances[0]) / 100.);
 	}
 
-	if (ctype == COMBAT_NONE) return r;
+	if (ctype == COMBAT_NONE) {
+		return r;
+	}
 
 	for (int c = 0; c < COMBAT_COUNT; ++c) {
 		if (ctype & (1 << c)) {
 			// Correct type!
-			if (resistances[c + 1] > 0) r = true;
+			if (resistances[c + 1] > 0) {
+				r = true;
+			}
 			dmg = (int32_t)std::ceil((double)dmg * (100 - resistances[c + 1]) / 100.);
 		}
 	}
 	return r;
 }
 
-int32_t Items::getItemIdByName(const std::string &name)
+int32_t Items::getItemIdByName(const std::string& name)
 {
 	if (!name.empty()) {
 		uint32_t i = 100;
-		ItemType *iType;
+		ItemType* iType;
 		do {
 			iType = items.getElement(i);
 			if (iType) {

@@ -36,7 +36,7 @@ Depot::~Depot()
 	//
 }
 
-Attr_ReadValue Depot::readAttr(AttrTypes_t attr, PropStream &propStream)
+Attr_ReadValue Depot::readAttr(AttrTypes_t attr, PropStream& propStream)
 {
 	if (ATTR_DEPOT_ID == attr) {
 		uint16_t _depotId;
@@ -46,13 +46,14 @@ Attr_ReadValue Depot::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 		setDepotId(_depotId);
 		return ATTR_READ_CONTINUE;
-	} else
+	} else {
 		return Item::readAttr(attr, propStream);
+	}
 }
 
-ReturnValue Depot::__queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const
+ReturnValue Depot::__queryAdd(int32_t index, const Thing* thing, uint32_t count, uint32_t flags) const
 {
-	const Item *item = thing->getItem();
+	const Item* item = thing->getItem();
 	if (item == nullptr) {
 		return RET_NOTPOSSIBLE;
 	}
@@ -67,7 +68,7 @@ ReturnValue Depot::__queryAdd(int32_t index, const Thing *thing, uint32_t count,
 		}
 
 		if (item->getTopParent() != this) {
-			if (const Container *container = item->getContainer()) {
+			if (const Container* container = item->getContainer()) {
 				addCount = container->getItemHoldingCount() + 1;
 			} else {
 				addCount = 1;
@@ -83,20 +84,20 @@ ReturnValue Depot::__queryAdd(int32_t index, const Thing *thing, uint32_t count,
 }
 
 ReturnValue
-Depot::__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const
+Depot::__queryMaxCount(int32_t index, const Thing* thing, uint32_t count, uint32_t& maxQueryCount, uint32_t flags) const
 {
 	return Container::__queryMaxCount(index, thing, count, maxQueryCount, flags);
 }
 
-void Depot::postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link /*= LINK_OWNER*/)
+void Depot::postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t link /*= LINK_OWNER*/)
 {
 	if (getParent() != nullptr) {
 		getParent()->postAddNotification(thing, oldParent, index, LINK_PARENT);
 	}
 }
 
-void Depot::postRemoveNotification(Thing *thing,
-                                   const Cylinder *newParent,
+void Depot::postRemoveNotification(Thing* thing,
+                                   const Cylinder* newParent,
                                    int32_t index,
                                    bool isCompleteRemoval,
                                    cylinderlink_t link /*= LINK_OWNER*/)

@@ -50,27 +50,27 @@ public:
 	TalkActions();
 	~TalkActions() override;
 
-	TalkActionResult_t onPlayerSpeak(Player *player, SpeakClasses type, const std::string &words);
+	TalkActionResult_t onPlayerSpeak(Player* player, SpeakClasses type, const std::string& words);
 
 protected:
-	LuaScriptInterface &getScriptInterface() override;
+	LuaScriptInterface& getScriptInterface() override;
 	std::string getScriptBaseName() override;
-	Event *getEvent(const std::string &nodeName) override;
-	bool registerEvent(Event *event, xmlNodePtr p) override;
+	Event* getEvent(const std::string& nodeName) override;
+	bool registerEvent(Event* event, xmlNodePtr p) override;
 	void clear() override;
 
-	typedef std::list<std::pair<std::string, TalkAction *>> TalkActionList;
+	typedef std::list<std::pair<std::string, TalkAction*>> TalkActionList;
 	TalkActionList wordsMap;
 
 	LuaScriptInterface m_scriptInterface;
 };
 
-typedef bool(TalkActionFunction)(Player *, const std::string &, const std::string &);
+typedef bool(TalkActionFunction)(Player*, const std::string&, const std::string&);
 
 class TalkAction : public Event
 {
 public:
-	TalkAction(LuaScriptInterface *_interface);
+	TalkAction(LuaScriptInterface* _interface);
 	~TalkAction() override;
 
 	bool configureEvent(xmlNodePtr p) override;
@@ -83,7 +83,7 @@ public:
 	{
 		return filterType;
 	}
-	TalkActionFunction *getFunction() const
+	TalkActionFunction* getFunction() const
 	{
 		return function;
 	}
@@ -101,7 +101,7 @@ public:
 	}
 
 	// scripting
-	bool executeSay(Creature *creature, const std::string &words, const std::string &param);
+	bool executeSay(Creature* creature, const std::string& words, const std::string& param);
 
 protected:
 	std::string getScriptEventName() override;
@@ -110,7 +110,7 @@ protected:
 	TalkActionFilterType filterType;
 	bool caseSensitive;
 	int16_t accessLevel;
-	TalkActionFunction *function;
+	TalkActionFunction* function;
 };
 
 #endif

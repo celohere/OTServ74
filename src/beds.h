@@ -10,7 +10,6 @@
 #include "position.h"
 
 
-
 class House;
 class Player;
 
@@ -21,18 +20,18 @@ public:
 	BedItem(uint16_t id);
 	~BedItem() override;
 
-	BedItem *getBed() override
+	BedItem* getBed() override
 	{
 		return this;
 	}
-	const BedItem *getBed() const override
+	const BedItem* getBed() const override
 	{
 		return this;
 	}
 
 	// serialization
-	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream) override;
-	bool serializeAttr(PropWriteStream &propWriteStream) const override;
+	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream& propStream) override;
+	bool serializeAttr(PropWriteStream& propWriteStream) const override;
 
 	// override
 	bool canRemove() const override
@@ -57,49 +56,43 @@ public:
 		sleepStart = now;
 	}
 
-	House *getHouse() const
+	House* getHouse() const
 	{
 		return house;
 	}
-	void setHouse(House *h)
+	void setHouse(House* h)
 	{
 		house = h;
 	}
 
-	bool canUse(Player *player);
-	void sleep(Player *player);
-	void wakeUp(Player *player);
+	bool canUse(Player* player);
+	void sleep(Player* player);
+	void wakeUp(Player* player);
 
-	BedItem *getNextBedItem();
+	BedItem* getNextBedItem();
 
 protected:
-	void updateAppearance(const Player *player);
-	void regeneratePlayer(Player *player) const;
-	void internalSetSleeper(const Player *player);
+	void updateAppearance(const Player* player);
+	void regeneratePlayer(Player* player) const;
+	void internalSetSleeper(const Player* player);
 	void internalRemoveSleeper();
 
 	uint32_t sleeperGUID;
 	time_t sleepStart;
-	House *house;
+	House* house;
 };
 
 
 class Beds
 {
 public:
-	static Beds &instance();
-	BedItem *getBedBySleeper(uint32_t guid);
-	void setBedSleeper(BedItem *bed, uint32_t guid);
+	static Beds& instance();
+	BedItem* getBedBySleeper(uint32_t guid);
+	void setBedSleeper(BedItem* bed, uint32_t guid);
 
 protected:
 	std::map<uint32_t, BedItem*> BedSleepersMap;
 };
-
-
-
-
-
-
 
 
 #endif

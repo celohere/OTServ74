@@ -36,11 +36,11 @@ extern ConfigManager g_config;
 #pragma warning(disable : 4996)
 #endif
 
-bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload /*= false*/)
+bool IOPlayer::loadPlayer(Player* player, const std::string& name, bool preload /*= false*/)
 {
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
-	DBResult *result;
+	DBResult* result;
 
 #ifdef __PROTOCOL_76__
 	query << "SELECT `players`.`id` AS `id`, `players`.`name` AS `name`, `account_id`, \
@@ -75,7 +75,7 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 	player->accountNumber = result->getDataInt("account_id");
 	// player->groupName = result->getDataString("groupname"); fix me
 
-	const PlayerGroup *group = getPlayerGroup(result->getDataInt("group_id"));
+	const PlayerGroup* group = getPlayerGroup(result->getDataInt("group_id"));
 	if (group) {
 		player->accessLevel = group->m_access;
 		player->maxDepotLimit = group->m_maxDepotItems;
@@ -132,11 +132,11 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 #endif
 
 	unsigned long conditionsSize = 0;
-	const char *conditions = result->getDataStream("conditions", conditionsSize);
+	const char* conditions = result->getDataStream("conditions", conditionsSize);
 	PropStream propStream;
 	propStream.init(conditions, conditionsSize);
 
-	Condition *condition;
+	Condition* condition;
 	while ((condition = Condition::createCondition(propStream))) {
 		if (condition->unserialize(propStream)) {
 			player->storedConditionList.push_back(condition);
@@ -171,7 +171,7 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 	player->loginPosition.z = result->getDataInt("posz");
 
 	player->town = result->getDataInt("town_id");
-	Town *town = Towns::getInstance().getTown(player->town);
+	Town* town = Towns::getInstance().getTown(player->town);
 	if (town) {
 		player->masterPos = town->getTemplePosition();
 	}
@@ -277,16 +277,17 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 		ItemMap::iterator it2;
 
 		for (it = itemMap.rbegin(); it != itemMap.rend(); ++it) {
-			Item *item = it->second.first;
+			Item* item = it->second.first;
 			int pid = it->second.second;
 			if (pid >= 1 && pid <= 10) {
 				player->__internalAddThing(pid, item);
 			} else {
 				it2 = itemMap.find(pid);
-				if (it2 != itemMap.end())
-					if (Container *container = it2->second.first->getContainer()) {
+				if (it2 != itemMap.end()) {
+					if (Container* container = it2->second.first->getContainer()) {
 						container->__internalAddThing(item);
 					}
+				}
 			}
 		}
 
@@ -308,26 +309,28 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 		ItemMap::iterator it2;
 
 		for (it = itemMap.rbegin(); it != itemMap.rend(); ++it) {
-			Item *item = it->second.first;
+			Item* item = it->second.first;
 			int pid = it->second.second;
 			if (pid >= 0 && pid < 100) {
-				if (Container *c = item->getContainer()) {
-					if (Depot *depot = c->getDepot())
+				if (Container* c = item->getContainer()) {
+					if (Depot* depot = c->getDepot()) {
 						player->addDepot(depot, pid);
-					else
+					} else {
 						std::cout << "Error loading depot " << pid
 						          << " for player " << player->getGUID()
 						          << std::endl;
+					}
 				} else {
 					std::cout << "Error loading depot " << pid << " for player "
 					          << player->getGUID() << std::endl;
 				}
 			} else {
 				it2 = itemMap.find(pid);
-				if (it2 != itemMap.end())
-					if (Container *container = it2->second.first->getContainer()) {
+				if (it2 != itemMap.end()) {
+					if (Container* container = it2->second.first->getContainer()) {
 						container->__internalAddThing(item);
 					}
+				}
 			}
 		}
 
@@ -353,8 +356,9 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 		do {
 			uint32_t vip_id = result->getDataInt("vip_id");
 			std::string dummy_str;
-			if (storeNameByGuid(*db, vip_id))
+			if (storeNameByGuid(*db, vip_id)) {
 				player->addVIP(vip_id, dummy_str, false, true);
+			}
 		} while (result->next());
 		db->freeResult(result);
 	}
@@ -366,19 +370,19 @@ bool IOPlayer::loadPlayer(Player *player, const std::string &name, bool preload 
 	return true;
 }
 
-bool IOPlayer::saveItems(Player *player, const ItemBlockList &itemList, DBInsert &query_insert)
+bool IOPlayer::saveItems(Player* player, const ItemBlockList& itemList, DBInsert& query_insert)
 {
-	std::list<Container *> listContainer;
+	std::list<Container*> listContainer;
 	std::stringstream stream;
 
-	typedef std::pair<Container *, int32_t> containerBlock;
+	typedef std::pair<Container*, int32_t> containerBlock;
 	std::list<containerBlock> stack;
 
 	int32_t parentId = 0;
 	int32_t runningId = 100;
 
-	Database *db = Database::instance();
-	Item *item;
+	Database* db = Database::instance();
+	Item* item;
 	int32_t pid;
 
 	for (ItemBlockList::const_iterator it = itemList.begin(); it != itemList.end(); ++it) {
@@ -390,7 +394,7 @@ bool IOPlayer::saveItems(Player *player, const ItemBlockList &itemList, DBInsert
 
 		PropWriteStream propWriteStream;
 		item->serializeAttr(propWriteStream);
-		const char *attributes = propWriteStream.getStream(attributesSize);
+		const char* attributes = propWriteStream.getStream(attributesSize);
 
 		stream << player->getGUID() << ", " << pid << ", " << runningId << ", "
 		       << item->getID() << ", " << (int32_t)item->getSubType() << ", "
@@ -400,21 +404,21 @@ bool IOPlayer::saveItems(Player *player, const ItemBlockList &itemList, DBInsert
 			return false;
 		}
 
-		if (Container *container = item->getContainer()) {
+		if (Container* container = item->getContainer()) {
 			stack.push_back(containerBlock(container, runningId));
 		}
 	}
 
 	while (stack.size() > 0) {
-		const containerBlock &cb = stack.front();
-		Container *container = cb.first;
+		const containerBlock& cb = stack.front();
+		Container* container = cb.first;
 		parentId = cb.second;
 		stack.pop_front();
 
 		for (uint32_t i = 0; i < container->size(); ++i) {
 			++runningId;
 			item = container->getItem(i);
-			if (Container *sub = item->getContainer()) {
+			if (Container* sub = item->getContainer()) {
 				stack.push_back(containerBlock(sub, runningId));
 			}
 
@@ -422,26 +426,28 @@ bool IOPlayer::saveItems(Player *player, const ItemBlockList &itemList, DBInsert
 
 			PropWriteStream propWriteStream;
 			item->serializeAttr(propWriteStream);
-			const char *attributes = propWriteStream.getStream(attributesSize);
+			const char* attributes = propWriteStream.getStream(attributesSize);
 
 			stream << player->getGUID() << ", " << parentId << ", " << runningId << ", "
 			       << item->getID() << ", " << (int32_t)item->getSubType() << ", "
 			       << db->escapeBlob(attributes, attributesSize);
 
-			if (!query_insert.addRow(stream)) return false;
+			if (!query_insert.addRow(stream)) {
+				return false;
+			}
 		}
 	}
 
 	return true;
 }
 
-bool IOPlayer::savePlayer(Player *player)
+bool IOPlayer::savePlayer(Player* player)
 {
 	player->preSave();
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
-	DBResult *result;
+	DBResult* result;
 
 	// check if the player have to be saved or not
 	query << "SELECT `save` FROM `players` WHERE `id` = " << player->getGUID();
@@ -484,7 +490,7 @@ bool IOPlayer::savePlayer(Player *player)
 	}
 
 	uint32_t conditionsSize;
-	const char *conditions = propWriteStream.getStream(conditionsSize);
+	const char* conditions = propWriteStream.getStream(conditionsSize);
 
 	// First, an UPDATE query to write the player itself
 	query.str("");
@@ -604,7 +610,7 @@ bool IOPlayer::savePlayer(Player *player)
 
 	ItemBlockList itemList;
 
-	Item *item;
+	Item* item;
 	for (int32_t slotId = 1; slotId <= 10; ++slotId) {
 		if ((item = player->inventory[slotId])) {
 			itemList.push_back(itemBlock(slotId, item));
@@ -676,7 +682,7 @@ void IOPlayer::saveDeath(std::string name, uint32_t time, uint16_t level, std::s
 		return;
 	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBInsert stmt(db);
 	DBQuery query;
 
@@ -692,24 +698,28 @@ void IOPlayer::saveDeath(std::string name, uint32_t time, uint16_t level, std::s
 	}
 }
 
-bool IOPlayer::storeNameByGuid(Database &db, uint32_t guid)
+bool IOPlayer::storeNameByGuid(Database& db, uint32_t guid)
 {
 	DBQuery query;
-	DBResult *result;
+	DBResult* result;
 
 	NameCacheMap::iterator it = nameCacheMap.find(guid);
-	if (it != nameCacheMap.end()) return true;
+	if (it != nameCacheMap.end()) {
+		return true;
+	}
 
 	query << "SELECT `name` FROM `players` WHERE `id` = " << guid;
 
-	if (!(result = db.storeQuery(query.str()))) return false;
+	if (!(result = db.storeQuery(query.str()))) {
+		return false;
+	}
 
 	nameCacheMap[guid] = result->getDataString("name");
 	db.freeResult(result);
 	return true;
 }
 
-bool IOPlayer::getNameByGuid(uint32_t guid, std::string &name)
+bool IOPlayer::getNameByGuid(uint32_t guid, std::string& name)
 {
 	NameCacheMap::iterator it = nameCacheMap.find(guid);
 	if (it != nameCacheMap.end()) {
@@ -717,13 +727,15 @@ bool IOPlayer::getNameByGuid(uint32_t guid, std::string &name)
 		return true;
 	}
 
-	Database *db = Database::instance();
+	Database* db = Database::instance();
 	DBQuery query;
-	DBResult *result;
+	DBResult* result;
 
 	query << "SELECT `name` FROM `players` WHERE `id` = " << guid;
 
-	if (!(result = db->storeQuery(query.str()))) return false;
+	if (!(result = db->storeQuery(query.str()))) {
+		return false;
+	}
 
 	name = result->getDataString("name");
 	nameCacheMap[guid] = name;
@@ -731,7 +743,7 @@ bool IOPlayer::getNameByGuid(uint32_t guid, std::string &name)
 	return true;
 }
 
-bool IOPlayer::getGuidByName(uint32_t &guid, std::string &name)
+bool IOPlayer::getGuidByName(uint32_t& guid, std::string& name)
 {
 	GuidCacheMap::iterator it = guidCacheMap.find(name);
 	if (it != guidCacheMap.end()) {
@@ -740,12 +752,14 @@ bool IOPlayer::getGuidByName(uint32_t &guid, std::string &name)
 		return true;
 	}
 
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
-	if (!(result = db->storeQuery("SELECT `name`, `id` FROM `players` WHERE `name` = " + db->escapeString(name))))
+	if (!(result = db->storeQuery("SELECT `name`, `id` FROM `players` WHERE `name` = " +
+	                              db->escapeString(name)))) {
 		return false;
+	}
 
 	name = result->getDataString("name");
 	guid = result->getDataInt("id");
@@ -755,14 +769,16 @@ bool IOPlayer::getGuidByName(uint32_t &guid, std::string &name)
 	return true;
 }
 
-uint32_t IOPlayer::getAccountIdByName(std::string &name)
+uint32_t IOPlayer::getAccountIdByName(std::string& name)
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
-	if (!(result = db->storeQuery("SELECT `account_id` FROM `players` WHERE `name` = " + db->escapeString(name))))
+	if (!(result = db->storeQuery("SELECT `account_id` FROM `players` WHERE `name` = " +
+	                              db->escapeString(name)))) {
 		return false;
+	}
 
 	uint32_t account = result->getDataInt("account_id");
 
@@ -770,19 +786,20 @@ uint32_t IOPlayer::getAccountIdByName(std::string &name)
 	return account;
 }
 
-bool IOPlayer::getGuidByNameEx(uint32_t &guid, bool &specialVip, std::string &name)
+bool IOPlayer::getGuidByNameEx(uint32_t& guid, bool& specialVip, std::string& name)
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
 	if (!(result = db->storeQuery(
-	      "SELECT `name`, `id`, `group_id` FROM `players` WHERE `name`= " + db->escapeString(name))))
+	      "SELECT `name`, `id`, `group_id` FROM `players` WHERE `name`= " + db->escapeString(name)))) {
 		return false;
+	}
 
 	name = result->getDataString("name");
 	guid = result->getDataInt("id");
-	const PlayerGroup *group = getPlayerGroup(result->getDataInt("group_id"));
+	const PlayerGroup* group = getPlayerGroup(result->getDataInt("group_id"));
 
 	if (group) {
 		specialVip = (0 != (group->m_flags & ((uint64_t)1 << PlayerFlag_SpecialVIP)));
@@ -794,14 +811,15 @@ bool IOPlayer::getGuidByNameEx(uint32_t &guid, bool &specialVip, std::string &na
 	return true;
 }
 
-bool IOPlayer::getGuildIdByName(uint32_t &guildId, const std::string &guildName)
+bool IOPlayer::getGuildIdByName(uint32_t& guildId, const std::string& guildName)
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
-	if (!(result = db->storeQuery("SELECT `id` FROM `guilds` WHERE `name` = " + db->escapeString(guildName))))
+	if (!(result = db->storeQuery("SELECT `id` FROM `guilds` WHERE `name` = " + db->escapeString(guildName)))) {
 		return false;
+	}
 
 	guildId = result->getDataInt("id");
 	db->freeResult(result);
@@ -810,12 +828,13 @@ bool IOPlayer::getGuildIdByName(uint32_t &guildId, const std::string &guildName)
 
 bool IOPlayer::playerExists(std::string name)
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
-	if (!(result = db->storeQuery("SELECT `id` FROM `players` WHERE `name`= " + db->escapeString(name))))
+	if (!(result = db->storeQuery("SELECT `id` FROM `players` WHERE `name`= " + db->escapeString(name)))) {
 		return false;
+	}
 
 	db->freeResult(result);
 	return true;
@@ -824,14 +843,18 @@ bool IOPlayer::playerExists(std::string name)
 bool IOPlayer::hasFlag(std::string name, PlayerFlags value)
 {
 	uint32_t accId = getAccountIdByName(name);
-	if (!accId) return false;
+	if (!accId) {
+		return false;
+	}
 
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
 	query << "SELECT `group_id` FROM `players` WHERE `id` = " << accId;
-	if (!(result = db->storeQuery(query.str()))) return false;
+	if (!(result = db->storeQuery(query.str()))) {
+		return false;
+	}
 
 	const uint32_t group = result->getDataInt("group_id");
 	db->freeResult(result);
@@ -840,8 +863,8 @@ bool IOPlayer::hasFlag(std::string name, PlayerFlags value)
 
 uint32_t IOPlayer::getAccessByName(std::string name)
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
 	uint32_t guid;
@@ -861,36 +884,39 @@ uint32_t IOPlayer::getAccessByName(std::string name)
 bool IOPlayer::internalHasFlag(uint32_t groupId, PlayerFlags value)
 {
 	PlayerGroupMap::const_iterator it = playerGroupMap.find(groupId);
-	if (it != playerGroupMap.end())
+	if (it != playerGroupMap.end()) {
 		return (0 != (it->second->m_flags & ((uint64_t)1 << value)));
+	}
 
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 
 	DBQuery query;
 	query << "SELECT `flags` FROM `groups` WHERE `id` = " << groupId;
-	if (!(result = db->storeQuery(query.str()))) return false;
+	if (!(result = db->storeQuery(query.str()))) {
+		return false;
+	}
 
 	uint64_t flags = result->getDataLong("flags");
 	db->freeResult(result);
 	return (0 != (flags & ((uint64_t)1 << value)));
 }
 
-const PlayerGroup *IOPlayer::getPlayerGroup(uint32_t groupid)
+const PlayerGroup* IOPlayer::getPlayerGroup(uint32_t groupid)
 {
 	PlayerGroupMap::const_iterator it = playerGroupMap.find(groupid);
 
 	if (it != playerGroupMap.end()) {
 		return it->second;
 	} else {
-		Database *db = Database::instance();
+		Database* db = Database::instance();
 		DBQuery query;
-		DBResult *result;
+		DBResult* result;
 
 		query << "SELECT * FROM `groups` WHERE `id`= " << groupid;
 
 		if ((result = db->storeQuery(query.str()))) {
-			PlayerGroup *group = new PlayerGroup;
+			PlayerGroup* group = new PlayerGroup;
 
 			group->m_name = result->getDataString("name");
 			group->m_flags = result->getDataLong("flags");
@@ -909,19 +935,20 @@ const PlayerGroup *IOPlayer::getPlayerGroup(uint32_t groupid)
 
 uint32_t IOPlayer::getLastIP(std::string name) const
 {
-	Database *db = Database::instance();
-	DBResult *result;
+	Database* db = Database::instance();
+	DBResult* result;
 	DBQuery query;
 
-	if (!(result = db->storeQuery("SELECT `lastip` FROM `players` WHERE `name`= " + db->escapeString(name))))
+	if (!(result = db->storeQuery("SELECT `lastip` FROM `players` WHERE `name`= " + db->escapeString(name)))) {
 		return 0;
+	}
 
 	uint32_t lastip = result->getDataInt("lastip");
 	db->freeResult(result);
 	return lastip;
 }
 
-void IOPlayer::loadItems(ItemMap &itemMap, DBResult *result)
+void IOPlayer::loadItems(ItemMap& itemMap, DBResult* result)
 {
 	do {
 		int sid = result->getDataInt("sid");
@@ -930,18 +957,18 @@ void IOPlayer::loadItems(ItemMap &itemMap, DBResult *result)
 		int count = result->getDataInt("count");
 
 		unsigned long attrSize = 0;
-		const char *attr = result->getDataStream("attributes", attrSize);
+		const char* attr = result->getDataStream("attributes", attrSize);
 
 		PropStream propStream;
 		propStream.init(attr, attrSize);
 
-		Item *item = Item::CreateItem(type, count);
+		Item* item = Item::CreateItem(type, count);
 		if (item) {
 			if (!item->unserializeAttr(propStream)) {
 				std::cout << "WARNING: Serialize error in IOPlayer::loadItems" << std::endl;
 			}
 
-			std::pair<Item *, int> pair(item, pid);
+			std::pair<Item*, int> pair(item, pid);
 			itemMap[sid] = pair;
 		}
 	} while (result->next());

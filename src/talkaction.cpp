@@ -54,7 +54,7 @@ void TalkActions::clear()
 	m_scriptInterface.reInitState();
 }
 
-LuaScriptInterface &TalkActions::getScriptInterface()
+LuaScriptInterface& TalkActions::getScriptInterface()
 {
 	return m_scriptInterface;
 }
@@ -64,7 +64,7 @@ std::string TalkActions::getScriptBaseName()
 	return "talkactions";
 }
 
-Event *TalkActions::getEvent(const std::string &nodeName)
+Event* TalkActions::getEvent(const std::string& nodeName)
 {
 	if (nodeName == "talkaction") {
 		return new TalkAction(&m_scriptInterface);
@@ -73,16 +73,18 @@ Event *TalkActions::getEvent(const std::string &nodeName)
 	}
 }
 
-bool TalkActions::registerEvent(Event *event, xmlNodePtr p)
+bool TalkActions::registerEvent(Event* event, xmlNodePtr p)
 {
-	TalkAction *talkAction = dynamic_cast<TalkAction *>(event);
-	if (!talkAction) return false;
+	TalkAction* talkAction = dynamic_cast<TalkAction*>(event);
+	if (!talkAction) {
+		return false;
+	}
 
 	wordsMap.push_back(std::make_pair(talkAction->getWords(), talkAction));
 	return true;
 }
 
-TalkActionResult_t TalkActions::onPlayerSpeak(Player *player, SpeakClasses type, const std::string &words)
+TalkActionResult_t TalkActions::onPlayerSpeak(Player* player, SpeakClasses type, const std::string& words)
 {
 	if (type != SPEAK_SAY) {
 		return TALKACTION_CONTINUE;
@@ -139,12 +141,12 @@ TalkActionResult_t TalkActions::onPlayerSpeak(Player *player, SpeakClasses type,
 					ret = false;
 				}
 			} else {
-				TalkAction *talkAction = it->second;
+				TalkAction* talkAction = it->second;
 
 				if (talkAction->isScripted()) {
 					ret = talkAction->executeSay(player, cmdstring, paramstring);
 				} else {
-					TalkActionFunction *func = talkAction->getFunction();
+					TalkActionFunction* func = talkAction->getFunction();
 					if (func) {
 						func(player, cmdstring, paramstring);
 						ret = false;
@@ -164,7 +166,7 @@ TalkActionResult_t TalkActions::onPlayerSpeak(Player *player, SpeakClasses type,
 }
 
 
-TalkAction::TalkAction(LuaScriptInterface *_interface)
+TalkAction::TalkAction(LuaScriptInterface* _interface)
 : Event(_interface), filterType(TALKACTION_MATCH_QUOTATION), caseSensitive(false), accessLevel(0),
   function(nullptr)
 {
@@ -212,11 +214,11 @@ std::string TalkAction::getScriptEventName()
 	return "onSay";
 }
 
-bool TalkAction::executeSay(Creature *creature, const std::string &words, const std::string &param)
+bool TalkAction::executeSay(Creature* creature, const std::string& words, const std::string& param)
 {
 	// onSay(cid, words, param)
 	if (m_scriptInterface->reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface->getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface->getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;
@@ -229,7 +231,7 @@ bool TalkAction::executeSay(Creature *creature, const std::string &words, const 
 
 		uint32_t cid = env->addThing(creature);
 
-		lua_State *L = m_scriptInterface->getLuaState();
+		lua_State* L = m_scriptInterface->getLuaState();
 
 		m_scriptInterface->pushFunction(m_scriptId);
 		lua_pushnumber(L, cid);

@@ -68,7 +68,7 @@ public:
 			return 0;
 		}
 
-		uint16_t v = *(uint16_t *)(m_MsgBuf + m_ReadPos);
+		uint16_t v = *(uint16_t*)(m_MsgBuf + m_ReadPos);
 		m_ReadPos += 2;
 		return v;
 	}
@@ -78,7 +78,7 @@ public:
 			return 0;
 		}
 
-		uint32_t v = *(uint32_t *)(m_MsgBuf + m_ReadPos);
+		uint32_t v = *(uint32_t*)(m_MsgBuf + m_ReadPos);
 		m_ReadPos += 4;
 		return v;
 	}
@@ -88,7 +88,7 @@ public:
 			return 0;
 		}
 
-		uint32_t v = *(uint32_t *)(m_MsgBuf + m_ReadPos);
+		uint32_t v = *(uint32_t*)(m_MsgBuf + m_ReadPos);
 		return v;
 	}
 #else
@@ -98,7 +98,7 @@ public:
 			return 0;
 		}
 
-		uint16_t v = *(uint16_t *)(m_MsgBuf + m_ReadPos);
+		uint16_t v = *(uint16_t*)(m_MsgBuf + m_ReadPos);
 		m_ReadPos += 2;
 		return swap_uint16(v);
 	}
@@ -108,7 +108,7 @@ public:
 			return 0;
 		}
 
-		uint32_t v = *(uint32_t *)(m_MsgBuf + m_ReadPos);
+		uint32_t v = *(uint32_t*)(m_MsgBuf + m_ReadPos);
 		m_ReadPos += 4;
 		return swap_uint32(v);
 	}
@@ -118,7 +118,7 @@ public:
 			return 0;
 		}
 
-		uint32_t v = *(uint32_t *)(m_MsgBuf + m_ReadPos);
+		uint32_t v = *(uint32_t*)(m_MsgBuf + m_ReadPos);
 		return swap_uint32(v);
 	}
 #endif
@@ -151,7 +151,7 @@ public:
 	void AddU16(uint16_t value)
 	{
 		if (canAdd(2)) {
-			*(uint16_t *)(m_MsgBuf + m_ReadPos) = value;
+			*(uint16_t*)(m_MsgBuf + m_ReadPos) = value;
 			m_ReadPos += 2;
 			m_MsgSize += 2;
 		}
@@ -159,7 +159,7 @@ public:
 	void AddU32(uint32_t value)
 	{
 		if (canAdd(4)) {
-			*(uint32_t *)(m_MsgBuf + m_ReadPos) = value;
+			*(uint32_t*)(m_MsgBuf + m_ReadPos) = value;
 			m_ReadPos += 4;
 			m_MsgSize += 4;
 		}
@@ -168,7 +168,7 @@ public:
 	void AddU16(uint16_t value)
 	{
 		if (canAdd(2)) {
-			*(uint16_t *)(m_MsgBuf + m_ReadPos) = swap_uint16(value);
+			*(uint16_t*)(m_MsgBuf + m_ReadPos) = swap_uint16(value);
 			m_ReadPos += 2;
 			m_MsgSize += 2;
 		}
@@ -176,28 +176,28 @@ public:
 	void AddU32(uint32_t value)
 	{
 		if (canAdd(4)) {
-			*(uint32_t *)(m_MsgBuf + m_ReadPos) = swap_uint32(value);
+			*(uint32_t*)(m_MsgBuf + m_ReadPos) = swap_uint32(value);
 			m_ReadPos += 4;
 			m_MsgSize += 4;
 		}
 	}
 #endif
-	void AddBytes(const char *bytes, uint32_t size);
+	void AddBytes(const char* bytes, uint32_t size);
 	void AddPaddingBytes(uint32_t n);
 
-	void AddString(const std::string &value)
+	void AddString(const std::string& value)
 	{
 		AddString(value.c_str());
 	}
-	void AddString(const char *value);
+	void AddString(const char* value);
 
 	// write functions for complex types
-	void AddPosition(const Position &pos);
+	void AddPosition(const Position& pos);
 	void AddItem(uint16_t id, uint8_t count);
-	void AddItem(const Item *item);
-	void AddItemId(const Item *item);
+	void AddItem(const Item* item);
+	void AddItemId(const Item* item);
 	void AddItemId(uint16_t itemId);
-	void AddCreature(const Creature *creature, bool known, unsigned int remove);
+	void AddCreature(const Creature* creature, bool known, unsigned int remove);
 
 	int32_t getMessageLength() const
 	{
@@ -223,14 +223,14 @@ public:
 		return m_overrun;
 	};
 
-	char *getBuffer()
+	char* getBuffer()
 	{
-		return (char *)&m_MsgBuf[0];
+		return (char*)&m_MsgBuf[0];
 	}
-	char *getBodyBuffer()
+	char* getBodyBuffer()
 	{
 		m_ReadPos = 2;
-		return (char *)&m_MsgBuf[header_length];
+		return (char*)&m_MsgBuf[header_length];
 	}
 
 #ifdef __TRACK_NETWORK__

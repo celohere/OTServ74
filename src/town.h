@@ -41,16 +41,16 @@ public:
 
 	~Town(){};
 
-	const Position &getTemplePosition() const
+	const Position& getTemplePosition() const
 	{
 		return posTemple;
 	}
-	const std::string &getName() const
+	const std::string& getName() const
 	{
 		return townName;
 	}
 
-	void setTemplePos(const Position &pos)
+	void setTemplePos(const Position& pos)
 	{
 		posTemple = pos;
 	}
@@ -69,18 +69,18 @@ private:
 	Position posTemple;
 };
 
-typedef std::map<uint32_t, Town *> TownMap;
+typedef std::map<uint32_t, Town*> TownMap;
 
 class Towns
 {
 public:
-	static Towns &getInstance()
+	static Towns& getInstance()
 	{
 		static Towns instance;
 		return instance;
 	}
 
-	bool addTown(uint32_t _townid, Town *town)
+	bool addTown(uint32_t _townid, Town* town)
 	{
 		TownMap::iterator it = townMap.find(_townid);
 
@@ -92,7 +92,7 @@ public:
 		return true;
 	}
 
-	Town *getTown(std::string &townname)
+	Town* getTown(std::string& townname)
 	{
 		for (TownMap::iterator it = townMap.begin(); it != townMap.end(); ++it) {
 			if (boost::algorithm::iequals(it->second->getName(), townname)) {
@@ -103,7 +103,7 @@ public:
 		return nullptr;
 	}
 
-	Town *getTown(uint32_t _townid)
+	Town* getTown(uint32_t _townid)
 	{
 		TownMap::iterator it = townMap.find(_townid);
 

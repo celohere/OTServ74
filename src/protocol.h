@@ -54,7 +54,7 @@ typedef boost::shared_ptr<OutputMessage> OutputMessage_ptr;
 class Protocol : boost::noncopyable
 {
 public:
-	Protocol(Connection *connection)
+	Protocol(Connection* connection)
 	{
 		m_connection = connection;
 		m_rawMessages = false;
@@ -72,21 +72,21 @@ public:
 	{
 	}
 
-	virtual void parsePacket(NetworkMessage &msg){};
+	virtual void parsePacket(NetworkMessage& msg){};
 
 	void onSendMessage(OutputMessage_ptr msg);
-	void onRecvMessage(NetworkMessage &msg);
-	virtual void onRecvFirstMessage(NetworkMessage &msg) = 0;
+	void onRecvMessage(NetworkMessage& msg);
+	virtual void onRecvFirstMessage(NetworkMessage& msg) = 0;
 
-	Connection *getConnection()
+	Connection* getConnection()
 	{
 		return m_connection;
 	}
-	const Connection *getConnection() const
+	const Connection* getConnection() const
 	{
 		return m_connection;
 	}
-	void setConnection(Connection *connection)
+	void setConnection(Connection* connection)
 	{
 		m_connection = connection;
 	}
@@ -114,14 +114,14 @@ protected:
 	{
 		m_encryptionEnabled = false;
 	}
-	void setXTEAKey(const uint32_t *key)
+	void setXTEAKey(const uint32_t* key)
 	{
 		memcpy(&m_key, key, sizeof(uint32_t) * 4);
 	}
 
-	void XTEA_encrypt(OutputMessage &msg);
-	bool XTEA_decrypt(NetworkMessage &msg);
-	bool RSA_decrypt(RSA *rsa, NetworkMessage &msg);
+	void XTEA_encrypt(OutputMessage& msg);
+	bool XTEA_decrypt(NetworkMessage& msg);
+	bool RSA_decrypt(RSA* rsa, NetworkMessage& msg);
 #endif // __PROTOCOL_77__
 
 	void setRawMessages(bool value)
@@ -135,7 +135,7 @@ protected:
 
 private:
 	OutputMessage_ptr m_outputBuffer;
-	Connection *m_connection;
+	Connection* m_connection;
 	bool m_rawMessages;
 #ifdef __PROTOCOL_77__
 	bool m_encryptionEnabled;

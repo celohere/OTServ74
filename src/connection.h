@@ -49,14 +49,14 @@ public:
 	{
 	}
 
-	static ConnectionManager *getInstance()
+	static ConnectionManager* getInstance()
 	{
 		static ConnectionManager instance;
 		return &instance;
 	}
 
-	Connection *createConnection(boost::asio::io_service &io_service);
-	void releaseConnection(Connection *connection);
+	Connection* createConnection(boost::asio::io_service& io_service);
+	void releaseConnection(Connection* connection);
 	void closeAll();
 
 protected:
@@ -64,7 +64,7 @@ protected:
 	{
 	}
 
-	std::list<Connection *> m_connections;
+	std::list<Connection*> m_connections;
 	boost::recursive_mutex m_connectionManagerLock;
 };
 
@@ -80,7 +80,7 @@ public:
 	};
 
 private:
-	Connection(boost::asio::io_service &io_service) : m_socket(io_service)
+	Connection(boost::asio::io_service& io_service) : m_socket(io_service)
 	{
 		m_refCount = 0;
 		m_protocol = nullptr;
@@ -106,7 +106,7 @@ public:
 #endif
 	}
 
-	boost::asio::ip::tcp::socket &getHandle()
+	boost::asio::ip::tcp::socket& getHandle()
 	{
 		return m_socket;
 	}
@@ -128,13 +128,13 @@ public:
 	}
 
 private:
-	void parseHeader(const boost::system::error_code &error);
-	void parsePacket(const boost::system::error_code &error);
+	void parseHeader(const boost::system::error_code& error);
+	void parsePacket(const boost::system::error_code& error);
 
-	void onWriteOperation(OutputMessage_ptr msg, const boost::system::error_code &error);
+	void onWriteOperation(OutputMessage_ptr msg, const boost::system::error_code& error);
 
-	void handleReadError(const boost::system::error_code &error);
-	void handleWriteError(const boost::system::error_code &error);
+	void handleReadError(const boost::system::error_code& error);
+	void handleWriteError(const boost::system::error_code& error);
 
 	void closeConnectionTask();
 	bool closingConnection();
@@ -158,7 +158,7 @@ private:
 
 	boost::recursive_mutex m_connectionLock;
 
-	Protocol *m_protocol;
+	Protocol* m_protocol;
 };
 
 #endif

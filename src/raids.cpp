@@ -46,7 +46,7 @@ Raids::~Raids()
 	clear();
 }
 
-bool Raids::loadFromXml(const std::string &_filename)
+bool Raids::loadFromXml(const std::string& _filename)
 {
 	if (isLoaded()) {
 		return true;
@@ -60,7 +60,7 @@ bool Raids::loadFromXml(const std::string &_filename)
 		xmlNodePtr root, raidNode;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"raids") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"raids") != 0) {
 			std::cout << "[Error] Raids: Wrong root node." << std::endl;
 			xmlFreeDoc(doc);
 			return false;
@@ -71,7 +71,7 @@ bool Raids::loadFromXml(const std::string &_filename)
 
 		raidNode = root->children;
 		while (raidNode) {
-			if (xmlStrcmp(raidNode->name, (const xmlChar *)"raid") == 0) {
+			if (xmlStrcmp(raidNode->name, (const xmlChar*)"raid") == 0) {
 				std::string name, file;
 				uint32_t interval, margin;
 
@@ -113,7 +113,7 @@ bool Raids::loadFromXml(const std::string &_filename)
 					margin = 0;
 				}
 
-				Raid *newRaid = new Raid(name, interval, margin);
+				Raid* newRaid = new Raid(name, interval, margin);
 				if (!newRaid) {
 					xmlFreeDoc(doc);
 					return false;
@@ -147,7 +147,9 @@ bool Raids::loadFromXml(const std::string &_filename)
 
 void Raids::startup()
 {
-	if (!isLoaded() || isStarted()) return;
+	if (!isLoaded() || isStarted()) {
+		return;
+	}
 
 	setLastRaidEnd(OTSYS_TIME());
 
@@ -209,7 +211,7 @@ void Raids::reload()
 	loadFromXml(filename);
 }
 
-Raid *Raids::getRaidByName(const std::string &name)
+Raid* Raids::getRaidByName(const std::string& name)
 {
 	RaidList::iterator it;
 	for (it = raidList.begin(); it != raidList.end(); it++) {
@@ -221,7 +223,7 @@ Raid *Raids::getRaidByName(const std::string &name)
 	return nullptr;
 }
 
-Raid::Raid(const std::string &_name, uint32_t _interval, uint32_t _marginTime)
+Raid::Raid(const std::string& _name, uint32_t _interval, uint32_t _marginTime)
 {
 	loaded = false;
 	name = _name;
@@ -243,7 +245,7 @@ Raid::~Raid()
 	raidEvents.clear();
 }
 
-bool Raid::loadFromXml(const std::string &_filename)
+bool Raid::loadFromXml(const std::string& _filename)
 {
 	if (isLoaded()) {
 		return true;
@@ -256,7 +258,7 @@ bool Raid::loadFromXml(const std::string &_filename)
 		xmlNodePtr root, eventNode;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"raid") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"raid") != 0) {
 			std::cout << "[Error] Raids: Wrong root node." << std::endl;
 			xmlFreeDoc(doc);
 			return false;
@@ -266,14 +268,14 @@ bool Raid::loadFromXml(const std::string &_filename)
 
 		eventNode = root->children;
 		while (eventNode) {
-			RaidEvent *event;
-			if (xmlStrcmp(eventNode->name, (const xmlChar *)"announce") == 0) {
+			RaidEvent* event;
+			if (xmlStrcmp(eventNode->name, (const xmlChar*)"announce") == 0) {
 				event = new AnnounceEvent();
-			} else if (xmlStrcmp(eventNode->name, (const xmlChar *)"singlespawn") == 0) {
+			} else if (xmlStrcmp(eventNode->name, (const xmlChar*)"singlespawn") == 0) {
 				event = new SingleSpawnEvent();
-			} else if (xmlStrcmp(eventNode->name, (const xmlChar *)"areaspawn") == 0) {
+			} else if (xmlStrcmp(eventNode->name, (const xmlChar*)"areaspawn") == 0) {
 				event = new AreaSpawnEvent();
-			} else if (xmlStrcmp(eventNode->name, (const xmlChar *)"script") == 0) {
+			} else if (xmlStrcmp(eventNode->name, (const xmlChar*)"script") == 0) {
 				event = new ScriptEvent();
 			} else {
 				eventNode = eventNode->next;
@@ -305,7 +307,7 @@ bool Raid::loadFromXml(const std::string &_filename)
 
 void Raid::startRaid()
 {
-	RaidEvent *raidEvent = getNextRaidEvent();
+	RaidEvent* raidEvent = getNextRaidEvent();
 	if (raidEvent) {
 		state = RAIDSTATE_EXECUTING;
 		nextEventEvent = Scheduler::getScheduler().addEvent(
@@ -313,11 +315,11 @@ void Raid::startRaid()
 	}
 }
 
-void Raid::executeRaidEvent(RaidEvent *raidEvent)
+void Raid::executeRaidEvent(RaidEvent* raidEvent)
 {
 	if (raidEvent->executeEvent()) {
 		nextEvent++;
-		RaidEvent *newRaidEvent = getNextRaidEvent();
+		RaidEvent* newRaidEvent = getNextRaidEvent();
 		if (newRaidEvent) {
 			uint32_t ticks =
 			(uint32_t)std::max(((uint32_t)RAID_MINTICKS),
@@ -352,15 +354,16 @@ void Raid::stopEvents()
 	}
 }
 
-RaidEvent *Raid::getNextRaidEvent()
+RaidEvent* Raid::getNextRaidEvent()
 {
-	if (nextEvent < raidEvents.size())
+	if (nextEvent < raidEvents.size()) {
 		return raidEvents[nextEvent];
-	else
+	} else {
 		return nullptr;
+	}
 }
 
-void Raid::addEvent(RaidEvent *event)
+void Raid::addEvent(RaidEvent* event)
 {
 	raidEvents.push_back(event);
 }
@@ -475,7 +478,7 @@ bool SingleSpawnEvent::configureRaidEvent(xmlNodePtr eventNode)
 
 bool SingleSpawnEvent::executeEvent()
 {
-	Monster *monster = Monster::createMonster(m_monsterName);
+	Monster* monster = Monster::createMonster(m_monsterName);
 	if (!monster) {
 		std::cout << "[Error] Raids: Cant create monster " << m_monsterName << std::endl;
 		return false;
@@ -577,7 +580,7 @@ bool AreaSpawnEvent::configureRaidEvent(xmlNodePtr eventNode)
 
 	xmlNodePtr monsterNode = eventNode->children;
 	while (monsterNode) {
-		if (xmlStrcmp(monsterNode->name, (const xmlChar *)"monster") == 0) {
+		if (xmlStrcmp(monsterNode->name, (const xmlChar*)"monster") == 0) {
 			std::string name;
 			int32_t minAmount = 0;
 			int32_t maxAmount = 0;
@@ -626,14 +629,14 @@ AreaSpawnEvent::~AreaSpawnEvent()
 	m_spawnList.clear();
 }
 
-void AreaSpawnEvent::addMonster(MonsterSpawn *monsterSpawn)
+void AreaSpawnEvent::addMonster(MonsterSpawn* monsterSpawn)
 {
 	m_spawnList.push_back(monsterSpawn);
 }
 
-void AreaSpawnEvent::addMonster(const std::string &monsterName, uint32_t minAmount, uint32_t maxAmount)
+void AreaSpawnEvent::addMonster(const std::string& monsterName, uint32_t minAmount, uint32_t maxAmount)
 {
-	MonsterSpawn *monsterSpawn = new MonsterSpawn();
+	MonsterSpawn* monsterSpawn = new MonsterSpawn();
 	monsterSpawn->name = monsterName;
 	monsterSpawn->minAmount = minAmount;
 	monsterSpawn->maxAmount = maxAmount;
@@ -644,11 +647,11 @@ bool AreaSpawnEvent::executeEvent()
 {
 	MonsterSpawnList::iterator it;
 	for (it = m_spawnList.begin(); it != m_spawnList.end(); it++) {
-		MonsterSpawn *spawn = (*it);
+		MonsterSpawn* spawn = (*it);
 
 		uint32_t amount = random_range(spawn->minAmount, spawn->maxAmount);
 		for (unsigned int i = 0; i < amount; i++) {
-			Monster *monster = Monster::createMonster(spawn->name);
+			Monster* monster = Monster::createMonster(spawn->name);
 			if (!monster) {
 				std::cout << "[Error] Raids: Cant create monster " << spawn->name << std::endl;
 				return false;
@@ -721,7 +724,7 @@ bool ScriptEvent::executeEvent()
 {
 	// onRaid()
 	if (m_scriptInterface.reserveScriptEnv()) {
-		ScriptEnviroment *env = m_scriptInterface.getScriptEnv();
+		ScriptEnviroment* env = m_scriptInterface.getScriptEnv();
 
 #ifdef __DEBUG_LUASCRIPTS__
 		std::stringstream desc;

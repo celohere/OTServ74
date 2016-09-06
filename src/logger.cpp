@@ -61,7 +61,7 @@ Logger::~Logger()
 	}
 }
 
-void Logger::logMessage(const char *channel, eLogType type, int level, std::string message, const char *func)
+void Logger::logMessage(const char* channel, eLogType type, int level, std::string message, const char* func)
 {
 	// TODO: decide if should be saved or not depending on channel type and level
 	// if should be save decide where and how
@@ -77,7 +77,7 @@ void Logger::logMessage(const char *channel, eLogType type, int level, std::stri
 	}
 
 	// write message type
-	const char *type_str;
+	const char* type_str;
 	switch (type) {
 	case LOGTYPE_EVENT:
 		type_str = "event";

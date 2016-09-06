@@ -45,20 +45,20 @@ public:
 	~CreatureEvents() override;
 
 	// global events
-	bool playerLogIn(Player *player);
-	bool playerLogOut(Player *player);
+	bool playerLogIn(Player* player);
+	bool playerLogOut(Player* player);
 
-	CreatureEvent *getEventByName(const std::string &name);
+	CreatureEvent* getEventByName(const std::string& name);
 
 protected:
-	LuaScriptInterface &getScriptInterface() override;
+	LuaScriptInterface& getScriptInterface() override;
 	std::string getScriptBaseName() override;
-	Event *getEvent(const std::string &nodeName) override;
-	bool registerEvent(Event *event, xmlNodePtr p) override;
+	Event* getEvent(const std::string& nodeName) override;
+	bool registerEvent(Event* event, xmlNodePtr p) override;
 	void clear() override;
 
 	// creature events
-	typedef std::map<std::string, CreatureEvent *> CreatureEventList;
+	typedef std::map<std::string, CreatureEvent*> CreatureEventList;
 	CreatureEventList m_creatureEvents;
 
 	LuaScriptInterface m_scriptInterface;
@@ -67,7 +67,7 @@ protected:
 class CreatureEvent : public Event
 {
 public:
-	CreatureEvent(LuaScriptInterface *_interface);
+	CreatureEvent(LuaScriptInterface* _interface);
 	~CreatureEvent() override;
 
 	bool configureEvent(xmlNodePtr p) override;
@@ -76,18 +76,18 @@ public:
 	{
 		return m_type;
 	}
-	const std::string &getName() const
+	const std::string& getName() const
 	{
 		return m_eventName;
 	}
 
 	// scripting
-	bool executeOnLogin(Player *player);
-	bool executeOnLogout(Player *player);
-	void executeOnDie(Creature *creature, Item *corpse);
-	void executeOnKill(Creature *creature, Creature *target, bool lastHit);
-	void executeOnAdvance(Player *player, levelTypes_t type, uint32_t oldLevel, uint32_t newLevel);
-	bool executeOnLook(Player *player, Thing *target, uint16_t itemId);
+	bool executeOnLogin(Player* player);
+	bool executeOnLogout(Player* player);
+	void executeOnDie(Creature* creature, Item* corpse);
+	void executeOnKill(Creature* creature, Creature* target, bool lastHit);
+	void executeOnAdvance(Player* player, levelTypes_t type, uint32_t oldLevel, uint32_t newLevel);
+	bool executeOnLook(Player* player, Thing* target, uint16_t itemId);
 	//
 
 protected:

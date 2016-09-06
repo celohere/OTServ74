@@ -31,7 +31,7 @@
 
 struct NodeStruct;
 
-typedef NodeStruct *NODE;
+typedef NodeStruct* NODE;
 
 struct NodeStruct {
 	NodeStruct()
@@ -49,10 +49,10 @@ struct NodeStruct {
 	unsigned long start;
 	unsigned long propsSize;
 	unsigned long type;
-	NodeStruct *next;
-	NodeStruct *child;
+	NodeStruct* next;
+	NodeStruct* child;
 
-	static void clearNet(NodeStruct *root)
+	static void clearNet(NodeStruct* root)
 	{
 		if (root) {
 			clearChild(root);
@@ -60,10 +60,10 @@ struct NodeStruct {
 	}
 
 private:
-	static void clearNext(NodeStruct *node)
+	static void clearNext(NodeStruct* node)
 	{
-		NodeStruct *deleteNode = node;
-		NodeStruct *nextNode;
+		NodeStruct* deleteNode = node;
+		NodeStruct* nextNode;
 		while (deleteNode) {
 			if (deleteNode->child) {
 				clearChild(deleteNode->child);
@@ -74,7 +74,7 @@ private:
 		}
 	}
 
-	static void clearChild(NodeStruct *node)
+	static void clearChild(NodeStruct* node)
 	{
 		if (node->child) {
 			clearChild(node->child);
@@ -111,15 +111,15 @@ public:
 	FileLoader();
 	virtual ~FileLoader();
 
-	bool openFile(const char *filename, bool write, bool caching = false);
-	const unsigned char *getProps(const NODE, unsigned long &size);
-	bool getProps(const NODE, PropStream &props);
-	const NODE getChildNode(const NODE parent, unsigned long &type);
-	const NODE getNextNode(const NODE prev, unsigned long &type);
+	bool openFile(const char* filename, bool write, bool caching = false);
+	const unsigned char* getProps(const NODE, unsigned long& size);
+	bool getProps(const NODE, PropStream& props);
+	const NODE getChildNode(const NODE parent, unsigned long& type);
+	const NODE getNextNode(const NODE prev, unsigned long& type);
 
 	void startNode(unsigned char type);
 	void endNode();
-	int setProps(void *data, unsigned short size);
+	int setProps(void* data, unsigned short size);
 
 	int getError()
 	{
@@ -139,17 +139,17 @@ protected:
 
 	bool parseNode(NODE node);
 
-	inline bool readByte(int &value);
-	inline bool readBytes(unsigned char *buffer, int size, long pos);
+	inline bool readByte(int& value);
+	inline bool readBytes(unsigned char* buffer, int size, long pos);
 	inline bool checks(const NODE node);
 	inline bool safeSeek(unsigned long pos);
-	inline bool safeTell(long &pos);
+	inline bool safeTell(long& pos);
 
 public:
-	inline bool writeData(const void *data, int size, bool unescape)
+	inline bool writeData(const void* data, int size, bool unescape)
 	{
 		for (int i = 0; i < size; ++i) {
-			unsigned char c = *(((unsigned char *)data) + i);
+			unsigned char c = *(((unsigned char*)data) + i);
 			if (unescape && (c == NODE_START || c == NODE_END || c == ESCAPE_CHAR)) {
 				unsigned char escape = ESCAPE_CHAR;
 				size_t value = fwrite(&escape, 1, 1, m_file);
@@ -169,17 +169,17 @@ public:
 	}
 
 protected:
-	FILE *m_file;
+	FILE* m_file;
 	FILELOADER_ERRORS m_lastError;
 	NODE m_root;
 	unsigned long m_buffer_size;
-	unsigned char *m_buffer;
+	unsigned char* m_buffer;
 
 	bool m_use_cache;
 	struct _cache {
 		unsigned long loaded;
 		unsigned long base;
-		unsigned char *data;
+		unsigned char* data;
 		size_t size;
 	};
 #define CACHE_BLOCKS 3
@@ -202,7 +202,7 @@ public:
 	}
 	~PropStream(){};
 
-	void init(const char *a, unsigned long size)
+	void init(const char* a, unsigned long size)
 	{
 		p = a;
 		end = a + size;
@@ -214,61 +214,61 @@ public:
 	}
 
 #ifndef __SWAP_ENDIAN__
-	inline bool GET_UINT32(uint32_t &ret)
+	inline bool GET_UINT32(uint32_t& ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_INT32(int32_t &ret)
+	inline bool GET_INT32(int32_t& ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_UINT16(uint16_t &ret)
+	inline bool GET_UINT16(uint16_t& ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_INT16(int16_t &ret)
+	inline bool GET_INT16(int16_t& ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_FLOAT(float &ret)
+	inline bool GET_FLOAT(float& ret)
 	{
 		return GET_VALUE(ret);
 	}
 
 #else
-	inline bool GET_UINT32(uint32_t &ret)
+	inline bool GET_UINT32(uint32_t& ret)
 	{
 		bool b = GET_VALUE(ret);
 		swap_uint32(ret);
 		return b;
 	}
 
-	inline bool GET_INT32(int32_t &ret)
+	inline bool GET_INT32(int32_t& ret)
 	{
 		bool b = GET_VALUE(ret);
 		swap_int32(ret);
 		return b;
 	}
 
-	inline bool GET_UINT16(uint16_t &ret)
+	inline bool GET_UINT16(uint16_t& ret)
 	{
 		bool b = GET_VALUE(ret);
 		swap_uint16(ret);
 		return b;
 	}
 
-	inline bool GET_INT16(int16_t &ret)
+	inline bool GET_INT16(int16_t& ret)
 	{
 		bool b = GET_VALUE(ret);
 		swap_int16(ret);
 		return b;
 	}
 
-	inline bool GET_FLOAT(float &ret)
+	inline bool GET_FLOAT(float& ret)
 	{
 		bool b = GET_VALUE(ret);
 		swap_float(ret);
@@ -276,24 +276,24 @@ public:
 	}
 #endif
 
-	inline bool GET_UINT8(uint8_t &ret)
+	inline bool GET_UINT8(uint8_t& ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_INT8(int8_t &ret)
+	inline bool GET_INT8(int8_t& ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_CHAR(int8_t &ret)
+	inline bool GET_CHAR(int8_t& ret)
 	{
 		return GET_VALUE(ret);
 	}
 
-	inline bool GET_STRING(std::string &ret)
+	inline bool GET_STRING(std::string& ret)
 	{
-		char *str;
+		char* str;
 		uint16_t str_len;
 
 		if (!GET_VALUE(str_len)) {
@@ -311,9 +311,9 @@ public:
 		return true;
 	}
 
-	inline bool GET_LSTRING(std::string &ret)
+	inline bool GET_LSTRING(std::string& ret)
 	{
-		char *str;
+		char* str;
 		uint32_t str_len;
 
 		if (!GET_VALUE(str_len)) {
@@ -331,9 +331,9 @@ public:
 		return true;
 	}
 
-	inline bool GET_NSTRING(std::string &ret, unsigned short str_len)
+	inline bool GET_NSTRING(std::string& ret, unsigned short str_len)
 	{
-		char *str;
+		char* str;
 
 		if (size() < (int32_t)str_len) {
 			return false;
@@ -347,7 +347,7 @@ public:
 		return true;
 	}
 
-	inline bool GET_RAWSTRING(char *buffer, unsigned short str_len)
+	inline bool GET_RAWSTRING(char* buffer, unsigned short str_len)
 	{
 		if (size() < (int32_t)str_len) {
 			return false;
@@ -367,18 +367,18 @@ public:
 	}
 
 protected:
-	template <typename T> inline bool GET_VALUE(T &ret)
+	template <typename T> inline bool GET_VALUE(T& ret)
 	{
 		if (size() < (long)sizeof(T)) {
 			return false;
 		}
-		ret = *((T *)p);
+		ret = *((T*)p);
 		p = p + sizeof(T);
 		return true;
 	}
 
-	const char *p;
-	const char *end;
+	const char* p;
+	const char* end;
 };
 
 class PropWriteStream
@@ -386,7 +386,7 @@ class PropWriteStream
 public:
 	PropWriteStream()
 	{
-		buffer = (char *)malloc(32 * sizeof(char));
+		buffer = (char*)malloc(32 * sizeof(char));
 		buffer_size = 32;
 		size = 0;
 		memset(buffer, 0, 32 * sizeof(char));
@@ -396,7 +396,7 @@ public:
 		free(buffer);
 	}
 
-	const char *getStream(uint32_t &_size) const
+	const char* getStream(uint32_t& _size) const
 	{
 		_size = size;
 		return buffer;
@@ -466,7 +466,7 @@ public:
 		ADD_VALUE(ret);
 	}
 
-	inline void ADD_STRING(const std::string &add)
+	inline void ADD_STRING(const std::string& add)
 	{
 		uint16_t str_len = (uint16_t)add.size();
 
@@ -474,14 +474,14 @@ public:
 
 		if ((buffer_size - size) < str_len) {
 			buffer_size = buffer_size + str_len + 0x1F;
-			buffer = (char *)realloc(buffer, buffer_size);
+			buffer = (char*)realloc(buffer, buffer_size);
 		}
 
 		memcpy(&buffer[size], add.c_str(), str_len);
 		size = size + str_len;
 	}
 
-	inline void ADD_LSTRING(const std::string &add)
+	inline void ADD_LSTRING(const std::string& add)
 	{
 		uint32_t str_len = (uint32_t)add.size();
 
@@ -489,7 +489,7 @@ public:
 
 		if ((buffer_size - size) < str_len) {
 			buffer_size = buffer_size + str_len + 0x1F;
-			buffer = (char *)realloc(buffer, buffer_size);
+			buffer = (char*)realloc(buffer, buffer_size);
 		}
 
 		memcpy(&buffer[size], add.c_str(), str_len);
@@ -501,14 +501,14 @@ protected:
 	{
 		if ((buffer_size - size) < sizeof(T)) {
 			buffer_size = buffer_size + sizeof(T) + 0x1F;
-			buffer = (char *)realloc(buffer, buffer_size);
+			buffer = (char*)realloc(buffer, buffer_size);
 		}
 
 		memcpy(&buffer[size], &add, sizeof(T));
 		size = size + sizeof(T);
 	}
 
-	char *buffer;
+	char* buffer;
 	uint32_t buffer_size;
 	uint32_t size;
 };

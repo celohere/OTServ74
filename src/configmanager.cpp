@@ -35,13 +35,17 @@ ConfigManager::~ConfigManager()
 	//
 }
 
-bool ConfigManager::loadFile(const std::string &_filename)
+bool ConfigManager::loadFile(const std::string& _filename)
 {
-	if (L) lua_close(L);
+	if (L) {
+		lua_close(L);
+	}
 
 	L = lua_open();
 
-	if (!L) return false;
+	if (!L) {
+		return false;
+	}
 
 	if (luaL_dofile(L, _filename.c_str())) {
 		lua_close(L);
@@ -54,9 +58,12 @@ bool ConfigManager::loadFile(const std::string &_filename)
 	{
 		m_confString[CONFIG_FILE] = _filename;
 		// These settings might have been set from command line
-		if (m_confString[IP] == "")
+		if (m_confString[IP] == "") {
 			m_confString[IP] = getGlobalString(L, "IP", "127.0.0.1");
-		if (m_confInteger[PORT] == 0) m_confInteger[PORT] = getGlobalNumber(L, "Port");
+		}
+		if (m_confInteger[PORT] == 0) {
+			m_confInteger[PORT] = getGlobalNumber(L, "Port");
+		}
 
 #if defined __CONFIG_V2__
 		unsigned int pos = _filename.rfind("/");
@@ -164,12 +171,14 @@ bool ConfigManager::loadFile(const std::string &_filename)
 
 bool ConfigManager::reload()
 {
-	if (!m_isLoaded) return false;
+	if (!m_isLoaded) {
+		return false;
+	}
 
 	return loadFile(m_confString[CONFIG_FILE]);
 }
 
-const std::string &ConfigManager::getString(uint32_t _what) const
+const std::string& ConfigManager::getString(uint32_t _what) const
 {
 	if (m_isLoaded && _what < LAST_STRING_CONFIG) {
 		return m_confString[_what];
@@ -181,9 +190,9 @@ const std::string &ConfigManager::getString(uint32_t _what) const
 
 int ConfigManager::getNumber(uint32_t _what) const
 {
-	if (m_isLoaded && _what < LAST_INTEGER_CONFIG)
+	if (m_isLoaded && _what < LAST_INTEGER_CONFIG) {
 		return m_confInteger[_what];
-	else {
+	} else {
 		std::cout << "Warning: [ConfigManager::getNumber] " << _what << std::endl;
 		return 0;
 	}
@@ -199,7 +208,7 @@ bool ConfigManager::setNumber(uint32_t _what, int _value)
 	}
 }
 
-bool ConfigManager::setString(uint32_t _what, const std::string &_value)
+bool ConfigManager::setString(uint32_t _what, const std::string& _value)
 {
 	if (_what < LAST_STRING_CONFIG) {
 		m_confString[_what] = _value;
@@ -210,7 +219,7 @@ bool ConfigManager::setString(uint32_t _what, const std::string &_value)
 	}
 }
 
-std::string ConfigManager::getGlobalString(lua_State *_L, const std::string &_identifier, const std::string &_default)
+std::string ConfigManager::getGlobalString(lua_State* _L, const std::string& _identifier, const std::string& _default)
 {
 	lua_getglobal(_L, _identifier.c_str());
 
@@ -226,7 +235,7 @@ std::string ConfigManager::getGlobalString(lua_State *_L, const std::string &_id
 	return ret;
 }
 
-int ConfigManager::getGlobalNumber(lua_State *_L, const std::string &_identifier, int _default)
+int ConfigManager::getGlobalNumber(lua_State* _L, const std::string& _identifier, int _default)
 {
 	lua_getglobal(_L, _identifier.c_str());
 
@@ -241,7 +250,7 @@ int ConfigManager::getGlobalNumber(lua_State *_L, const std::string &_identifier
 	return val;
 }
 
-bool ConfigManager::getGlobalBoolean(lua_State *_L, const std::string &_identifier, bool _default)
+bool ConfigManager::getGlobalBoolean(lua_State* _L, const std::string& _identifier, bool _default)
 {
 	lua_getglobal(_L, _identifier.c_str());
 
@@ -262,13 +271,13 @@ bool ConfigManager::getGlobalBoolean(lua_State *_L, const std::string &_identifi
 	return _default;
 }
 
-void ConfigManager::getConfigValue(const std::string &key, lua_State *toL)
+void ConfigManager::getConfigValue(const std::string& key, lua_State* toL)
 {
 	lua_getglobal(L, key.c_str());
 	moveValue(L, toL);
 }
 
-void ConfigManager::moveValue(lua_State *from, lua_State *to)
+void ConfigManager::moveValue(lua_State* from, lua_State* to)
 {
 	switch (lua_type(from, -1)) {
 	case LUA_TNIL:
@@ -282,7 +291,7 @@ void ConfigManager::moveValue(lua_State *from, lua_State *to)
 		break;
 	case LUA_TSTRING: {
 		size_t len;
-		const char *str = lua_tolstring(from, -1, &len);
+		const char* str = lua_tolstring(from, -1, &len);
 		lua_pushlstring(to, str, len);
 	} break;
 	case LUA_TTABLE:

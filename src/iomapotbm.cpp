@@ -61,7 +61,7 @@ extern Game g_game;
         |--- OTBM_ITEM_DEF (not implemented)
 */
 
-bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
+bool IOMapOTBM::loadMap(Map* map, const std::string& identifier)
 {
 	int64_t start = OTSYS_TIME();
 
@@ -76,7 +76,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 	unsigned long type;
 	PropStream propStream;
 
-	NODE root = f.getChildNode((NODE)nullptr, type);
+	NODE root = f.getChildNode((NODE) nullptr, type);
 
 	if (!f.getProps(root, propStream)) {
 		setLastErrorString("Could not read root property.");
@@ -171,7 +171,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 		}
 	}
 
-	Tile *tile = nullptr;
+	Tile* tile = nullptr;
 
 	NODE nodeMapData = f.getChildNode(nodeMap, type);
 	while (nodeMapData != NO_NODE) {
@@ -225,7 +225,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 					pz = base_z;
 
 					bool isHouseTile = false;
-					House *house = nullptr;
+					House* house = nullptr;
 
 					if (type == OTBM_TILE) {
 						tile = new Tile(px, py, pz);
@@ -251,7 +251,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 						}
 
 						tile = new HouseTile(px, py, pz, house);
-						house->addTile(static_cast<HouseTile *>(tile));
+						house->addTile(static_cast<HouseTile*>(tile));
 						isHouseTile = true;
 					}
 
@@ -298,7 +298,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 						}
 
 						case OTBM_ATTR_ITEM: {
-							Item *item = Item::CreateItem(propStream);
+							Item* item = Item::CreateItem(propStream);
 							if (!item) {
 								std::stringstream ss;
 								ss << "[x:" << px << ", y:" << py
@@ -344,7 +344,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 							PropStream propStream;
 							f.getProps(nodeItem, propStream);
 
-							Item *item = Item::CreateItem(propStream);
+							Item* item = Item::CreateItem(propStream);
 							if (!item) {
 								std::stringstream ss;
 								ss << "[x:" << px << ", y:" << py
@@ -370,7 +370,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 									item->loadedOnMap = true;
 
 									if (isHouseTile) {
-										Door *door = item->getDoor();
+										Door* door = item->getDoor();
 										if (door && door->getDoorId() != 0) {
 											house->addDoor(door);
 										}
@@ -420,7 +420,7 @@ bool IOMapOTBM::loadMap(Map *map, const std::string &identifier)
 						return false;
 					}
 
-					Town *town = Towns::getInstance().getTown(townid);
+					Town* town = Towns::getInstance().getTown(townid);
 					if (!town) {
 						town = new Town(townid);
 						Towns::getInstance().addTown(townid, town);

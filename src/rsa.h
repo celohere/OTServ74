@@ -32,12 +32,12 @@ class RSA
 public:
 	RSA();
 	~RSA();
-	void setKey(const char *p, const char *q, const char *d);
-	bool setKey(const std::string &file);
-	bool decrypt(char *msg, int32_t size);
+	void setKey(const char* p, const char* q, const char* d);
+	bool setKey(const std::string& file);
+	bool decrypt(char* msg, int32_t size);
 
 	int32_t getKeySize();
-	void getPublicKey(char *buffer);
+	void getPublicKey(char* buffer);
 
 protected:
 	bool m_keySet;

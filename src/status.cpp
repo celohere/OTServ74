@@ -55,7 +55,7 @@ enum RequestedInfo_t {
 
 std::map<uint32_t, int64_t> ProtocolStatus::ipConnectMap;
 
-void ProtocolStatus::onRecvFirstMessage(NetworkMessage &msg)
+void ProtocolStatus::onRecvFirstMessage(NetworkMessage& msg)
 {
 	std::map<uint32_t, int64_t>::const_iterator it = ipConnectMap.find(getIP());
 	if (it != ipConnectMap.end()) {
@@ -75,7 +75,7 @@ void ProtocolStatus::onRecvFirstMessage(NetworkMessage &msg)
 			OutputMessagePool::getInstance()->getOutputMessage(this, false);
 			if (output) {
 				TRACK_MESSAGE(output);
-				Status *status = Status::instance();
+				Status* status = Status::instance();
 				std::string str = status->getStatusString();
 				output->AddBytes(str.c_str(), str.size());
 				setRawMessages(
@@ -93,7 +93,7 @@ void ProtocolStatus::onRecvFirstMessage(NetworkMessage &msg)
 		OutputMessage_ptr output = OutputMessagePool::getInstance()->getOutputMessage(this, false);
 		if (output) {
 			TRACK_MESSAGE(output);
-			Status *status = Status::instance();
+			Status* status = Status::instance();
 			status->getInfo(requestedInfo, output, msg);
 			OutputMessagePool::getInstance()->send(output);
 		}
@@ -124,7 +124,9 @@ Status::Status()
 void Status::addPlayer()
 {
 	m_playersonline++;
-	if (m_playerspeak < m_playersonline) m_playerspeak = m_playersonline;
+	if (m_playerspeak < m_playersonline) {
+		m_playerspeak = m_playersonline;
+	}
 }
 
 void Status::removePlayer()
@@ -141,50 +143,49 @@ std::string Status::getStatusString() const
 	xmlDocPtr doc;
 	xmlNodePtr p, root;
 
-	doc = xmlNewDoc((const xmlChar *)"1.0");
-	doc->children = xmlNewDocNode(doc, nullptr, (const xmlChar *)"tsqp", nullptr);
+	doc = xmlNewDoc((const xmlChar*)"1.0");
+	doc->children = xmlNewDocNode(doc, nullptr, (const xmlChar*)"tsqp", nullptr);
 	root = doc->children;
 
-	xmlSetProp(root, (const xmlChar *)"version", (const xmlChar *)"1.0");
+	xmlSetProp(root, (const xmlChar*)"version", (const xmlChar*)"1.0");
 
 
-	p = xmlNewNode(nullptr, (const xmlChar *)"serverinfo");
+	p = xmlNewNode(nullptr, (const xmlChar*)"serverinfo");
 	ss << getUptime();
-	xmlSetProp(p, (const xmlChar *)"uptime", (const xmlChar *)ss.str().c_str());
+	xmlSetProp(p, (const xmlChar*)"uptime", (const xmlChar*)ss.str().c_str());
 	ss.str("");
-	xmlSetProp(p, (const xmlChar *)"ip", (const xmlChar *)g_config.getString(ConfigManager::IP).c_str());
-	xmlSetProp(p, (const xmlChar *)"servername",
-	           (const xmlChar *)g_config.getString(ConfigManager::SERVER_NAME).c_str());
+	xmlSetProp(p, (const xmlChar*)"ip", (const xmlChar*)g_config.getString(ConfigManager::IP).c_str());
+	xmlSetProp(p, (const xmlChar*)"servername",
+	           (const xmlChar*)g_config.getString(ConfigManager::SERVER_NAME).c_str());
 
 	ss << g_config.getNumber(ConfigManager::PORT);
-	xmlSetProp(p, (const xmlChar *)"port", (const xmlChar *)ss.str().c_str());
+	xmlSetProp(p, (const xmlChar*)"port", (const xmlChar*)ss.str().c_str());
 	ss.str("");
 
-	xmlSetProp(p, (const xmlChar *)"location",
-	           (const xmlChar *)g_config.getString(ConfigManager::LOCATION).c_str());
-	xmlSetProp(p, (const xmlChar *)"url",
-	           (const xmlChar *)g_config.getString(ConfigManager::URL).c_str());
-	xmlSetProp(p, (const xmlChar *)"server", (const xmlChar *)OTSERV_NAME);
-	xmlSetProp(p, (const xmlChar *)"version", (const xmlChar *)OTSERV_VERSION);
-	xmlSetProp(p, (const xmlChar *)"client", (const xmlChar *)OTSERV_CLIENT_VERSION);
+	xmlSetProp(p, (const xmlChar*)"location",
+	           (const xmlChar*)g_config.getString(ConfigManager::LOCATION).c_str());
+	xmlSetProp(p, (const xmlChar*)"url", (const xmlChar*)g_config.getString(ConfigManager::URL).c_str());
+	xmlSetProp(p, (const xmlChar*)"server", (const xmlChar*)OTSERV_NAME);
+	xmlSetProp(p, (const xmlChar*)"version", (const xmlChar*)OTSERV_VERSION);
+	xmlSetProp(p, (const xmlChar*)"client", (const xmlChar*)OTSERV_CLIENT_VERSION);
 	xmlAddChild(root, p);
 
-	p = xmlNewNode(nullptr, (const xmlChar *)"owner");
-	xmlSetProp(p, (const xmlChar *)"name",
-	           (const xmlChar *)g_config.getString(ConfigManager::OWNER_NAME).c_str());
-	xmlSetProp(p, (const xmlChar *)"email",
-	           (const xmlChar *)g_config.getString(ConfigManager::OWNER_EMAIL).c_str());
+	p = xmlNewNode(nullptr, (const xmlChar*)"owner");
+	xmlSetProp(p, (const xmlChar*)"name",
+	           (const xmlChar*)g_config.getString(ConfigManager::OWNER_NAME).c_str());
+	xmlSetProp(p, (const xmlChar*)"email",
+	           (const xmlChar*)g_config.getString(ConfigManager::OWNER_EMAIL).c_str());
 	xmlAddChild(root, p);
 
-	p = xmlNewNode(nullptr, (const xmlChar *)"players");
+	p = xmlNewNode(nullptr, (const xmlChar*)"players");
 	ss << m_playersonline;
-	xmlSetProp(p, (const xmlChar *)"online", (const xmlChar *)ss.str().c_str());
+	xmlSetProp(p, (const xmlChar*)"online", (const xmlChar*)ss.str().c_str());
 	ss.str("");
 	ss << m_playersmax;
-	xmlSetProp(p, (const xmlChar *)"max", (const xmlChar *)ss.str().c_str());
+	xmlSetProp(p, (const xmlChar*)"max", (const xmlChar*)ss.str().c_str());
 	ss.str("");
 	ss << m_playerspeak;
-	xmlSetProp(p, (const xmlChar *)"peak", (const xmlChar *)ss.str().c_str());
+	xmlSetProp(p, (const xmlChar*)"peak", (const xmlChar*)ss.str().c_str());
 	ss.str("");
 	xmlAddChild(root, p);
 
@@ -196,29 +197,29 @@ std::string Status::getStatusString() const
 	xmlAddChild(root, p);
 	*/
 
-	p = xmlNewNode(nullptr, (const xmlChar *)"map");
-	xmlSetProp(p, (const xmlChar *)"name", (const xmlChar *)m_mapname.c_str());
-	xmlSetProp(p, (const xmlChar *)"author", (const xmlChar *)m_mapauthor.c_str());
+	p = xmlNewNode(nullptr, (const xmlChar*)"map");
+	xmlSetProp(p, (const xmlChar*)"name", (const xmlChar*)m_mapname.c_str());
+	xmlSetProp(p, (const xmlChar*)"author", (const xmlChar*)m_mapauthor.c_str());
 
 	uint32_t mapWidth, mapHeight;
 	g_game.getMapDimensions(mapWidth, mapHeight);
 	ss.str("");
 	ss << mapWidth;
-	xmlSetProp(p, (const xmlChar *)"width", (const xmlChar *)ss.str().c_str());
+	xmlSetProp(p, (const xmlChar*)"width", (const xmlChar*)ss.str().c_str());
 	ss.str("");
 	ss << mapHeight;
-	xmlSetProp(p, (const xmlChar *)"height", (const xmlChar *)ss.str().c_str());
+	xmlSetProp(p, (const xmlChar*)"height", (const xmlChar*)ss.str().c_str());
 	xmlAddChild(root, p);
 
-	xmlNewTextChild(root, nullptr, (const xmlChar *)"motd",
-	                (const xmlChar *)g_config.getString(ConfigManager::MOTD).c_str());
+	xmlNewTextChild(root, nullptr, (const xmlChar*)"motd",
+	                (const xmlChar*)g_config.getString(ConfigManager::MOTD).c_str());
 
-	xmlChar *s = nullptr;
+	xmlChar* s = nullptr;
 	int len = 0;
-	xmlDocDumpMemory(doc, (xmlChar **)&s, &len);
+	xmlDocDumpMemory(doc, (xmlChar**)&s, &len);
 
 	if (s) {
-		xml = std::string((char *)s, len);
+		xml = std::string((char*)s, len);
 	} else {
 		xml = "";
 	}
@@ -229,7 +230,7 @@ std::string Status::getStatusString() const
 	return xml;
 }
 
-void Status::getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMessage &msg) const
+void Status::getInfo(uint32_t requestedInfo, OutputMessage_ptr output, NetworkMessage& msg) const
 {
 	// the client selects which information may be
 	// sent back, so we'll save some bandwidth and

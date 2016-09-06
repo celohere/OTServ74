@@ -34,22 +34,22 @@ class ContainerIterator
 {
 public:
 	ContainerIterator();
-	ContainerIterator(const ContainerIterator &rhs);
+	ContainerIterator(const ContainerIterator& rhs);
 	~ContainerIterator();
 
-	ContainerIterator &operator=(const ContainerIterator &rhs);
-	bool operator==(const ContainerIterator &rhs);
-	bool operator!=(const ContainerIterator &rhs);
-	ContainerIterator &operator++();
+	ContainerIterator& operator=(const ContainerIterator& rhs);
+	bool operator==(const ContainerIterator& rhs);
+	bool operator!=(const ContainerIterator& rhs);
+	ContainerIterator& operator++();
 	ContainerIterator operator++(int);
-	Item *operator*();
-	Item *operator->();
+	Item* operator*();
+	Item* operator->();
 
 protected:
-	ContainerIterator(Container *super);
+	ContainerIterator(Container* super);
 
-	Container *super;
-	std::queue<Container *> over;
+	Container* super;
+	std::queue<Container*> over;
 	ItemList::iterator cur;
 
 	friend class Container;
@@ -60,27 +60,27 @@ class Container : public Item, public Cylinder
 public:
 	Container(uint16_t _type);
 	~Container() override;
-	Item *clone() const override;
+	Item* clone() const override;
 
-	Container *getContainer() override
+	Container* getContainer() override
 	{
 		return this;
 	}
-	const Container *getContainer() const override
+	const Container* getContainer() const override
 	{
 		return this;
 	}
-	virtual Depot *getDepot()
+	virtual Depot* getDepot()
 	{
 		return nullptr;
 	}
-	virtual const Depot *getDepot() const
+	virtual const Depot* getDepot() const
 	{
 		return nullptr;
 	}
 
-	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream) override;
-	bool unserializeItemNode(FileLoader &f, NODE node, PropStream &propStream) override;
+	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream& propStream) override;
+	bool unserializeItemNode(FileLoader& f, NODE node, PropStream& propStream) override;
 
 	uint32_t size() const
 	{
@@ -113,10 +113,10 @@ public:
 		return itemlist.rend();
 	}
 
-	void addItem(Item *item);
+	void addItem(Item* item);
 	using Thing::getItem;
-	Item *getItem(uint32_t index);
-	bool isHoldingItem(const Item *item) const;
+	Item* getItem(uint32_t index);
+	bool isHoldingItem(const Item* item) const;
 
 	uint32_t capacity() const
 	{
@@ -126,47 +126,45 @@ public:
 	double getWeight() const override;
 
 	// cylinder implementations
-	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue __queryAdd(int32_t index, const Thing* thing, uint32_t count, uint32_t flags) const override;
 	ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
-	ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const override;
-	Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
+	__queryMaxCount(int32_t index, const Thing* thing, uint32_t count, uint32_t& maxQueryCount, uint32_t flags) const override;
+	ReturnValue __queryRemove(const Thing* thing, uint32_t count, uint32_t flags) const override;
+	Cylinder* __queryDestination(int32_t& index, const Thing* thing, Item** destItem, uint32_t& flags) override;
 
-	void __addThing(Thing *thing) override;
-	void __addThing(int32_t index, Thing *thing) override;
+	void __addThing(Thing* thing) override;
+	void __addThing(int32_t index, Thing* thing) override;
 
-	void __updateThing(Thing *thing, uint16_t itemId, uint32_t count) override;
-	void __replaceThing(uint32_t index, Thing *thing) override;
+	void __updateThing(Thing* thing, uint16_t itemId, uint32_t count) override;
+	void __replaceThing(uint32_t index, Thing* thing) override;
 
-	void __removeThing(Thing *thing, uint32_t count) override;
+	void __removeThing(Thing* thing, uint32_t count) override;
 
-	int32_t __getIndexOfThing(const Thing *thing) const override;
+	int32_t __getIndexOfThing(const Thing* thing) const override;
 	int32_t __getFirstIndex() const override;
 	int32_t __getLastIndex() const override;
 	uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1, bool itemCount = true) const override;
-	std::map<uint32_t, uint32_t> &
-	__getAllItemTypeCount(std::map<uint32_t, uint32_t> &countMap, bool itemCount = true) const override;
-	Thing *__getThing(uint32_t index) const override;
+	std::map<uint32_t, uint32_t>& __getAllItemTypeCount(std::map<uint32_t, uint32_t>& countMap,
+	                                                    bool itemCount = true) const override;
+	Thing* __getThing(uint32_t index) const override;
 
-	void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
-	void postRemoveNotification(Thing *thing,
-	                                    const Cylinder *newParent,
-	                                    int32_t index,
-	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER) override;
+	void postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing* thing,
+	                            const Cylinder* newParent,
+	                            int32_t index,
+	                            bool isCompleteRemoval,
+	                            cylinderlink_t link = LINK_OWNER) override;
 
-	void __internalAddThing(Thing *thing) override;
-	void __internalAddThing(uint32_t index, Thing *thing) override;
+	void __internalAddThing(Thing* thing) override;
+	void __internalAddThing(uint32_t index, Thing* thing) override;
 	void __startDecaying() override;
 
 private:
-	void onAddContainerItem(Item *item);
-	void onUpdateContainerItem(uint32_t index, Item *oldItem, const ItemType &oldType, Item *newItem, const ItemType &newType);
-	void onRemoveContainerItem(uint32_t index, Item *item);
+	void onAddContainerItem(Item* item);
+	void onUpdateContainerItem(uint32_t index, Item* oldItem, const ItemType& oldType, Item* newItem, const ItemType& newType);
+	void onRemoveContainerItem(uint32_t index, Item* item);
 
-	Container *getParentContainer();
+	Container* getParentContainer();
 	void updateItemWeight(double diff);
 
 protected:

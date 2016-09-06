@@ -43,7 +43,7 @@ public:
 	{
 		type = _type;
 	}
-	void getMinMaxValues(Player *player, int32_t &min, int32_t &max, bool useCharges) const;
+	void getMinMaxValues(Player* player, int32_t& min, int32_t& max, bool useCharges) const;
 
 protected:
 	formulaType_t type;
@@ -53,7 +53,7 @@ class TileCallback : public CallBack
 {
 public:
 	TileCallback(){};
-	void onTileCombat(Creature *creature, Tile *tile) const;
+	void onTileCombat(Creature* creature, Tile* tile) const;
 
 protected:
 	formulaType_t type;
@@ -63,7 +63,7 @@ class TargetCallback : public CallBack
 {
 public:
 	TargetCallback(){};
-	void onTargetCombat(Creature *creature, Creature *target) const;
+	void onTargetCombat(Creature* creature, Creature* target) const;
 
 protected:
 	formulaType_t type;
@@ -91,7 +91,7 @@ struct CombatParams {
 		targetCallback = nullptr;
 	}
 
-	const Condition *condition;
+	const Condition* condition;
 	ConditionType_t dispelType;
 	CombatType_t combatType;
 	bool blockedByArmor;
@@ -105,12 +105,12 @@ struct CombatParams {
 	uint8_t distanceEffect;
 	bool useCharges;
 
-	ValueCallback *valueCallback;
-	TileCallback *tileCallback;
-	TargetCallback *targetCallback;
+	ValueCallback* valueCallback;
+	TileCallback* tileCallback;
+	TargetCallback* targetCallback;
 };
 
-typedef bool (*COMBATFUNC)(Creature *, Creature *, const CombatParams &, void *);
+typedef bool (*COMBATFUNC)(Creature*, Creature*, const CombatParams&, void*);
 
 struct Combat2Var {
 	int32_t minChange;
@@ -129,7 +129,7 @@ public:
 		rows = _rows;
 		cols = _cols;
 
-		data_ = new bool *[rows];
+		data_ = new bool*[rows];
 
 		for (uint32_t row = 0; row < rows; ++row) {
 			data_[row] = new bool[cols];
@@ -140,14 +140,14 @@ public:
 		}
 	}
 
-	MatrixArea(const MatrixArea &rhs)
+	MatrixArea(const MatrixArea& rhs)
 	{
 		centerX = rhs.centerX;
 		centerY = rhs.centerY;
 		rows = rhs.rows;
 		cols = rhs.cols;
 
-		data_ = new bool *[rows];
+		data_ = new bool*[rows];
 
 		for (uint32_t row = 0; row < rows; ++row) {
 			data_[row] = new bool[cols];
@@ -181,7 +181,7 @@ public:
 		centerX = x;
 		centerY = y;
 	}
-	void getCenter(uint32_t &y, uint32_t &x) const
+	void getCenter(uint32_t& y, uint32_t& x) const
 	{
 		x = centerX;
 		y = centerY;
@@ -196,11 +196,11 @@ public:
 		return cols;
 	}
 
-	inline const bool *operator[](uint32_t i) const
+	inline const bool* operator[](uint32_t i) const
 	{
 		return data_[i];
 	}
-	inline bool *operator[](uint32_t i)
+	inline bool* operator[](uint32_t i)
 	{
 		return data_[i];
 	}
@@ -211,10 +211,10 @@ protected:
 
 	uint32_t rows;
 	uint32_t cols;
-	bool **data_;
+	bool** data_;
 };
 
-typedef std::map<Direction, MatrixArea *> AreaCombatMap;
+typedef std::map<Direction, MatrixArea*> AreaCombatMap;
 
 class AreaCombat
 {
@@ -228,15 +228,15 @@ public:
 		clear();
 	}
 
-	AreaCombat(const AreaCombat &rhs);
+	AreaCombat(const AreaCombat& rhs);
 
-	ReturnValue doCombat(Creature *attacker, const Position &pos, const Combat &combat) const;
-	bool getList(const Position &centerPos, const Position &targetPos, std::list<Tile *> &list) const;
+	ReturnValue doCombat(Creature* attacker, const Position& pos, const Combat& combat) const;
+	bool getList(const Position& centerPos, const Position& targetPos, std::list<Tile*>& list) const;
 
-	void setupArea(const std::list<uint32_t> &list, uint32_t rows);
+	void setupArea(const std::list<uint32_t>& list, uint32_t rows);
 	void setupArea(int32_t length, int32_t spread);
 	void setupArea(int32_t radius);
-	void setupExtArea(const std::list<uint32_t> &list, uint32_t rows);
+	void setupExtArea(const std::list<uint32_t>& list, uint32_t rows);
 	void clear();
 
 protected:
@@ -249,10 +249,10 @@ protected:
 		MATRIXOPERATION_ROTATE270,
 	};
 
-	MatrixArea *createArea(const std::list<uint32_t> &list, uint32_t rows);
-	void copyArea(const MatrixArea *input, MatrixArea *output, MatrixOperation_t op) const;
+	MatrixArea* createArea(const std::list<uint32_t>& list, uint32_t rows);
+	void copyArea(const MatrixArea* input, MatrixArea* output, MatrixOperation_t op) const;
 
-	MatrixArea *getArea(const Position &centerPos, const Position &targetPos) const
+	MatrixArea* getArea(const Position& centerPos, const Position& targetPos) const
 	{
 		int32_t dx = targetPos.x - centerPos.x;
 		int32_t dy = targetPos.y - centerPos.y;
@@ -270,14 +270,15 @@ protected:
 		}
 
 		if (hasExtArea) {
-			if (dx < 0 && dy < 0)
+			if (dx < 0 && dy < 0) {
 				dir = NORTHWEST;
-			else if (dx > 0 && dy < 0)
+			} else if (dx > 0 && dy < 0) {
 				dir = NORTHEAST;
-			else if (dx < 0 && dy > 0)
+			} else if (dx < 0 && dy > 0) {
 				dir = SOUTHWEST;
-			else if (dx > 0 && dy > 0)
+			} else if (dx > 0 && dy > 0) {
 				dir = SOUTHEAST;
+			}
 		}
 
 		AreaCombatMap::const_iterator it = areas.find(dir);
@@ -299,55 +300,55 @@ public:
 	~Combat();
 
 	static void
-	doCombatHealth(Creature *caster, Creature *target, int32_t minChange, int32_t maxChange, const CombatParams &params);
-	static void doCombatHealth(Creature *caster,
-	                           const Position &pos,
-	                           const AreaCombat *area,
+	doCombatHealth(Creature* caster, Creature* target, int32_t minChange, int32_t maxChange, const CombatParams& params);
+	static void doCombatHealth(Creature* caster,
+	                           const Position& pos,
+	                           const AreaCombat* area,
 	                           int32_t minChange,
 	                           int32_t maxChange,
-	                           const CombatParams &params);
+	                           const CombatParams& params);
 
 	static void
-	doCombatMana(Creature *caster, Creature *target, int32_t minChange, int32_t maxChange, const CombatParams &params);
-	static void doCombatMana(Creature *caster,
-	                         const Position &pos,
-	                         const AreaCombat *area,
+	doCombatMana(Creature* caster, Creature* target, int32_t minChange, int32_t maxChange, const CombatParams& params);
+	static void doCombatMana(Creature* caster,
+	                         const Position& pos,
+	                         const AreaCombat* area,
 	                         int32_t minChange,
 	                         int32_t maxChange,
-	                         const CombatParams &params);
+	                         const CombatParams& params);
 
-	static void doCombatCondition(Creature *caster, Creature *target, const CombatParams &params);
+	static void doCombatCondition(Creature* caster, Creature* target, const CombatParams& params);
 	static void
-	doCombatCondition(Creature *caster, const Position &pos, const AreaCombat *area, const CombatParams &params);
+	doCombatCondition(Creature* caster, const Position& pos, const AreaCombat* area, const CombatParams& params);
 
-	static void doCombatDispel(Creature *caster, Creature *target, const CombatParams &params);
+	static void doCombatDispel(Creature* caster, Creature* target, const CombatParams& params);
 	static void
-	doCombatDispel(Creature *caster, const Position &pos, const AreaCombat *area, const CombatParams &params);
+	doCombatDispel(Creature* caster, const Position& pos, const AreaCombat* area, const CombatParams& params);
 
-	static void getCombatArea(const Position &centerPos,
-	                          const Position &targetPos,
-	                          const AreaCombat *area,
-	                          std::list<Tile *> &list);
+	static void getCombatArea(const Position& centerPos,
+	                          const Position& targetPos,
+	                          const AreaCombat* area,
+	                          std::list<Tile*>& list);
 
-	static bool isInPvpZone(const Creature *attacker, const Creature *target);
-	static bool isPlayerCombat(const Creature *target);
+	static bool isInPvpZone(const Creature* attacker, const Creature* target);
+	static bool isPlayerCombat(const Creature* target);
 	static CombatType_t ConditionToDamageType(ConditionType_t type);
 	static ConditionType_t DamageToConditionType(CombatType_t type);
-	static ReturnValue canTargetCreature(const Player *attacker, const Creature *target);
-	static ReturnValue canDoCombat(const Creature *caster, const Tile *tile, bool isAggressive);
-	static ReturnValue canDoCombat(const Creature *attacker, const Creature *target);
-	static void postCombatEffects(Creature *caster, const Position &pos, const CombatParams &params);
+	static ReturnValue canTargetCreature(const Player* attacker, const Creature* target);
+	static ReturnValue canDoCombat(const Creature* caster, const Tile* tile, bool isAggressive);
+	static ReturnValue canDoCombat(const Creature* attacker, const Creature* target);
+	static void postCombatEffects(Creature* caster, const Position& pos, const CombatParams& params);
 
-	static void addDistanceEffect(Creature *caster, const Position &fromPos, const Position &toPos, uint8_t effect);
+	static void addDistanceEffect(Creature* caster, const Position& fromPos, const Position& toPos, uint8_t effect);
 
-	void doCombat(Creature *caster, Creature *target) const;
-	void doCombat(Creature *caster, const Position &pos) const;
+	void doCombat(Creature* caster, Creature* target) const;
+	void doCombat(Creature* caster, const Position& pos) const;
 
 	bool setCallback(CallBackParam_t key);
-	CallBack *getCallback(CallBackParam_t key);
+	CallBack* getCallback(CallBackParam_t key);
 
 	bool setParam(CombatParam_t param, uint32_t value);
-	void setArea(AreaCombat *_area)
+	void setArea(AreaCombat* _area)
 	{
 		if (area) {
 			delete area;
@@ -359,36 +360,36 @@ public:
 	{
 		return area != nullptr;
 	}
-	void setCondition(const Condition *_condition)
+	void setCondition(const Condition* _condition)
 	{
 		params.condition = _condition;
 	}
 	void setPlayerCombatValues(formulaType_t _type, double _mina, double _minb, double _maxa, double _maxb);
-	void postCombatEffects(Creature *caster, const Position &pos) const
+	void postCombatEffects(Creature* caster, const Position& pos) const
 	{
 		Combat::postCombatEffects(caster, pos, params);
 	}
 
 protected:
-	static void doCombatDefault(Creature *caster, Creature *target, const CombatParams &params);
+	static void doCombatDefault(Creature* caster, Creature* target, const CombatParams& params);
 
-	static void CombatFunc(Creature *caster,
-	                       const Position &pos,
-	                       const AreaCombat *area,
-	                       const CombatParams &params,
+	static void CombatFunc(Creature* caster,
+	                       const Position& pos,
+	                       const AreaCombat* area,
+	                       const CombatParams& params,
 	                       COMBATFUNC func,
-	                       void *data);
+	                       void* data);
 
-	static bool CombatHealthFunc(Creature *caster, Creature *target, const CombatParams &params, void *data);
-	static bool CombatManaFunc(Creature *caster, Creature *target, const CombatParams &params, void *data);
+	static bool CombatHealthFunc(Creature* caster, Creature* target, const CombatParams& params, void* data);
+	static bool CombatManaFunc(Creature* caster, Creature* target, const CombatParams& params, void* data);
 	static bool
-	CombatConditionFunc(Creature *caster, Creature *target, const CombatParams &params, void *data);
-	static bool CombatDispelFunc(Creature *caster, Creature *target, const CombatParams &params, void *data);
-	static bool CombatNullFunc(Creature *caster, Creature *target, const CombatParams &params, void *data);
+	CombatConditionFunc(Creature* caster, Creature* target, const CombatParams& params, void* data);
+	static bool CombatDispelFunc(Creature* caster, Creature* target, const CombatParams& params, void* data);
+	static bool CombatNullFunc(Creature* caster, Creature* target, const CombatParams& params, void* data);
 
 	static void
-	combatTileEffects(const SpectatorVec &list, Creature *caster, Tile *tile, const CombatParams &params);
-	bool getMinMaxValues(Creature *creature, Creature *target, int32_t &min, int32_t &max) const;
+	combatTileEffects(const SpectatorVec& list, Creature* caster, Tile* tile, const CombatParams& params);
+	bool getMinMaxValues(Creature* creature, Creature* target, int32_t& min, int32_t& max) const;
 
 	// configureable
 	CombatParams params;
@@ -400,7 +401,7 @@ protected:
 	double maxa;
 	double maxb;
 
-	AreaCombat *area;
+	AreaCombat* area;
 };
 
 class MagicField : public Item
@@ -414,11 +415,11 @@ public:
 	{
 	}
 
-	MagicField *getMagicField() override
+	MagicField* getMagicField() override
 	{
 		return this;
 	}
-	const MagicField *getMagicField() const override
+	const MagicField* getMagicField() const override
 	{
 		return this;
 	}
@@ -429,10 +430,10 @@ public:
 	}
 	CombatType_t getCombatType() const
 	{
-		const ItemType &it = items[getID()];
+		const ItemType& it = items[getID()];
 		return it.combatType;
 	}
-	void onStepInField(Creature *creature, bool purposeful = true);
+	void onStepInField(Creature* creature, bool purposeful = true);
 
 private:
 	int64_t createTime;
@@ -459,22 +460,32 @@ inline std::string CombatTypeName(CombatType_t combat)
 		return "mana drain";
 	case COMBAT_HEALING:
 		return "healing";
+	case COMBAT_COUNT:
+		break;
+	default:
+		break;
 	}
 	return "none";
 }
 
 inline int CombatTypeToIndex(CombatType_t combat)
 {
-	if (combat == COMBAT_NONE) return 0;
+	if (combat == COMBAT_NONE) {
+		return 0;
+	}
 	for (int c = 0; c < COMBAT_COUNT; ++c) {
-		if (combat & (1 << c)) return c + 1;
+		if (combat & (1 << c)) {
+			return c + 1;
+		}
 	}
 	return 0;
 };
 
 inline CombatType_t CombatIndexToType(int combatindex)
 {
-	if (combatindex == 0) return COMBAT_NONE;
+	if (combatindex == 0) {
+		return COMBAT_NONE;
+	}
 	return (CombatType_t)(1 << (combatindex - 1));
 };
 

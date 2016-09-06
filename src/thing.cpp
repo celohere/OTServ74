@@ -3,12 +3,10 @@
 #include "creature.h"
 #include "cylinder.h"
 #include "item.h"
+#include "log.h"
 #include "player.h"
 #include "thing.h"
 #include "tile.h"
-#include "log.h"
-
-
 
 
 const Position& Thing::getPosition() const
@@ -23,12 +21,11 @@ const Position& Thing::getPosition() const
 }
 
 
-
 std::string Thing::getXRayDescription() const
 {
-	if (isRemoved())
+	if (isRemoved()) {
 		return "Thing you looked at seems to be removed.";
-
+	}
 	const auto& pos = getPosition();
 	std::stringstream ret;
 	ret << "Position: [" << pos.x << ", " << pos.y << ", " << pos.z << "]";
@@ -36,18 +33,16 @@ std::string Thing::getXRayDescription() const
 }
 
 
-
-
 bool Thing::isRemoved() const
 {
-	if (parent == nullptr)
+	if (parent == nullptr) {
 		return true;
-	else if(getParent()->isRemoved())
+	} else if (getParent()->isRemoved()) {
 		return true;
-	
+	}
+
 	return false;
 }
-
 
 
 const Tile* Thing::getTile() const
@@ -59,19 +54,20 @@ const Tile* Thing::getTile() const
 	}
 
 	const auto root_cylinder = cylinder->getParent();
-	if (root_cylinder)
+	if (root_cylinder) {
 		cylinder = root_cylinder;
+	}
 
 	return dynamic_cast<const Tile*>(cylinder);
 }
 
 
-
 const Cylinder* Thing::getTopParent() const
 {
 	// tile
-	if (getParent() == nullptr)
+	if (getParent() == nullptr) {
 		return dynamic_cast<const Cylinder*>(this);
+	}
 
 	const Cylinder* aux = getParent();
 	const Cylinder* prevaux = dynamic_cast<const Cylinder*>(this);
@@ -81,13 +77,12 @@ const Cylinder* Thing::getTopParent() const
 		aux = aux->getParent();
 	}
 
-	if (dynamic_cast<const Cylinder*>(prevaux))
+	if (dynamic_cast<const Cylinder*>(prevaux)) {
 		return prevaux;
+	}
 
 	return aux;
 }
-
-
 
 
 Tile* Thing::getTile()
@@ -100,20 +95,20 @@ Tile* Thing::getTile()
 	}
 
 	const auto root_cylinder = cylinder->getParent();
-	if (root_cylinder)
+	if (root_cylinder) {
 		cylinder = root_cylinder;
+	}
 
 	return dynamic_cast<Tile*>(cylinder);
 }
 
 
-
-
 Cylinder* Thing::getTopParent()
 {
 	// tile
-	if (getParent() == nullptr) 
+	if (getParent() == nullptr) {
 		return dynamic_cast<Cylinder*>(this);
+	}
 
 	Cylinder* aux = getParent();
 	Cylinder* prevaux = dynamic_cast<Cylinder*>(this);
@@ -123,14 +118,9 @@ Cylinder* Thing::getTopParent()
 		aux = aux->getParent();
 	}
 
-	if (dynamic_cast<Cylinder*>(prevaux))
+	if (dynamic_cast<Cylinder*>(prevaux)) {
 		return prevaux;
+	}
 
 	return aux;
 }
-
-
-
-
-
-

@@ -57,7 +57,7 @@ House::~House()
 	//
 }
 
-void House::addTile(HouseTile *tile)
+void House::addTile(HouseTile* tile)
 {
 	tile->setFlag(TILESTATE_PROTECTIONZONE);
 	houseTiles.push_back(tile);
@@ -65,7 +65,9 @@ void House::addTile(HouseTile *tile)
 
 void House::setHouseOwner(uint32_t guid)
 {
-	if (isLoaded && houseOwner == guid) return;
+	if (isLoaded && houseOwner == guid) {
+		return;
+	}
 
 	isLoaded = true;
 
@@ -76,13 +78,14 @@ void House::setHouseOwner(uint32_t guid)
 		PlayerVector to_kick;
 		for (HouseTileList::iterator it = houseTiles.begin(); it != houseTiles.end(); ++it) {
 			for (uint32_t i = 0; i < (*it)->getThingCount(); ++i) {
-				Creature *creature = (*it)->__getThing(i)->getCreature();
-				if (creature != nullptr && creature->getPlayer())
+				Creature* creature = (*it)->__getThing(i)->getCreature();
+				if (creature != nullptr && creature->getPlayer()) {
 					to_kick.push_back(creature->getPlayer());
+				}
 			}
 		}
 		while (to_kick.empty() == false) {
-			Player *c = to_kick.back();
+			Player* c = to_kick.back();
 			to_kick.pop_back();
 			kickPlayer(nullptr, c->getName());
 		}
@@ -116,7 +119,8 @@ void House::setHouseOwner(uint32_t guid)
 	}
 
 	updateDoorDescription();
-	setLastWarning(std::time(nullptr)); // So the new owner has one day before he start the payment
+	setLastWarning(
+	std::time(nullptr)); // So the new owner has one day before he start the payment
 }
 
 void House::updateDoorDescription()
@@ -137,27 +141,36 @@ void House::updateDoorDescription()
 	}
 }
 
-AccessHouseLevel_t House::getHouseAccessLevel(const Player *player)
+AccessHouseLevel_t House::getHouseAccessLevel(const Player* player)
 {
-	if (player == nullptr) // By script
+	if (player == nullptr) { // By script
 		return HOUSE_OWNER;
+	}
 
-	if (player->hasFlag(PlayerFlag_CanEditHouses)) return HOUSE_OWNER;
+	if (player->hasFlag(PlayerFlag_CanEditHouses)) {
+		return HOUSE_OWNER;
+	}
 
-	if (player->getGUID() == houseOwner) return HOUSE_OWNER;
+	if (player->getGUID() == houseOwner) {
+		return HOUSE_OWNER;
+	}
 
-	if (subOwnerList.isInList(player)) return HOUSE_SUBOWNER;
+	if (subOwnerList.isInList(player)) {
+		return HOUSE_SUBOWNER;
+	}
 
-	if (guestList.isInList(player)) return HOUSE_GUEST;
+	if (guestList.isInList(player)) {
+		return HOUSE_GUEST;
+	}
 
 	return HOUSE_NO_INVITED;
 }
 
-bool House::kickPlayer(Player *player, const std::string &name)
+bool House::kickPlayer(Player* player, const std::string& name)
 {
-	Player *kickingPlayer = g_game.getPlayerByName(name);
+	Player* kickingPlayer = g_game.getPlayerByName(name);
 	if (kickingPlayer) {
-		HouseTile *houseTile = kickingPlayer->getTile()->getHouseTile();
+		HouseTile* houseTile = kickingPlayer->getTile()->getHouseTile();
 
 		if (houseTile && houseTile->getHouse() == this) {
 			if (getHouseAccessLevel(player) >= getHouseAccessLevel(kickingPlayer) &&
@@ -172,14 +185,14 @@ bool House::kickPlayer(Player *player, const std::string &name)
 	return false;
 }
 
-void House::setAccessList(uint32_t listId, const std::string &textlist)
+void House::setAccessList(uint32_t listId, const std::string& textlist)
 {
 	if (listId == GUEST_LIST) {
 		guestList.parseList(textlist);
 	} else if (listId == SUBOWNER_LIST) {
 		subOwnerList.parseList(textlist);
 	} else {
-		Door *door = getDoorByNumber(listId);
+		Door* door = getDoorByNumber(listId);
 		if (door) {
 			door->setAccessList(textlist);
 		} else {
@@ -193,15 +206,15 @@ void House::setAccessList(uint32_t listId, const std::string &textlist)
 	}
 
 	// kick uninvited players
-	typedef std::list<Player *> KickPlayerList;
+	typedef std::list<Player*> KickPlayerList;
 	KickPlayerList kickList;
 	HouseTileList::iterator it;
 	for (it = houseTiles.begin(); it != houseTiles.end(); ++it) {
-		HouseTile *hTile = *it;
+		HouseTile* hTile = *it;
 		if (hTile->creatures.size() > 0) {
 			CreatureVector::iterator cit;
 			for (cit = hTile->creatures.begin(); cit != hTile->creatures.end(); ++cit) {
-				Player *player = (*cit)->getPlayer();
+				Player* player = (*cit)->getPlayer();
 				if (player && isInvited(player) == false) {
 					kickList.push_back(player);
 				}
@@ -223,7 +236,7 @@ bool House::transferToDepot()
 		return false;
 	}
 
-	Player *player = nullptr;
+	Player* player = nullptr;
 	// Empty house is just cleared.
 	if (houseOwner != 0) {
 		std::string ownerName;
@@ -248,17 +261,19 @@ bool House::transferToDepot()
 		}
 	}
 
-	Depot *depot = player ? player->getDepot(townid, true) : nullptr;
+	Depot* depot = player ? player->getDepot(townid, true) : nullptr;
 
-	std::list<Item *> moveItemList;
-	Container *tmpContainer = nullptr;
-	Item *item = nullptr;
+	std::list<Item*> moveItemList;
+	Container* tmpContainer = nullptr;
+	Item* item = nullptr;
 
 	for (HouseTileList::iterator it = houseTiles.begin(); it != houseTiles.end(); ++it) {
 		for (uint32_t i = 0; i < (*it)->getThingCount(); ++i) {
 			item = (*it)->__getThing(i)->getItem();
 
-			if (!item) continue;
+			if (!item) {
+				continue;
+			}
 
 			if (item->isPickupable()) {
 				moveItemList.push_back(item);
@@ -271,7 +286,7 @@ bool House::transferToDepot()
 		}
 	}
 
-	for (std::list<Item *>::iterator it = moveItemList.begin(); it != moveItemList.end(); ++it) {
+	for (std::list<Item*>::iterator it = moveItemList.begin(); it != moveItemList.end(); ++it) {
 		if (depot) {
 			g_game.internalMoveItem((*it)->getParent(), depot, INDEX_WHEREEVER, (*it),
 			                        (*it)->getItemCount(), nullptr, FLAG_NOLIMIT);
@@ -295,14 +310,14 @@ void House::cleanHouse()
 	PlayerVector to_kick;
 	for (HouseTileList::iterator it = houseTiles.begin(); it != houseTiles.end(); ++it) {
 		for (uint32_t i = 0; i < (*it)->getThingCount(); ++i) {
-			Creature *creature = (*it)->__getThing(i)->getCreature();
+			Creature* creature = (*it)->__getThing(i)->getCreature();
 			if (creature != nullptr && creature->getPlayer()) {
 				to_kick.push_back(creature->getPlayer());
 			}
 		}
 	}
 	while (to_kick.empty() == false) {
-		Player *c = to_kick.back();
+		Player* c = to_kick.back();
 		to_kick.pop_back();
 		kickPlayer(nullptr, c->getName());
 	}
@@ -316,7 +331,7 @@ void House::cleanHouse()
 	}
 }
 
-bool House::getAccessList(uint32_t listId, std::string &list) const
+bool House::getAccessList(uint32_t listId, std::string& list) const
 {
 	if (listId == GUEST_LIST) {
 		guestList.getList(list);
@@ -325,7 +340,7 @@ bool House::getAccessList(uint32_t listId, std::string &list) const
 		subOwnerList.getList(list);
 		return true;
 	} else {
-		Door *door = getDoorByNumber(listId);
+		Door* door = getDoorByNumber(listId);
 		if (door) {
 			return door->getAccessList(list);
 		} else {
@@ -339,7 +354,7 @@ bool House::getAccessList(uint32_t listId, std::string &list) const
 	return false;
 }
 
-bool House::isInvited(const Player *player)
+bool House::isInvited(const Player* player)
 {
 	if (getHouseAccessLevel(player) != HOUSE_NO_INVITED) {
 		return true;
@@ -348,7 +363,7 @@ bool House::isInvited(const Player *player)
 	}
 }
 
-void House::addDoor(Door *door)
+void House::addDoor(Door* door)
 {
 	door->useThing2();
 	doorList.push_back(door);
@@ -356,7 +371,7 @@ void House::addDoor(Door *door)
 	updateDoorDescription();
 }
 
-void House::removeDoor(Door *door)
+void House::removeDoor(Door* door)
 {
 	HouseDoorList::iterator it = std::find(doorList.begin(), doorList.end(), door);
 	if (it != doorList.end()) {
@@ -367,14 +382,14 @@ void House::removeDoor(Door *door)
 
 
 //[ added for beds system
-void House::addBed(BedItem *bed)
+void House::addBed(BedItem* bed)
 {
 	bedsList.push_back(bed);
 	bed->setHouse(this);
 }
 //]
 
-Door *House::getDoorByNumber(uint32_t doorId)
+Door* House::getDoorByNumber(uint32_t doorId)
 {
 	HouseDoorList::iterator it;
 	for (it = doorList.begin(); it != doorList.end(); ++it) {
@@ -385,7 +400,7 @@ Door *House::getDoorByNumber(uint32_t doorId)
 	return nullptr;
 }
 
-Door *House::getDoorByNumber(uint32_t doorId) const
+Door* House::getDoorByNumber(uint32_t doorId) const
 {
 	HouseDoorList::const_iterator it;
 	for (it = doorList.begin(); it != doorList.end(); ++it) {
@@ -396,7 +411,7 @@ Door *House::getDoorByNumber(uint32_t doorId) const
 	return nullptr;
 }
 
-Door *House::getDoorByPosition(const Position &pos)
+Door* House::getDoorByPosition(const Position& pos)
 {
 	for (HouseDoorList::iterator it = doorList.begin(); it != doorList.end(); ++it) {
 		if ((*it)->getPosition() == pos) {
@@ -407,7 +422,7 @@ Door *House::getDoorByPosition(const Position &pos)
 	return nullptr;
 }
 
-bool House::canEditAccessList(uint32_t listId, const Player *player)
+bool House::canEditAccessList(uint32_t listId, const Player* player)
 {
 	switch (getHouseAccessLevel(player)) {
 	case HOUSE_OWNER:
@@ -420,9 +435,11 @@ bool House::canEditAccessList(uint32_t listId, const Player *player)
 	}
 }
 
-HouseTransferItem *House::getTransferItem()
+HouseTransferItem* House::getTransferItem()
 {
-	if (transferItem != nullptr) return nullptr;
+	if (transferItem != nullptr) {
+		return nullptr;
+	}
 
 	transfer_container.setParent(nullptr);
 	transferItem = HouseTransferItem::createHouseTransferItem(this);
@@ -433,7 +450,7 @@ HouseTransferItem *House::getTransferItem()
 void House::resetTransferItem()
 {
 	if (transferItem) {
-		Item *tmpItem = transferItem;
+		Item* tmpItem = transferItem;
 		transferItem = nullptr;
 		transfer_container.setParent(nullptr);
 
@@ -442,9 +459,9 @@ void House::resetTransferItem()
 	}
 }
 
-HouseTransferItem *HouseTransferItem::createHouseTransferItem(House *house)
+HouseTransferItem* HouseTransferItem::createHouseTransferItem(House* house)
 {
-	HouseTransferItem *transferItem = new HouseTransferItem(house);
+	HouseTransferItem* transferItem = new HouseTransferItem(house);
 	transferItem->useThing2();
 	transferItem->setID(ITEM_DOCUMENT_RO);
 	transferItem->setSubType(1);
@@ -454,9 +471,9 @@ HouseTransferItem *HouseTransferItem::createHouseTransferItem(House *house)
 	return transferItem;
 }
 
-bool HouseTransferItem::onTradeEvent(TradeEvents_t event, Player *owner)
+bool HouseTransferItem::onTradeEvent(TradeEvents_t event, Player* owner)
 {
-	House *house;
+	House* house;
 	switch (event) {
 	case ON_TRADE_TRANSFER: {
 		house = getHouse();
@@ -484,7 +501,7 @@ bool HouseTransferItem::onTradeEvent(TradeEvents_t event, Player *owner)
 	return true;
 }
 
-bool House::executeTransfer(HouseTransferItem *item, Player *newOwner)
+bool House::executeTransfer(HouseTransferItem* item, Player* newOwner)
 {
 	if (transferItem != item) {
 		return false;
@@ -505,7 +522,7 @@ AccessList::~AccessList()
 	//
 }
 
-bool AccessList::parseList(const std::string &_list)
+bool AccessList::parseList(const std::string& _list)
 {
 	playerList.clear();
 	guildList.clear();
@@ -513,7 +530,9 @@ bool AccessList::parseList(const std::string &_list)
 	regExList.clear();
 	list = _list;
 
-	if (_list == "") return true;
+	if (_list == "") {
+		return true;
+	}
 
 	std::stringstream listStream(_list);
 	std::string line;
@@ -528,9 +547,13 @@ bool AccessList::parseList(const std::string &_list)
 
 		std::transform(line.begin(), line.end(), line.begin(), tolower);
 
-		if (line.substr(0, 1) == "#") continue;
+		if (line.substr(0, 1) == "#") {
+			continue;
+		}
 
-		if (line.length() > 100) continue;
+		if (line.length() > 100) {
+			continue;
+		}
 
 		if (line.find("@") != std::string::npos) {
 			std::string::size_type pos = line.find("@");
@@ -545,7 +568,7 @@ bool AccessList::parseList(const std::string &_list)
 	return true;
 }
 
-bool AccessList::addPlayer(std::string &name)
+bool AccessList::addPlayer(std::string& name)
 {
 	uint32_t guid;
 	std::string dbName = name;
@@ -558,7 +581,7 @@ bool AccessList::addPlayer(std::string &name)
 	return false;
 }
 
-bool AccessList::addGuild(const std::string &guildName, const std::string &rank)
+bool AccessList::addGuild(const std::string& guildName, const std::string& rank)
 {
 	uint32_t guildId;
 	if (IOPlayer::instance()->getGuildIdByName(guildId, guildName)) {
@@ -576,7 +599,7 @@ bool AccessList::addGuild(const std::string &guildName, const std::string &rank)
 	return false;
 }
 
-bool AccessList::addExpression(const std::string &expression)
+bool AccessList::addExpression(const std::string& expression)
 {
 	ExpressionList::iterator it;
 	for (it = expressionList.begin(); it != expressionList.end(); ++it) {
@@ -620,7 +643,7 @@ bool AccessList::addExpression(const std::string &expression)
 	return true;
 }
 
-bool AccessList::isInList(const Player *player)
+bool AccessList::isInList(const Player* player)
 {
 	RegExList::iterator it;
 	std::string name = player->getName();
@@ -638,7 +661,9 @@ bool AccessList::isInList(const Player *player)
 	}
 
 	PlayerList::iterator playerIt = playerList.find(player->getGUID());
-	if (playerIt != playerList.end()) return true;
+	if (playerIt != playerList.end()) {
+		return true;
+	}
 
 	for (GuildList::iterator it = guildList.begin(); it != guildList.end(); ++it) {
 		if ((player->getGuildId() && it->first == player->getGuildId()) &&
@@ -650,7 +675,7 @@ bool AccessList::isInList(const Player *player)
 	return false;
 }
 
-void AccessList::getList(std::string &_list) const
+void AccessList::getList(std::string& _list) const
 {
 	_list = list;
 }
@@ -663,10 +688,12 @@ Door::Door(uint16_t _type) : Item(_type)
 
 Door::~Door()
 {
-	if (accessList) delete accessList;
+	if (accessList) {
+		delete accessList;
+	}
 }
 
-Attr_ReadValue Door::readAttr(AttrTypes_t attr, PropStream &propStream)
+Attr_ReadValue Door::readAttr(AttrTypes_t attr, PropStream& propStream)
 {
 	if (ATTR_HOUSEDOORID == attr) {
 		unsigned char _doorId = 0;
@@ -676,11 +703,12 @@ Attr_ReadValue Door::readAttr(AttrTypes_t attr, PropStream &propStream)
 
 		setDoorId(_doorId);
 		return ATTR_READ_CONTINUE;
-	} else
+	} else {
 		return Item::readAttr(attr, propStream);
+	}
 }
 
-bool Door::serializeAttr(PropWriteStream &propWriteStream) const
+bool Door::serializeAttr(PropWriteStream& propWriteStream) const
 {
 	// dont call Item::serializeAttr(propWriteStream);
 
@@ -695,7 +723,7 @@ bool Door::serializeAttr(PropWriteStream &propWriteStream) const
 	return true;
 }
 
-void Door::setHouse(House *_house)
+void Door::setHouse(House* _house)
 {
 	if (house != nullptr) {
 #ifdef __DEBUG_HOUSES__
@@ -710,17 +738,19 @@ void Door::setHouse(House *_house)
 	}
 }
 
-bool Door::canUse(const Player *player)
+bool Door::canUse(const Player* player)
 {
 	if (!house) {
 		return true;
 	}
-	if (house->getHouseAccessLevel(player) >= HOUSE_SUBOWNER) return true;
+	if (house->getHouseAccessLevel(player) >= HOUSE_SUBOWNER) {
+		return true;
+	}
 
 	return accessList->isInList(player);
 }
 
-void Door::setAccessList(const std::string &textlist)
+void Door::setAccessList(const std::string& textlist)
 {
 	if (!accessList) {
 		accessList = new AccessList();
@@ -729,7 +759,7 @@ void Door::setAccessList(const std::string &textlist)
 	accessList->parseList(textlist);
 }
 
-bool Door::getAccessList(std::string &list) const
+bool Door::getAccessList(std::string& list) const
 {
 	if (!house) {
 #ifdef __DEBUG_HOUSES__
@@ -742,11 +772,11 @@ bool Door::getAccessList(std::string &list) const
 	return true;
 }
 
-void Door::copyAttributes(Item *item)
+void Door::copyAttributes(Item* item)
 {
 	Item::copyAttributes(item);
 
-	if (Door *door = item->getDoor()) {
+	if (Door* door = item->getDoor()) {
 		std::string list;
 		if (door->getAccessList(list)) {
 			setAccessList(list);
@@ -783,10 +813,10 @@ Houses::~Houses()
 	//
 }
 
-House *Houses::getHouseByPlayerId(uint32_t playerId)
+House* Houses::getHouseByPlayerId(uint32_t playerId)
 {
 	for (HouseMap::iterator it = houseMap.begin(); it != houseMap.end(); ++it) {
-		House *house = it->second;
+		House* house = it->second;
 		if (house->getHouseOwner() == playerId) {
 			return house;
 		}
@@ -801,7 +831,7 @@ bool Houses::loadHousesXML(std::string filename)
 		xmlNodePtr root, houseNode;
 		root = xmlDocGetRootElement(doc);
 
-		if (xmlStrcmp(root->name, (const xmlChar *)"houses") != 0) {
+		if (xmlStrcmp(root->name, (const xmlChar*)"houses") != 0) {
 			xmlFreeDoc(doc);
 			return false;
 		}
@@ -811,7 +841,7 @@ bool Houses::loadHousesXML(std::string filename)
 
 		houseNode = root->children;
 		while (houseNode) {
-			if (xmlStrcmp(houseNode->name, (const xmlChar *)"house") == 0) {
+			if (xmlStrcmp(houseNode->name, (const xmlChar*)"house") == 0) {
 				int _houseid = 0;
 				Position entryPos(0, 0, 0);
 
@@ -820,7 +850,7 @@ bool Houses::loadHousesXML(std::string filename)
 					return false;
 				}
 
-				House *house = Houses::getInstance().getHouse(_houseid);
+				House* house = Houses::getInstance().getHouse(_houseid);
 				if (!house) {
 					std::cout
 					<< "Error: [Houses::loadHousesXML] Unknown house, id = " << _houseid
@@ -883,12 +913,12 @@ bool Houses::payHouses()
 	uint32_t currentTime = std::time(nullptr);
 
 	for (HouseMap::iterator it = houseMap.begin(); it != houseMap.end(); ++it) {
-		House *house = it->second;
+		House* house = it->second;
 
 		if (house->getHouseOwner() != 0 && house->getPaidUntil() < currentTime &&
 		    house->getRent() != 0) {
 			uint32_t ownerid = house->getHouseOwner();
-			Town *town = Towns::getInstance().getTown(house->getTownId());
+			Town* town = Towns::getInstance().getTown(house->getTownId());
 			if (!town) {
 #ifdef __DEBUG_HOUSES__
 				std::cout << "Warning: [Houses::payHouses] town = NULL, townid = "
@@ -905,7 +935,7 @@ bool Houses::payHouses()
 				continue;
 			}
 
-			Player *player = g_game.getPlayerByName(name);
+			Player* player = g_game.getPlayerByName(name);
 
 			if (!player) {
 				player = new Player(name, nullptr);
@@ -921,7 +951,7 @@ bool Houses::payHouses()
 				}
 			}
 
-			Depot *depot = player->getDepot(town->getTownID(), true);
+			Depot* depot = player->getDepot(town->getTownID(), true);
 
 			// savePlayerHere is an ugly hack
 			// to avoid saving 2 times a not online player
@@ -972,7 +1002,7 @@ bool Houses::payHouses()
 					} else {
 						int daysLeft = 7 - house->getPayRentWarnings();
 
-						Item *letter = Item::CreateItem(ITEM_LETTER_STAMPED);
+						Item* letter = Item::CreateItem(ITEM_LETTER_STAMPED);
 						std::string period = "";
 
 						switch (rentPeriod) {

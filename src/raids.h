@@ -46,14 +46,14 @@ struct MonsterSpawn {
 class Raid;
 class RaidEvent;
 
-typedef std::list<Raid *> RaidList;
-typedef std::vector<RaidEvent *> RaidEventVector;
-typedef std::list<MonsterSpawn *> MonsterSpawnList;
+typedef std::list<Raid*> RaidList;
+typedef std::vector<RaidEvent*> RaidEventVector;
+typedef std::list<MonsterSpawn*> MonsterSpawnList;
 
 class Raids
 {
 public:
-	static Raids *getInstance()
+	static Raids* getInstance()
 	{
 		static Raids instance;
 		return &instance;
@@ -61,7 +61,7 @@ public:
 
 	~Raids();
 
-	bool loadFromXml(const std::string &_filename);
+	bool loadFromXml(const std::string& _filename);
 	void startup();
 
 	void clear();
@@ -76,16 +76,16 @@ public:
 		return started;
 	}
 
-	Raid *getRunning()
+	Raid* getRunning()
 	{
 		return running;
 	}
-	void setRunning(Raid *newRunning)
+	void setRunning(Raid* newRunning)
 	{
 		running = newRunning;
 	}
 
-	Raid *getRaidByName(const std::string &name);
+	Raid* getRaidByName(const std::string& name);
 
 	uint64_t getLastRaidEnd()
 	{
@@ -102,7 +102,7 @@ private:
 	Raids();
 	RaidList raidList;
 	bool loaded, started;
-	Raid *running;
+	Raid* running;
 	uint64_t lastRaidEnd;
 	uint32_t checkRaidsEvent;
 	std::string filename;
@@ -111,17 +111,17 @@ private:
 class Raid
 {
 public:
-	Raid(const std::string &_name, uint32_t _interval, uint32_t _marginTime);
+	Raid(const std::string& _name, uint32_t _interval, uint32_t _marginTime);
 	~Raid();
 
-	bool loadFromXml(const std::string &_filename);
+	bool loadFromXml(const std::string& _filename);
 
 	void startRaid();
 
-	void executeRaidEvent(RaidEvent *raidEvent);
+	void executeRaidEvent(RaidEvent* raidEvent);
 	void resetRaid();
 
-	RaidEvent *getNextRaidEvent();
+	RaidEvent* getNextRaidEvent();
 	void setState(RaidState_t newState)
 	{
 		state = newState;
@@ -131,7 +131,7 @@ public:
 		return name;
 	}
 
-	void addEvent(RaidEvent *event);
+	void addEvent(RaidEvent* event);
 
 	bool isLoaded()
 	{
@@ -181,7 +181,7 @@ public:
 		m_delay = newDelay;
 	}
 
-	static bool compareEvents(const RaidEvent *lhs, const RaidEvent *rhs)
+	static bool compareEvents(const RaidEvent* lhs, const RaidEvent* rhs)
 	{
 		return lhs->getDelay() < rhs->getDelay();
 	}
@@ -228,8 +228,8 @@ public:
 
 	bool configureRaidEvent(xmlNodePtr eventNode) override;
 
-	void addMonster(MonsterSpawn *monsterSpawn);
-	void addMonster(const std::string &monsterName, uint32_t minAmount, uint32_t maxAmount);
+	void addMonster(MonsterSpawn* monsterSpawn);
+	void addMonster(const std::string& monsterName, uint32_t minAmount, uint32_t maxAmount);
 
 	bool executeEvent() override;
 

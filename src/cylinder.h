@@ -13,7 +13,8 @@ class Creature;
 
 
 enum cylinderflags_t {
-	FLAG_NOLIMIT = 1, // Bypass limits like capacity/container limits, blocking items/creatures etc.
+	FLAG_NOLIMIT =
+	1, // Bypass limits like capacity/container limits, blocking items/creatures etc.
 	FLAG_IGNOREBLOCKITEM = 2, // Bypass moveable blocking item checks
 	FLAG_IGNOREBLOCKCREATURE = 4, // Bypass creature checks
 	FLAG_CHILDISOWNER = 8, // Used by containers to query capacity of the carrier (player)
@@ -23,12 +24,7 @@ enum cylinderflags_t {
 };
 
 
-
 enum cylinderlink_t { LINK_OWNER, LINK_PARENT, LINK_TOPPARENT, LINK_NEAR };
-
-
-
-
 
 
 class Cylinder : virtual public Thing
@@ -61,7 +57,7 @@ public:
 	virtual ReturnValue __queryMaxCount(int32_t index,
 	                                    const Thing* thing,
 	                                    uint32_t count,
-	                                    uint32_t &maxQueryCount,
+	                                    uint32_t& maxQueryCount,
 	                                    uint32_t flags) const = 0;
 
 	/**
@@ -83,7 +79,8 @@ public:
 	        * this method can modifiy the flags
 	  * \return Cylinder returns the destination cylinder
 	  */
-	virtual Cylinder* __queryDestination(int32_t &index, const Thing* thing, Item** destItem, uint32_t &flags) = 0;
+	virtual Cylinder*
+	__queryDestination(int32_t& index, const Thing* thing, Item** destItem, uint32_t& flags) = 0;
 
 	/**
 	  * Add the object to the cylinder
@@ -189,7 +186,8 @@ public:
 	  * \param returns a map mapping item id to count (same as first argument)
 	  */
 
-	virtual std::map<uint32_t, uint32_t>& __getAllItemTypeCount(std::map<uint32_t, uint32_t> &countMap, bool itemCount = true) const;
+	virtual std::map<uint32_t, uint32_t>&
+	__getAllItemTypeCount(std::map<uint32_t, uint32_t>& countMap, bool itemCount = true) const;
 
 	/**
 	  * Adds an object to the cylinder without sending to the client(s)
@@ -206,16 +204,6 @@ public:
 
 	virtual void __startDecaying();
 };
-
-
-
-
-
-
-
-
-
-
 
 
 #endif

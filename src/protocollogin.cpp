@@ -39,7 +39,7 @@ extern IPList serverIPs;
 extern BanManager g_bans;
 extern Game g_game;
 #ifdef __PROTOCOL_77__
-extern RSA *g_otservRSA;
+extern RSA* g_otservRSA;
 #endif // __PROTOCOL_77__
 
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
@@ -54,7 +54,7 @@ void ProtocolLogin::deleteProtocolTask()
 }
 #endif
 
-void ProtocolLogin::disconnectClient(uint8_t error, const char *message)
+void ProtocolLogin::disconnectClient(uint8_t error, const char* message)
 {
 	OutputMessage_ptr output = OutputMessagePool::getInstance()->getOutputMessage(this, false);
 	if (output) {
@@ -68,7 +68,7 @@ void ProtocolLogin::disconnectClient(uint8_t error, const char *message)
 }
 
 
-bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
+bool ProtocolLogin::parseFirstPacket(NetworkMessage& msg)
 {
 	if (g_game.getGameState() == GAME_STATE_SHUTDOWN) {
 		getConnection()->closeConnection();
@@ -160,14 +160,14 @@ bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
 		// Add char list
 		output->AddByte(0x64);
 		output->AddByte((uint8_t)account.charList.size());
-		
+
 		for (auto& name : account.charList) {
 			output->AddString(name);
 			output->AddString(g_config.getString(ConfigManager::WORLD_NAME));
 			output->AddU32(serverip);
 			output->AddU16(g_config.getNumber(ConfigManager::PORT));
 		}
-		
+
 		// Add premium days
 		output->AddU16(Account::getPremiumDaysLeft(account.premEnd));
 
@@ -179,7 +179,7 @@ bool ProtocolLogin::parseFirstPacket(NetworkMessage &msg)
 	return true;
 }
 
-void ProtocolLogin::onRecvFirstMessage(NetworkMessage &msg)
+void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 {
 	parseFirstPacket(msg);
 }

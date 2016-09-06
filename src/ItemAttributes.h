@@ -1,22 +1,14 @@
 #ifndef __OTSERV_ITEMATTRIBUTE_H__
 #define __OTSERV_ITEMATTRIBUTE_H__
 
+#include "log.h"
 #include <cstdint>
 #include <vector>
-#include "log.h"
 
 
-enum ItemDecayState_t { 
-	DECAYING_FALSE = 0,
-	DECAYING_TRUE,
-	DECAYING_PENDING 
-};
+enum ItemDecayState_t { DECAYING_FALSE = 0, DECAYING_TRUE, DECAYING_PENDING };
 
-enum Attr_ReadValue {
-	ATTR_READ_ERROR,
-	ATTR_READ_CONTINUE,
-	ATTR_READ_END 
-};
+enum Attr_ReadValue { ATTR_READ_ERROR, ATTR_READ_CONTINUE, ATTR_READ_END };
 
 
 enum ItemAttrType {
@@ -33,14 +25,10 @@ enum ItemAttrType {
 	ATTR_ITEM_DOORID = 0x300
 };
 
-enum ItemAttrValType {
-	INTEGER,
-	STRING
-};
+enum ItemAttrValType { INTEGER, STRING };
 
 
-struct ItemAttribute
-{
+struct ItemAttribute {
 	ItemAttribute(ItemAttrType type);
 	ItemAttribute(const ItemAttribute& other);
 	ItemAttribute(const ItemAttribute&& other);
@@ -58,12 +46,8 @@ struct ItemAttribute
 };
 
 
-
-
-inline ItemAttribute::ItemAttribute(ItemAttrType type) : 
-	type(type) 
+inline ItemAttribute::ItemAttribute(ItemAttrType type) : type(type)
 {
-
 }
 
 inline ItemAttribute::ItemAttribute(const ItemAttribute& other)
@@ -78,33 +62,41 @@ inline ItemAttribute::ItemAttribute(const ItemAttribute&& other)
 
 inline ItemAttribute::~ItemAttribute()
 {
-
 }
 
 inline ItemAttribute& ItemAttribute::operator=(const ItemAttribute& other)
 {
 	if (this != &other) {
 		type = other.type;
-		switch(GetValueType()) {
-		case INTEGER: integer = other.integer; break;
-		case STRING: str = other.str; break;
-		default: break;
+		switch (GetValueType()) {
+		case INTEGER:
+			integer = other.integer;
+			break;
+		case STRING:
+			str = other.str;
+			break;
+		default:
+			break;
 		}
 	}
 
 	return *this;
 }
-
 
 
 inline ItemAttribute& ItemAttribute::operator=(const ItemAttribute&& other)
 {
 	if (this != &other) {
 		type = other.type;
-		switch(GetValueType()) {
-		case INTEGER: integer = other.integer; break;
-		case STRING: str = std::move(other.str); break;
-		default: break;
+		switch (GetValueType()) {
+		case INTEGER:
+			integer = other.integer;
+			break;
+		case STRING:
+			str = std::move(other.str);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -112,23 +104,26 @@ inline ItemAttribute& ItemAttribute::operator=(const ItemAttribute&& other)
 }
 
 
-
 inline ItemAttrValType ItemAttribute::GetValueType()
 {
 	ItemAttrValType valtype = INTEGER;
 	switch (type) {
-	case ATTR_ITEM_ACTIONID:  /* fall */
-	case ATTR_ITEM_UNIQUEID:  /* fall */
-	case ATTR_ITEM_OWNER:     /* fall */
-	case ATTR_ITEM_DURATION:  /* fall */
-	case ATTR_ITEM_DECAYING:  /* fall */
-	case ATTR_ITEM_CHARGES:   /* fall */
+	case ATTR_ITEM_ACTIONID: /* fall */
+	case ATTR_ITEM_UNIQUEID: /* fall */
+	case ATTR_ITEM_OWNER: /* fall */
+	case ATTR_ITEM_DURATION: /* fall */
+	case ATTR_ITEM_DECAYING: /* fall */
+	case ATTR_ITEM_CHARGES: /* fall */
 	case ATTR_ITEM_FLUIDTYPE: /* fall */
-	case ATTR_ITEM_DOORID: valtype = INTEGER; break;
+	case ATTR_ITEM_DOORID:
+		valtype = INTEGER;
+		break;
 
 	case ATTR_ITEM_DESC: /* fall */
 	case ATTR_ITEM_TEXT: /* fall */
-	case ATTR_ITEM_WRITTENBY: valtype = STRING; break;
+	case ATTR_ITEM_WRITTENBY:
+		valtype = STRING;
+		break;
 	default:
 		LOG_ERROR("UNDEFIED ITEM ATTRIBUTE VALUE TYPE");
 		break;
@@ -136,14 +131,6 @@ inline ItemAttrValType ItemAttribute::GetValueType()
 
 	return valtype;
 }
-
-
-
-
-
-
-
-
 
 
 class ItemAttributes
@@ -182,7 +169,6 @@ public:
 	void resetWriter();
 
 
-
 protected:
 	bool hasAttribute(ItemAttrType type) const;
 	const std::string& getStrAttr(ItemAttrType type) const;
@@ -203,9 +189,6 @@ protected:
 	std::vector<ItemAttribute> m_attributes;
 	uint16_t m_attrFlags = 0;
 };
-
-
-
 
 
 inline const std::string& ItemAttributes::getSpecialDescription() const
@@ -259,11 +242,8 @@ inline uint32_t ItemAttributes::getDecaying() const
 }
 
 
-
-
-
-inline ItemAttributes::ItemAttributes(const ItemAttributes& other) :
-	m_attributes(other.m_attributes)
+inline ItemAttributes::ItemAttributes(const ItemAttributes& other)
+: m_attributes(other.m_attributes)
 {
 }
 
@@ -306,16 +286,18 @@ inline void ItemAttributes::resetWriter()
 
 inline void ItemAttributes::setActionId(uint16_t n)
 {
-	if (n < 100) 
+	if (n < 100) {
 		n = 100;
+	}
 
 	setIntAttr(ATTR_ITEM_ACTIONID, n);
 }
 
 inline void ItemAttributes::setUniqueId(uint16_t n)
 {
-	if (n < 1000)
+	if (n < 1000) {
 		n = 1000;
+	}
 
 	setIntAttr(ATTR_ITEM_UNIQUEID, n);
 }
@@ -354,19 +336,6 @@ inline void ItemAttributes::setDecaying(ItemDecayState_t decayState)
 {
 	setIntAttr(ATTR_ITEM_DECAYING, decayState);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #endif

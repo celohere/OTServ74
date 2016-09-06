@@ -30,7 +30,7 @@
 
 class Player;
 
-typedef std::map<uint32_t, Player *> UsersMap;
+typedef std::map<uint32_t, Player*> UsersMap;
 
 enum ChannelID {
 	CHANNEL_GUILD = 0x00,
@@ -52,12 +52,12 @@ public:
 	{
 	}
 
-	bool addUser(Player *player);
-	bool removeUser(Player *player);
+	bool addUser(Player* player);
+	bool removeUser(Player* player);
 
-	bool talk(Player *fromPlayer, SpeakClasses type, const std::string &text, uint32_t time = 0);
+	bool talk(Player* fromPlayer, SpeakClasses type, const std::string& text, uint32_t time = 0);
 
-	const std::string &getName()
+	const std::string& getName()
 	{
 		return m_name;
 	}
@@ -65,7 +65,7 @@ public:
 	{
 		return m_id;
 	}
-	const UsersMap &getUsers()
+	const UsersMap& getUsers()
 	{
 		return m_users;
 	}
@@ -96,60 +96,60 @@ public:
 		m_owner = id;
 	}
 
-	bool isInvited(const Player *player);
+	bool isInvited(const Player* player);
 
-	void invitePlayer(Player *player, Player *invitePlayer);
-	void excludePlayer(Player *player, Player *excludePlayer);
+	void invitePlayer(Player* player, Player* invitePlayer);
+	void excludePlayer(Player* player, Player* excludePlayer);
 
-	bool addInvited(Player *player);
-	bool removeInvited(Player *player);
+	bool addInvited(Player* player);
+	bool removeInvited(Player* player);
 
 	void closeChannel();
 
 protected:
-	typedef std::map<uint32_t, Player *> InvitedMap;
+	typedef std::map<uint32_t, Player*> InvitedMap;
 
 	InvitedMap m_invites;
 	uint32_t m_owner;
 };
 
-typedef std::list<ChatChannel *> ChannelList;
+typedef std::list<ChatChannel*> ChannelList;
 
 class Chat
 {
 public:
 	Chat();
 	~Chat();
-	ChatChannel *createChannel(Player *player, uint16_t channelId);
-	bool deleteChannel(Player *player, uint16_t channelId);
+	ChatChannel* createChannel(Player* player, uint16_t channelId);
+	bool deleteChannel(Player* player, uint16_t channelId);
 
-	bool addUserToChannel(Player *player, uint16_t channelId);
-	bool removeUserFromChannel(Player *player, uint16_t channelId);
-	void removeUserFromAllChannels(Player *player);
+	bool addUserToChannel(Player* player, uint16_t channelId);
+	bool removeUserFromChannel(Player* player, uint16_t channelId);
+	void removeUserFromAllChannels(Player* player);
 
 	uint16_t getFreePrivateChannelId();
 	bool isPrivateChannel(uint16_t channelId);
 	bool isMuteableChannel(uint16_t channelId, SpeakClasses type);
 
-	bool talkToChannel(Player *player, SpeakClasses type, const std::string &text, unsigned short channelId);
+	bool talkToChannel(Player* player, SpeakClasses type, const std::string& text, unsigned short channelId);
 
-	std::string getChannelName(Player *player, uint16_t channelId);
-	ChannelList getChannelList(Player *player);
+	std::string getChannelName(Player* player, uint16_t channelId);
+	ChannelList getChannelList(Player* player);
 
-	ChatChannel *getChannel(Player *player, uint16_t channelId);
-	ChatChannel *getChannelById(uint16_t channelId);
-	PrivateChatChannel *getPrivateChannel(Player *player);
+	ChatChannel* getChannel(Player* player, uint16_t channelId);
+	ChatChannel* getChannelById(uint16_t channelId);
+	PrivateChatChannel* getPrivateChannel(Player* player);
 
 private:
-	typedef std::map<uint16_t, ChatChannel *> NormalChannelMap;
-	typedef std::map<uint32_t, ChatChannel *> GuildChannelMap;
+	typedef std::map<uint16_t, ChatChannel*> NormalChannelMap;
+	typedef std::map<uint32_t, ChatChannel*> GuildChannelMap;
 	NormalChannelMap m_normalChannels;
 	GuildChannelMap m_guildChannels;
 
-	typedef std::map<uint16_t, PrivateChatChannel *> PrivateChannelMap;
+	typedef std::map<uint16_t, PrivateChatChannel*> PrivateChannelMap;
 	PrivateChannelMap m_privateChannels;
 
-	ChatChannel *dummyPrivate;
+	ChatChannel* dummyPrivate;
 };
 
 #endif

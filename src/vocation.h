@@ -31,11 +31,11 @@ class Vocation
 {
 public:
 	~Vocation();
-	const std::string &getName() const
+	const std::string& getName() const
 	{
 		return name;
 	}
-	const std::string &getDescription() const
+	const std::string& getDescription() const
 	{
 		return description;
 	}
@@ -130,12 +130,12 @@ public:
 	Vocations();
 	~Vocations();
 
-	bool loadFromXml(const std::string &datadir);
-	bool getVocation(const uint32_t &vocationId, Vocation *&vocation);
-	bool getVocationId(const std::string &name, int32_t &vocationId) const;
+	bool loadFromXml(const std::string& datadir);
+	bool getVocation(const uint32_t& vocationId, Vocation*& vocation);
+	bool getVocationId(const std::string& name, int32_t& vocationId) const;
 
 private:
-	typedef std::map<uint32_t, Vocation *> VocationsMap;
+	typedef std::map<uint32_t, Vocation*> VocationsMap;
 	VocationsMap vocationsMap;
 	Vocation def_voc;
 };

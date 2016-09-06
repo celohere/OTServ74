@@ -25,7 +25,7 @@
 class Waypoint
 {
 public:
-	Waypoint(std::string name, const Position &pos) : name(std::move(name)), pos(pos)
+	Waypoint(std::string name, const Position& pos) : name(std::move(name)), pos(pos)
 	{
 	}
 
@@ -41,7 +41,7 @@ public:
 	// Does not require either constructor nor destructor
 
 	void addWaypoint(Waypoint_ptr wp);
-	Waypoint_ptr getWaypointByName(const std::string &name) const;
+	Waypoint_ptr getWaypointByName(const std::string& name) const;
 
 protected:
 	typedef std::map<std::string, Waypoint_ptr> WaypointMap;
@@ -54,7 +54,7 @@ inline void Waypoints::addWaypoint(Waypoint_ptr wp)
 	waypoints.insert(std::make_pair(wp->name, wp));
 }
 
-inline Waypoint_ptr Waypoints::getWaypointByName(const std::string &name) const
+inline Waypoint_ptr Waypoints::getWaypointByName(const std::string& name) const
 {
 	WaypointMap::const_iterator f = waypoints.find(name);
 	if (f == waypoints.end()) {

@@ -45,11 +45,11 @@ struct Abilities {
 		int16_t resistances[COMBAT_COUNT];
 
 		bool any() const;
-		bool reduce(CombatType_t type, int32_t &dmg) const;
-		std::ostream &getDescription(std::ostream &os) const;
+		bool reduce(CombatType_t type, int32_t& dmg) const;
+		std::ostream& getDescription(std::ostream& os) const;
 
 	protected:
-		std::ostream &getDescription(std::ostream &os, bool &first, unsigned int combat_type) const;
+		std::ostream& getDescription(std::ostream& os, bool& first, unsigned int combat_type) const;
 	} absorb;
 
 	CombatType_t elementType;
@@ -86,7 +86,7 @@ class ItemType
 {
 private:
 	// It is private because calling it can cause unexpected results
-	ItemType(const ItemType &it){};
+	ItemType(const ItemType& it){};
 
 public:
 	ItemType();
@@ -244,7 +244,7 @@ public:
 
 	Abilities abilities;
 
-	Condition *condition;
+	Condition* condition;
 	CombatType_t combatType;
 	bool replaceable;
 };
@@ -265,7 +265,7 @@ public:
 	}
 
 private:
-	A *m_data;
+	A* m_data;
 	uint32_t m_size;
 };
 
@@ -281,25 +281,25 @@ public:
 
 	int loadFromOtb(std::string);
 
-	const ItemType &operator[](int32_t id) const
+	const ItemType& operator[](int32_t id) const
 	{
 		return getItemType(id);
 	}
-	const ItemType &getItemType(int32_t id) const;
-	ItemType &getItemType(int32_t id);
-	const ItemType &getItemIdByClientId(int32_t spriteId) const;
+	const ItemType& getItemType(int32_t id) const;
+	ItemType& getItemType(int32_t id);
+	const ItemType& getItemIdByClientId(int32_t spriteId) const;
 
-	int32_t getItemIdByName(const std::string &name);
+	int32_t getItemIdByName(const std::string& name);
 
 	static uint32_t dwMajorVersion;
 	static uint32_t dwMinorVersion;
 	static uint32_t dwBuildNumber;
 
-	bool loadFromXml(const std::string &datadir);
+	bool loadFromXml(const std::string& datadir);
 
-	void addItemType(ItemType *iType);
+	void addItemType(ItemType* iType);
 
-	const ItemType *getElement(uint32_t id) const
+	const ItemType* getElement(uint32_t id) const
 	{
 		return items.getElement(id);
 	}
@@ -312,13 +312,13 @@ protected:
 	typedef std::map<int32_t, int32_t> ReverseItemMap;
 	ReverseItemMap reverseItemMap;
 
-	Array<ItemType *> items;
+	Array<ItemType*> items;
 	std::string m_datadir;
 };
 
 template <typename A> inline Array<A>::Array(uint32_t n)
 {
-	m_data = (A *)malloc(sizeof(A) * n);
+	m_data = (A*)malloc(sizeof(A) * n);
 	memset(m_data, 0, sizeof(A) * n);
 	m_size = n;
 }
@@ -350,7 +350,7 @@ template <typename A> inline void Array<A>::addElement(A a, uint32_t pos)
 {
 	const auto INCREMENT = 5000;
 	if (pos >= m_size) {
-		m_data = (A *)realloc(m_data, sizeof(A) * (pos + INCREMENT));
+		m_data = (A*)realloc(m_data, sizeof(A) * (pos + INCREMENT));
 		memset(m_data + m_size, 0, sizeof(A) * (pos + INCREMENT - m_size));
 		m_size = pos + INCREMENT;
 	}

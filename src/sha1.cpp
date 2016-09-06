@@ -131,7 +131,7 @@ void SHA1::Reset()
  *	Comments:
  *
  */
-bool SHA1::Result(unsigned *message_digest_array)
+bool SHA1::Result(unsigned* message_digest_array)
 {
 	int i; // Counter
 
@@ -169,7 +169,7 @@ bool SHA1::Result(unsigned *message_digest_array)
  *	Comments:
  *
  */
-void SHA1::Input(const unsigned char *message_array, unsigned length)
+void SHA1::Input(const unsigned char* message_array, unsigned length)
 {
 	if (!length) {
 		return;
@@ -221,9 +221,9 @@ void SHA1::Input(const unsigned char *message_array, unsigned length)
  *	Comments:
  *
  */
-void SHA1::Input(const char *message_array, unsigned length)
+void SHA1::Input(const char* message_array, unsigned length)
 {
-	Input((unsigned char *)message_array, length);
+	Input((unsigned char*)message_array, length);
 }
 
 /*
@@ -265,7 +265,7 @@ void SHA1::Input(unsigned char message_element)
  */
 void SHA1::Input(char message_element)
 {
-	Input((unsigned char *)&message_element, 1);
+	Input((unsigned char*)&message_element, 1);
 }
 
 /*
@@ -286,9 +286,9 @@ void SHA1::Input(char message_element)
  *		Each character is assumed to hold 8 bits of information.
  *
  */
-SHA1 &SHA1::operator<<(const char *message_array)
+SHA1& SHA1::operator<<(const char* message_array)
 {
-	const char *p = message_array;
+	const char* p = message_array;
 
 	while (*p) {
 		Input(*p);
@@ -316,9 +316,9 @@ SHA1 &SHA1::operator<<(const char *message_array)
  *		Each character is assumed to hold 8 bits of information.
  *
  */
-SHA1 &SHA1::operator<<(const unsigned char *message_array)
+SHA1& SHA1::operator<<(const unsigned char* message_array)
 {
-	const unsigned char *p = message_array;
+	const unsigned char* p = message_array;
 
 	while (*p) {
 		Input(*p);
@@ -345,9 +345,9 @@ SHA1 &SHA1::operator<<(const unsigned char *message_array)
  *		The character is assumed to hold 8 bits of information.
  *
  */
-SHA1 &SHA1::operator<<(const char message_element)
+SHA1& SHA1::operator<<(const char message_element)
 {
-	Input((unsigned char *)&message_element, 1);
+	Input((unsigned char*)&message_element, 1);
 
 	return *this;
 }
@@ -369,7 +369,7 @@ SHA1 &SHA1::operator<<(const char message_element)
  *		The character is assumed to hold 8 bits of information.
  *
  */
-SHA1 &SHA1::operator<<(const unsigned char message_element)
+SHA1& SHA1::operator<<(const unsigned char message_element)
 {
 	Input(&message_element, 1);
 
