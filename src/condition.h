@@ -163,15 +163,15 @@ class ConditionGeneric : public Condition
 {
 public:
 	ConditionGeneric(ConditionId_t _id, ConditionType_t _type, int32_t _ticks);
-	virtual ~ConditionGeneric(){};
+	~ConditionGeneric() override{};
 
-	virtual bool startCondition(Creature *creature);
-	virtual bool executeCondition(Creature *creature, int32_t interval);
-	virtual void endCondition(Creature *creature, ConditionEnd_t reason);
-	virtual void addCondition(Creature *creature, const Condition *condition);
-	virtual uint32_t getIcons() const;
+	bool startCondition(Creature *creature) override;
+	bool executeCondition(Creature *creature, int32_t interval) override;
+	void endCondition(Creature *creature, ConditionEnd_t reason) override;
+	void addCondition(Creature *creature, const Condition *condition) override;
+	uint32_t getIcons() const override;
 
-	virtual ConditionGeneric *clone() const
+	ConditionGeneric *clone() const override
 	{
 		return new ConditionGeneric(*this);
 	}
@@ -182,9 +182,9 @@ class ConditionManaShield : public ConditionGeneric
 public:
 	ConditionManaShield(ConditionId_t _id, ConditionType_t _type, int32_t _ticks)
 	: ConditionGeneric(_id, _type, _ticks){};
-	virtual ~ConditionManaShield(){};
+	~ConditionManaShield() override{};
 
-	virtual ConditionManaShield *clone() const
+	ConditionManaShield *clone() const override
 	{
 		return new ConditionManaShield(*this);
 	}
@@ -194,23 +194,23 @@ class ConditionAttributes : public ConditionGeneric
 {
 public:
 	ConditionAttributes(ConditionId_t _id, ConditionType_t _type, int32_t _ticks);
-	virtual ~ConditionAttributes(){};
+	~ConditionAttributes() override{};
 
-	virtual bool startCondition(Creature *creature);
-	virtual bool executeCondition(Creature *creature, int32_t interval);
-	virtual void endCondition(Creature *creature, ConditionEnd_t reason);
-	virtual void addCondition(Creature *creature, const Condition *condition);
+	bool startCondition(Creature *creature) override;
+	bool executeCondition(Creature *creature, int32_t interval) override;
+	void endCondition(Creature *creature, ConditionEnd_t reason) override;
+	void addCondition(Creature *creature, const Condition *condition) override;
 
-	virtual ConditionAttributes *clone() const
+	ConditionAttributes *clone() const override
 	{
 		return new ConditionAttributes(*this);
 	}
 
-	virtual bool setParam(ConditionParam_t param, int32_t value);
+	bool setParam(ConditionParam_t param, int32_t value) override;
 
 	// serialization
-	virtual bool serialize(PropWriteStream &propWriteStream);
-	virtual bool unserializeProp(ConditionAttr_t attr, PropStream &propStream);
+	bool serialize(PropWriteStream &propWriteStream) override;
+	bool unserializeProp(ConditionAttr_t attr, PropStream &propStream) override;
 
 protected:
 	int32_t skills[SKILL_LAST + 1];
@@ -230,20 +230,20 @@ class ConditionRegeneration : public ConditionGeneric
 {
 public:
 	ConditionRegeneration(ConditionId_t _id, ConditionType_t _type, int32_t _ticks);
-	virtual ~ConditionRegeneration(){};
-	virtual void addCondition(Creature *creature, const Condition *addCondition);
-	virtual bool executeCondition(Creature *creature, int32_t interval);
+	~ConditionRegeneration() override{};
+	void addCondition(Creature *creature, const Condition *addCondition) override;
+	bool executeCondition(Creature *creature, int32_t interval) override;
 
-	virtual ConditionRegeneration *clone() const
+	ConditionRegeneration *clone() const override
 	{
 		return new ConditionRegeneration(*this);
 	}
 
-	virtual bool setParam(ConditionParam_t param, int32_t value);
+	bool setParam(ConditionParam_t param, int32_t value) override;
 
 	// serialization
-	virtual bool serialize(PropWriteStream &propWriteStream);
-	virtual bool unserializeProp(ConditionAttr_t attr, PropStream &propStream);
+	bool serialize(PropWriteStream &propWriteStream) override;
+	bool unserializeProp(ConditionAttr_t attr, PropStream &propStream) override;
 
 protected:
 	uint32_t internalHealthTicks;
@@ -286,12 +286,12 @@ class ConditionInvisible : public ConditionGeneric
 {
 public:
 	ConditionInvisible(ConditionId_t _id, ConditionType_t _type, int32_t _ticks);
-	virtual ~ConditionInvisible(){};
+	~ConditionInvisible() override{};
 
-	virtual bool startCondition(Creature *creature);
-	virtual void endCondition(Creature *creature, ConditionEnd_t reason);
+	bool startCondition(Creature *creature) override;
+	void endCondition(Creature *creature, ConditionEnd_t reason) override;
 
-	virtual ConditionInvisible *clone() const
+	ConditionInvisible *clone() const override
 	{
 		return new ConditionInvisible(*this);
 	}
@@ -301,22 +301,22 @@ class ConditionDamage : public Condition
 {
 public:
 	ConditionDamage(ConditionId_t _id, ConditionType_t _type);
-	virtual ~ConditionDamage(){};
+	~ConditionDamage() override{};
 
 	static void generateDamageList(int32_t amount, int32_t start, std::list<int32_t> &list);
 
-	virtual bool startCondition(Creature *creature);
-	virtual bool executeCondition(Creature *creature, int32_t interval);
-	virtual void endCondition(Creature *creature, ConditionEnd_t reason);
-	virtual void addCondition(Creature *creature, const Condition *condition);
-	virtual uint32_t getIcons() const;
+	bool startCondition(Creature *creature) override;
+	bool executeCondition(Creature *creature, int32_t interval) override;
+	void endCondition(Creature *creature, ConditionEnd_t reason) override;
+	void addCondition(Creature *creature, const Condition *condition) override;
+	uint32_t getIcons() const override;
 
-	virtual ConditionDamage *clone() const
+	ConditionDamage *clone() const override
 	{
 		return new ConditionDamage(*this);
 	}
 
-	virtual bool setParam(ConditionParam_t param, int32_t value);
+	bool setParam(ConditionParam_t param, int32_t value) override;
 
 	bool addDamage(int32_t rounds, int32_t time, int32_t value);
 	bool doForceUpdate() const
@@ -326,8 +326,8 @@ public:
 	int32_t getTotalDamage() const;
 
 	// serialization
-	virtual bool serialize(PropWriteStream &propWriteStream);
-	virtual bool unserializeProp(ConditionAttr_t attr, PropStream &propStream);
+	bool serialize(PropWriteStream &propWriteStream) override;
+	bool unserializeProp(ConditionAttr_t attr, PropStream &propStream) override;
 
 protected:
 	int32_t maxDamage;
@@ -355,26 +355,26 @@ class ConditionSpeed : public Condition
 {
 public:
 	ConditionSpeed(ConditionId_t _id, ConditionType_t _type, int32_t _ticks, int32_t changeSpeed);
-	virtual ~ConditionSpeed(){};
+	~ConditionSpeed() override{};
 
-	virtual bool startCondition(Creature *creature);
-	virtual bool executeCondition(Creature *creature, int32_t interval);
-	virtual void endCondition(Creature *creature, ConditionEnd_t reason);
-	virtual void addCondition(Creature *creature, const Condition *condition);
-	virtual uint32_t getIcons() const;
+	bool startCondition(Creature *creature) override;
+	bool executeCondition(Creature *creature, int32_t interval) override;
+	void endCondition(Creature *creature, ConditionEnd_t reason) override;
+	void addCondition(Creature *creature, const Condition *condition) override;
+	uint32_t getIcons() const override;
 
-	virtual ConditionSpeed *clone() const
+	ConditionSpeed *clone() const override
 	{
 		return new ConditionSpeed(*this);
 	}
 
-	virtual bool setParam(ConditionParam_t param, int32_t value);
+	bool setParam(ConditionParam_t param, int32_t value) override;
 
 	void setFormulaVars(float _mina, float _minb, float _maxa, float _maxb);
 
 	// serialization
-	virtual bool serialize(PropWriteStream &propWriteStream);
-	virtual bool unserializeProp(ConditionAttr_t attr, PropStream &propStream);
+	bool serialize(PropWriteStream &propWriteStream) override;
+	bool unserializeProp(ConditionAttr_t attr, PropStream &propStream) override;
 
 protected:
 	void getFormulaValues(int32_t var, int32_t &min, int32_t &max) const;
@@ -392,14 +392,14 @@ class ConditionOutfit : public Condition
 {
 public:
 	ConditionOutfit(ConditionId_t _id, ConditionType_t _type, int32_t _ticks);
-	virtual ~ConditionOutfit(){};
+	~ConditionOutfit() override{};
 
-	virtual bool startCondition(Creature *creature);
-	virtual bool executeCondition(Creature *creature, int32_t interval);
-	virtual void endCondition(Creature *creature, ConditionEnd_t reason);
-	virtual void addCondition(Creature *creature, const Condition *condition);
+	bool startCondition(Creature *creature) override;
+	bool executeCondition(Creature *creature, int32_t interval) override;
+	void endCondition(Creature *creature, ConditionEnd_t reason) override;
+	void addCondition(Creature *creature, const Condition *condition) override;
 
-	virtual ConditionOutfit *clone() const
+	ConditionOutfit *clone() const override
 	{
 		return new ConditionOutfit(*this);
 	}
@@ -407,8 +407,8 @@ public:
 	void addOutfit(Outfit_t outfit);
 
 	// serialization
-	virtual bool serialize(PropWriteStream &propWriteStream);
-	virtual bool unserializeProp(ConditionAttr_t attr, PropStream &propStream);
+	bool serialize(PropWriteStream &propWriteStream) override;
+	bool unserializeProp(ConditionAttr_t attr, PropStream &propStream) override;
 
 protected:
 	std::vector<Outfit_t> outfits;
@@ -420,23 +420,23 @@ class ConditionLight : public Condition
 {
 public:
 	ConditionLight(ConditionId_t _id, ConditionType_t _type, int32_t _ticks, int32_t _lightlevel, int32_t _lightcolor);
-	virtual ~ConditionLight(){};
+	~ConditionLight() override{};
 
-	virtual bool startCondition(Creature *creature);
-	virtual bool executeCondition(Creature *creature, int32_t interval);
-	virtual void endCondition(Creature *creature, ConditionEnd_t reason);
-	virtual void addCondition(Creature *creature, const Condition *addCondition);
+	bool startCondition(Creature *creature) override;
+	bool executeCondition(Creature *creature, int32_t interval) override;
+	void endCondition(Creature *creature, ConditionEnd_t reason) override;
+	void addCondition(Creature *creature, const Condition *addCondition) override;
 
-	virtual ConditionLight *clone() const
+	ConditionLight *clone() const override
 	{
 		return new ConditionLight(*this);
 	}
 
-	virtual bool setParam(ConditionParam_t param, int32_t value);
+	bool setParam(ConditionParam_t param, int32_t value) override;
 
 	// serialization
-	virtual bool serialize(PropWriteStream &propWriteStream);
-	virtual bool unserializeProp(ConditionAttr_t attr, PropStream &propStream);
+	bool serialize(PropWriteStream &propWriteStream) override;
+	bool unserializeProp(ConditionAttr_t attr, PropStream &propStream) override;
 
 protected:
 	LightInfo lightInfo;

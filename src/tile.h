@@ -61,7 +61,7 @@ public:
 		ground = NULL;
 	}
 
-	~Tile()
+	~Tile() override
 	{
 #ifdef _DEBUG
 		delete ground;
@@ -83,11 +83,11 @@ public:
 	const HouseTile *getHouseTile() const;
 	bool isHouseTile() const;
 
-	virtual int getThrowRange() const
+	int getThrowRange() const override
 	{
 		return 0;
 	}
-	virtual bool isPushable() const
+	bool isPushable() const override
 	{
 		return false;
 	}
@@ -162,44 +162,44 @@ public:
 	bool hasHeight(uint32_t n) const;
 	int32_t getHeight() const;
 
-	virtual std::string getDescription(int32_t lookDistance) const;
+	std::string getDescription(int32_t lookDistance) const override;
 
 	void moveCreature(Creature *creature, Cylinder *toCylinder, bool teleport = false);
 
 	// cylinder implementations
-	virtual ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const;
-	virtual ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const;
-	virtual ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const;
-	virtual Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags);
+	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue
+	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
+	ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const override;
+	Cylinder *
+	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
 
-	virtual void __addThing(Thing *thing);
-	virtual void __addThing(int32_t index, Thing *thing);
+	void __addThing(Thing *thing) override;
+	void __addThing(int32_t index, Thing *thing) override;
 
-	virtual void __updateThing(Thing *thing, uint16_t itemId, uint32_t count);
-	virtual void __replaceThing(uint32_t index, Thing *thing);
+	void __updateThing(Thing *thing, uint16_t itemId, uint32_t count) override;
+	void __replaceThing(uint32_t index, Thing *thing) override;
 
-	virtual void __removeThing(Thing *thing, uint32_t count);
+	void __removeThing(Thing *thing, uint32_t count) override;
 
-	virtual int32_t __getIndexOfThing(const Thing *thing) const;
-	virtual int32_t __getFirstIndex() const;
-	virtual int32_t __getLastIndex() const;
-	virtual uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1, bool itemCount = true) const;
-	virtual Thing *__getThing(uint32_t index) const;
+	int32_t __getIndexOfThing(const Thing *thing) const override;
+	int32_t __getFirstIndex() const override;
+	int32_t __getLastIndex() const override;
+	uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1, bool itemCount = true) const override;
+	Thing *__getThing(uint32_t index) const override;
 
-	virtual void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER);
-	virtual void postRemoveNotification(Thing *thing,
+	void
+	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing *thing,
 	                                    const Cylinder *newParent,
 	                                    int32_t index,
 	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER);
+	                                    cylinderlink_t link = LINK_OWNER) override;
 
-	virtual void __internalAddThing(Thing *thing);
-	virtual void __internalAddThing(uint32_t index, Thing *thing);
+	void __internalAddThing(Thing *thing) override;
+	void __internalAddThing(uint32_t index, Thing *thing) override;
 
-	virtual const Position &getPosition() const
+	const Position &getPosition() const override
 	{
 		return tilePos;
 	}
@@ -208,7 +208,7 @@ public:
 		return tilePos;
 	}
 
-	virtual bool isRemoved() const
+	bool isRemoved() const override
 	{
 		return false;
 	}

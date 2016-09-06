@@ -59,14 +59,14 @@ class Container : public Item, public Cylinder
 {
 public:
 	Container(uint16_t _type);
-	virtual ~Container();
-	virtual Item *clone() const;
+	~Container() override;
+	Item *clone() const override;
 
-	virtual Container *getContainer()
+	Container *getContainer() override
 	{
 		return this;
 	}
-	virtual const Container *getContainer() const
+	const Container *getContainer() const override
 	{
 		return this;
 	}
@@ -79,8 +79,8 @@ public:
 		return NULL;
 	}
 
-	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream);
-	bool unserializeItemNode(FileLoader &f, NODE node, PropStream &propStream);
+	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream) override;
+	bool unserializeItemNode(FileLoader &f, NODE node, PropStream &propStream) override;
 
 	uint32_t size() const
 	{
@@ -122,43 +122,43 @@ public:
 		return maxSize;
 	}
 	uint32_t getItemHoldingCount() const;
-	virtual double getWeight() const;
+	double getWeight() const override;
 
 	// cylinder implementations
-	virtual ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const;
-	virtual ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const;
-	virtual ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const;
-	virtual Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags);
+	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue
+	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
+	ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const override;
+	Cylinder *
+	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
 
-	virtual void __addThing(Thing *thing);
-	virtual void __addThing(int32_t index, Thing *thing);
+	void __addThing(Thing *thing) override;
+	void __addThing(int32_t index, Thing *thing) override;
 
-	virtual void __updateThing(Thing *thing, uint16_t itemId, uint32_t count);
-	virtual void __replaceThing(uint32_t index, Thing *thing);
+	void __updateThing(Thing *thing, uint16_t itemId, uint32_t count) override;
+	void __replaceThing(uint32_t index, Thing *thing) override;
 
-	virtual void __removeThing(Thing *thing, uint32_t count);
+	void __removeThing(Thing *thing, uint32_t count) override;
 
-	virtual int32_t __getIndexOfThing(const Thing *thing) const;
-	virtual int32_t __getFirstIndex() const;
-	virtual int32_t __getLastIndex() const;
-	virtual uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1, bool itemCount = true) const;
-	virtual std::map<uint32_t, uint32_t> &
-	__getAllItemTypeCount(std::map<uint32_t, uint32_t> &countMap, bool itemCount = true) const;
-	virtual Thing *__getThing(uint32_t index) const;
+	int32_t __getIndexOfThing(const Thing *thing) const override;
+	int32_t __getFirstIndex() const override;
+	int32_t __getLastIndex() const override;
+	uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1, bool itemCount = true) const override;
+	std::map<uint32_t, uint32_t> &
+	__getAllItemTypeCount(std::map<uint32_t, uint32_t> &countMap, bool itemCount = true) const override;
+	Thing *__getThing(uint32_t index) const override;
 
-	virtual void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER);
-	virtual void postRemoveNotification(Thing *thing,
+	void
+	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing *thing,
 	                                    const Cylinder *newParent,
 	                                    int32_t index,
 	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER);
+	                                    cylinderlink_t link = LINK_OWNER) override;
 
-	virtual void __internalAddThing(Thing *thing);
-	virtual void __internalAddThing(uint32_t index, Thing *thing);
-	virtual void __startDecaying();
+	void __internalAddThing(Thing *thing) override;
+	void __internalAddThing(uint32_t index, Thing *thing) override;
+	void __startDecaying() override;
 
 private:
 	void onAddContainerItem(Item *item);

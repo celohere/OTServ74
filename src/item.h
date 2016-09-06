@@ -107,13 +107,13 @@ public:
 	virtual Item *clone() const;
 	virtual void copyAttributes(Item *item);
 
-	virtual ~Item();
+	~Item() override;
 
-	virtual Item *getItem()
+	Item *getItem() override
 	{
 		return this;
 	}
-	virtual const Item *getItem() const
+	const Item *getItem() const override
 	{
 		return this;
 	}
@@ -190,17 +190,17 @@ public:
 
 	virtual bool serializeAttr(PropWriteStream &propWriteStream) const;
 
-	virtual bool isPushable() const
+	bool isPushable() const override
 	{
 		return !isNotMoveable();
 	}
-	virtual int getThrowRange() const
+	int getThrowRange() const override
 	{
 		return (isPickupable() ? 15 : 2);
 	}
 
-	virtual std::string getDescription(int32_t lookDistance) const;
-	virtual std::string getXRayDescription() const;
+	std::string getDescription(int32_t lookDistance) const override;
+	std::string getXRayDescription() const override;
 	std::string getWeightDescription() const;
 
 	uint16_t getID() const

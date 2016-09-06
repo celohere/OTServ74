@@ -112,13 +112,13 @@ class IOMapOTBM : public IOMap
 {
 public:
 	IOMapOTBM(){};
-	~IOMapOTBM(){};
+	~IOMapOTBM() override{};
 
-	virtual const char *getSourceDescription()
+	const char *getSourceDescription() override
 	{
 		return "OTBM";
 	}
-	virtual bool loadMap(Map *map, const std::string &identifier);
+	bool loadMap(Map *map, const std::string &identifier) override;
 };
 
 

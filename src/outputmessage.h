@@ -43,7 +43,7 @@ private:
 	OutputMessage();
 
 public:
-	~OutputMessage()
+	~OutputMessage() override
 	{
 	}
 

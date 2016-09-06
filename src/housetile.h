@@ -30,16 +30,16 @@ class HouseTile : public Tile
 {
 public:
 	HouseTile(int x, int y, int z, House *_house);
-	~HouseTile();
+	~HouseTile() override;
 
 	// cylinder implementations
-	virtual ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const;
+	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
 
-	virtual Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags);
+	Cylinder *
+	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
 
-	virtual void __addThing(int32_t index, Thing *thing);
-	virtual void __internalAddThing(uint32_t index, Thing *thing);
+	void __addThing(int32_t index, Thing *thing) override;
+	void __internalAddThing(uint32_t index, Thing *thing) override;
 
 	House *getHouse()
 	{

@@ -48,16 +48,16 @@ class TalkActions : public BaseEvents
 {
 public:
 	TalkActions();
-	virtual ~TalkActions();
+	~TalkActions() override;
 
 	TalkActionResult_t onPlayerSpeak(Player *player, SpeakClasses type, const std::string &words);
 
 protected:
-	virtual LuaScriptInterface &getScriptInterface();
-	virtual std::string getScriptBaseName();
-	virtual Event *getEvent(const std::string &nodeName);
-	virtual bool registerEvent(Event *event, xmlNodePtr p);
-	virtual void clear();
+	LuaScriptInterface &getScriptInterface() override;
+	std::string getScriptBaseName() override;
+	Event *getEvent(const std::string &nodeName) override;
+	bool registerEvent(Event *event, xmlNodePtr p) override;
+	void clear() override;
 
 	typedef std::list<std::pair<std::string, TalkAction *>> TalkActionList;
 	TalkActionList wordsMap;
@@ -71,9 +71,9 @@ class TalkAction : public Event
 {
 public:
 	TalkAction(LuaScriptInterface *_interface);
-	virtual ~TalkAction();
+	~TalkAction() override;
 
-	virtual bool configureEvent(xmlNodePtr p);
+	bool configureEvent(xmlNodePtr p) override;
 
 	std::string getWords() const
 	{
@@ -104,7 +104,7 @@ public:
 	bool executeSay(Creature *creature, const std::string &words, const std::string &param);
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	std::string commandString;
 	TalkActionFilterType filterType;

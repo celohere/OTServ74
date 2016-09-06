@@ -410,15 +410,15 @@ public:
 	{
 		createTime = OTSYS_TIME();
 	}
-	~MagicField()
+	~MagicField() override
 	{
 	}
 
-	virtual MagicField *getMagicField()
+	MagicField *getMagicField() override
 	{
 		return this;
 	}
-	virtual const MagicField *getMagicField() const
+	const MagicField *getMagicField() const override
 	{
 		return this;
 	}

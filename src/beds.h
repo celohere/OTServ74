@@ -19,23 +19,23 @@ class BedItem : public Item
 {
 public:
 	BedItem(uint16_t id);
-	virtual ~BedItem();
+	~BedItem() override;
 
-	virtual BedItem *getBed()
+	BedItem *getBed() override
 	{
 		return this;
 	}
-	virtual const BedItem *getBed() const
+	const BedItem *getBed() const override
 	{
 		return this;
 	}
 
 	// serialization
-	virtual Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream);
-	virtual bool serializeAttr(PropWriteStream &propWriteStream) const;
+	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream) override;
+	bool serializeAttr(PropWriteStream &propWriteStream) const override;
 
 	// override
-	virtual bool canRemove() const
+	bool canRemove() const override
 	{
 		return (house == NULL);
 	}

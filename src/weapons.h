@@ -40,7 +40,7 @@ class Weapons : public BaseEvents
 {
 public:
 	Weapons();
-	virtual ~Weapons();
+	~Weapons() override;
 
 	bool loadDefaults();
 	const Weapon *getWeapon(const Item *item) const;
@@ -53,11 +53,11 @@ public:
 	static int32_t getMaxDistanceWeaponDamage(int32_t attackSkill, int32_t attackValue, float attackFactor);
 
 protected:
-	virtual void clear();
-	virtual LuaScriptInterface &getScriptInterface();
-	virtual std::string getScriptBaseName();
-	virtual Event *getEvent(const std::string &nodeName);
-	virtual bool registerEvent(Event *event, xmlNodePtr p);
+	void clear() override;
+	LuaScriptInterface &getScriptInterface() override;
+	std::string getScriptBaseName() override;
+	Event *getEvent(const std::string &nodeName) override;
+	bool registerEvent(Event *event, xmlNodePtr p) override;
 
 	typedef std::map<uint32_t, Weapon *> WeaponMap;
 	WeaponMap weapons;
@@ -69,10 +69,10 @@ class Weapon : public Event
 {
 public:
 	Weapon(LuaScriptInterface *_interface);
-	virtual ~Weapon();
+	~Weapon() override;
 
-	virtual bool configureEvent(xmlNodePtr p);
-	virtual bool loadFunction(const std::string &functionName);
+	bool configureEvent(xmlNodePtr p) override;
+	bool loadFunction(const std::string &functionName) override;
 	virtual bool configureWeapon(const ItemType &it);
 	virtual bool interruptSwing() const
 	{
@@ -121,7 +121,7 @@ public:
 	}
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	bool executeUseWeapon(Player *player, const LuaVariant &var) const;
 	bool internalUseWeapon(Player *player, Item *item, Creature *target, int32_t damageModifier) const;
@@ -161,20 +161,20 @@ class WeaponMelee : public Weapon
 {
 public:
 	WeaponMelee(LuaScriptInterface *_interface);
-	virtual ~WeaponMelee(){};
+	~WeaponMelee() override{};
 
-	virtual bool configureEvent(xmlNodePtr p);
-	virtual bool configureWeapon(const ItemType &it);
+	bool configureEvent(xmlNodePtr p) override;
+	bool configureWeapon(const ItemType &it) override;
 
-	virtual bool useWeapon(Player *player, Item *item, Creature *target) const;
-	virtual int32_t
-	getWeaponDamage(const Player *player, const Creature *target, const Item *item, bool maxDamage = false) const;
+	bool useWeapon(Player *player, Item *item, Creature *target) const override;
+	int32_t
+	getWeaponDamage(const Player *player, const Creature *target, const Item *item, bool maxDamage = false) const override;
 	virtual int32_t getElementDamage(const Player *player, const Item *item) const;
 
 protected:
-	virtual void onUsedWeapon(Player *player, Item *item, Tile *destTile) const;
-	virtual void onUsedAmmo(Player *player, Item *item, Tile *destTile) const;
-	virtual bool getSkillType(const Player *player, const Item *item, skills_t &skill, uint32_t &skillpoint) const;
+	void onUsedWeapon(Player *player, Item *item, Tile *destTile) const override;
+	void onUsedAmmo(Player *player, Item *item, Tile *destTile) const override;
+	bool getSkillType(const Player *player, const Item *item, skills_t &skill, uint32_t &skillpoint) const override;
 
 	CombatType_t elementType;
 	int16_t elementDamage;
@@ -184,24 +184,24 @@ class WeaponDistance : public Weapon
 {
 public:
 	WeaponDistance(LuaScriptInterface *_interface);
-	virtual ~WeaponDistance(){};
+	~WeaponDistance() override{};
 
-	virtual bool configureEvent(xmlNodePtr p);
-	virtual bool configureWeapon(const ItemType &it);
-	virtual bool interruptSwing() const
+	bool configureEvent(xmlNodePtr p) override;
+	bool configureWeapon(const ItemType &it) override;
+	bool interruptSwing() const override
 	{
 		return true;
 	}
 
-	virtual int32_t playerWeaponCheck(Player *player, Creature *target) const;
-	virtual bool useWeapon(Player *player, Item *item, Creature *target) const;
-	virtual int32_t
-	getWeaponDamage(const Player *player, const Creature *target, const Item *item, bool maxDamage = false) const;
+	int32_t playerWeaponCheck(Player *player, Creature *target) const override;
+	bool useWeapon(Player *player, Item *item, Creature *target) const override;
+	int32_t
+	getWeaponDamage(const Player *player, const Creature *target, const Item *item, bool maxDamage = false) const override;
 
 protected:
-	virtual void onUsedWeapon(Player *player, Item *item, Tile *destTile) const;
-	virtual void onUsedAmmo(Player *player, Item *item, Tile *destTile) const;
-	virtual bool getSkillType(const Player *player, const Item *item, skills_t &skill, uint32_t &skillpoint) const;
+	void onUsedWeapon(Player *player, Item *item, Tile *destTile) const override;
+	void onUsedAmmo(Player *player, Item *item, Tile *destTile) const override;
+	bool getSkillType(const Player *player, const Item *item, skills_t &skill, uint32_t &skillpoint) const override;
 
 	int32_t hitChance;
 	int32_t maxHitChance;
@@ -213,15 +213,15 @@ class WeaponWand : public Weapon
 {
 public:
 	WeaponWand(LuaScriptInterface *_interface);
-	virtual ~WeaponWand(){};
+	~WeaponWand() override{};
 
-	virtual bool configureEvent(xmlNodePtr p);
-	virtual bool configureWeapon(const ItemType &it);
-	virtual int32_t
-	getWeaponDamage(const Player *player, const Creature *target, const Item *item, bool maxDamage = false) const;
+	bool configureEvent(xmlNodePtr p) override;
+	bool configureWeapon(const ItemType &it) override;
+	int32_t
+	getWeaponDamage(const Player *player, const Creature *target, const Item *item, bool maxDamage = false) const override;
 
 protected:
-	virtual bool getSkillType(const Player *player, const Item *item, skills_t &skill, uint32_t &skillpoint) const
+	bool getSkillType(const Player *player, const Item *item, skills_t &skill, uint32_t &skillpoint) const override
 	{
 		return false;
 	}

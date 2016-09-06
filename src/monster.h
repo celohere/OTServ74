@@ -50,65 +50,65 @@ public:
 	static int32_t despawnRange;
 	static int32_t despawnRadius;
 
-	virtual ~Monster();
+	~Monster() override;
 
-	virtual Monster *getMonster()
+	Monster *getMonster() override
 	{
 		return this;
 	}
-	virtual const Monster *getMonster() const
+	const Monster *getMonster() const override
 	{
 		return this;
 	}
 
-	virtual uint32_t idRange()
+	uint32_t idRange() override
 	{
 		return 0x40000000;
 	}
 	static AutoList<Monster> listMonster;
-	void removeList()
+	void removeList() override
 	{
 		listMonster.removeList(getID());
 	}
-	void addList()
+	void addList() override
 	{
 		listMonster.addList(this);
 	}
 
 #ifndef __PROTOCOL_76__
-	virtual bool canSee(const Position &pos) const;
+	bool canSee(const Position &pos) const override;
 #endif
 
-	virtual const std::string &getName() const
+	const std::string &getName() const override
 	{
 		return mType->name;
 	}
-	virtual const std::string &getNameDescription() const
+	const std::string &getNameDescription() const override
 	{
 		return mType->nameDescription;
 	}
-	virtual std::string getDescription(int32_t lookDistance) const
+	std::string getDescription(int32_t lookDistance) const override
 	{
 		return strDescription + '.';
 	}
 
-	virtual RaceType_t getRace() const
+	RaceType_t getRace() const override
 	{
 		return mType->race;
 	}
-	virtual int32_t getArmor() const
+	int32_t getArmor() const override
 	{
 		return mType->armor;
 	}
-	virtual int32_t getDefense() const
+	int32_t getDefense() const override
 	{
 		return mType->defense;
 	}
-	virtual bool isPushable() const
+	bool isPushable() const override
 	{
 		return mType->pushable && (baseSpeed > 0);
 	}
-	virtual bool isAttackable() const
+	bool isAttackable() const override
 	{
 		return mType->isAttackable;
 	}
@@ -125,7 +125,7 @@ public:
 	{
 		return mType->isHostile;
 	}
-	virtual bool canSeeInvisibility() const
+	bool canSeeInvisibility() const override
 	{
 		return isImmune(CONDITION_INVISIBLE);
 	}
@@ -138,36 +138,36 @@ public:
 		spawn = _spawn;
 	}
 
-	virtual void onAttackedCreatureDissapear(bool isLogout);
-	virtual void onFollowCreatureDissapear(bool isLogout);
+	void onAttackedCreatureDissapear(bool isLogout) override;
+	void onFollowCreatureDissapear(bool isLogout) override;
 
-	virtual void onCreatureAppear(const Creature *creature, bool isLogin);
-	virtual void onCreatureDisappear(const Creature *creature, uint32_t stackpos, bool isLogout);
-	virtual void onCreatureMove(const Creature *creature,
+	void onCreatureAppear(const Creature *creature, bool isLogin) override;
+	void onCreatureDisappear(const Creature *creature, uint32_t stackpos, bool isLogout) override;
+	void onCreatureMove(const Creature *creature,
 	                            const Tile *newTile,
 	                            const Position &newPos,
 	                            const Tile *oldTile,
 	                            const Position &oldPos,
 	                            uint32_t oldStackPos,
-	                            bool teleport);
+	                            bool teleport) override;
 
-	virtual void drainHealth(Creature *attacker, CombatType_t combatType, int32_t damage);
-	virtual void changeHealth(int32_t healthChange);
+	void drainHealth(Creature *attacker, CombatType_t combatType, int32_t damage) override;
+	void changeHealth(int32_t healthChange) override;
 
-	virtual void onWalk();
-	virtual bool getNextStep(Direction &dir);
-	virtual void onFollowCreatureComplete(const Creature *creature);
+	void onWalk() override;
+	bool getNextStep(Direction &dir) override;
+	void onFollowCreatureComplete(const Creature *creature) override;
 
-	virtual void onThink(uint32_t interval);
+	void onThink(uint32_t interval) override;
 
-	virtual bool challengeCreature(Creature *creature);
-	virtual bool convinceCreature(Creature *creature);
+	bool challengeCreature(Creature *creature) override;
+	bool convinceCreature(Creature *creature) override;
 
-	virtual void setNormalCreatureLight();
-	virtual bool getCombatValues(int32_t &min, int32_t &max);
+	void setNormalCreatureLight() override;
+	bool getCombatValues(int32_t &min, int32_t &max) override;
 
-	virtual void doAttacking(uint32_t interval);
-	virtual bool hasExtraSwing()
+	void doAttacking(uint32_t interval) override;
+	bool hasExtraSwing() override
 	{
 		return extraMeleeAttack;
 	}
@@ -194,7 +194,7 @@ public:
 	                     CombatType_t combatType,
 	                     int32_t &damage,
 	                     bool checkDefense = false,
-	                     bool checkArmor = false);
+	                     bool checkArmor = false) override;
 
 private:
 	CreatureList targetList;
@@ -229,17 +229,17 @@ private:
 	void clearTargetList();
 	void clearFriendList();
 
-	void die();
-	Item *getCorpse();
+	void die() override;
+	Item *getCorpse() override;
 	bool despawn();
 	bool inDespawnRange(const Position &pos);
 
 	bool activate(bool forced = false);
 	bool deactivate(bool forced = false);
 
-	virtual void onAddCondition(ConditionType_t type);
-	virtual void onEndCondition(ConditionType_t type);
-	virtual void onCreatureConvinced(const Creature *convincer, const Creature *creature);
+	void onAddCondition(ConditionType_t type) override;
+	void onEndCondition(ConditionType_t type) override;
+	void onCreatureConvinced(const Creature *convincer, const Creature *creature) override;
 
 	bool canUseAttack(const Position &pos, const Creature *target) const;
 	bool canUseSpell(const Position &pos, const Position &targetPos, const spellBlock_t &sb, uint32_t interval, bool &inRange);
@@ -260,7 +260,7 @@ private:
 	bool isFriend(const Creature *creature);
 	bool isOpponent(const Creature *creature);
 
-	virtual uint64_t getLostExperience() const
+	uint64_t getLostExperience() const override
 	{
 		return ((skillLoss ? mType->experience : 0));
 	}
@@ -268,21 +268,21 @@ private:
 	{
 		return mType->lookCorpse;
 	}
-	virtual void dropLoot(Container *corpse);
-	virtual uint32_t getDamageImmunities() const
+	void dropLoot(Container *corpse) override;
+	uint32_t getDamageImmunities() const override
 	{
 		return mType->damageImmunities;
 	}
-	virtual uint32_t getConditionImmunities() const
+	uint32_t getConditionImmunities() const override
 	{
 		return mType->conditionImmunities;
 	}
-	virtual uint16_t getLookCorpse() const
+	uint16_t getLookCorpse() const override
 	{
 		return mType->lookCorpse;
 	}
-	virtual void getPathSearchParams(const Creature *creature, FindPathParams &fpp) const;
-	virtual bool useCacheMap() const
+	void getPathSearchParams(const Creature *creature, FindPathParams &fpp) const override;
+	bool useCacheMap() const override
 	{
 		return true;
 	}

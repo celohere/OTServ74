@@ -42,7 +42,7 @@ class CreatureEvents : public BaseEvents
 {
 public:
 	CreatureEvents();
-	virtual ~CreatureEvents();
+	~CreatureEvents() override;
 
 	// global events
 	bool playerLogIn(Player *player);
@@ -51,11 +51,11 @@ public:
 	CreatureEvent *getEventByName(const std::string &name);
 
 protected:
-	virtual LuaScriptInterface &getScriptInterface();
-	virtual std::string getScriptBaseName();
-	virtual Event *getEvent(const std::string &nodeName);
-	virtual bool registerEvent(Event *event, xmlNodePtr p);
-	virtual void clear();
+	LuaScriptInterface &getScriptInterface() override;
+	std::string getScriptBaseName() override;
+	Event *getEvent(const std::string &nodeName) override;
+	bool registerEvent(Event *event, xmlNodePtr p) override;
+	void clear() override;
 
 	// creature events
 	typedef std::map<std::string, CreatureEvent *> CreatureEventList;
@@ -68,9 +68,9 @@ class CreatureEvent : public Event
 {
 public:
 	CreatureEvent(LuaScriptInterface *_interface);
-	virtual ~CreatureEvent();
+	~CreatureEvent() override;
 
-	virtual bool configureEvent(xmlNodePtr p);
+	bool configureEvent(xmlNodePtr p) override;
 
 	CreatureEventType_t getEventType() const
 	{
@@ -91,7 +91,7 @@ public:
 	//
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	std::string m_eventName;
 	CreatureEventType_t m_type;

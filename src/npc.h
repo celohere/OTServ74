@@ -45,12 +45,12 @@ class NpcScriptInterface : public LuaScriptInterface
 {
 public:
 	NpcScriptInterface();
-	virtual ~NpcScriptInterface();
+	~NpcScriptInterface() override;
 
 	bool loadNpcLib(std::string file);
 
 protected:
-	virtual void registerFunctions();
+	void registerFunctions() override;
 
 	static int luaActionSay(lua_State *L);
 	static int luaActionMove(lua_State *L);
@@ -78,8 +78,8 @@ protected:
 
 
 private:
-	virtual bool initState();
-	virtual bool closeState();
+	bool initState() override;
+	bool closeState() override;
 
 	bool m_libLoaded;
 };
@@ -107,13 +107,13 @@ class NpcScript : public NpcEventsHandler
 {
 public:
 	NpcScript(std::string file, Npc *npc);
-	virtual ~NpcScript();
+	~NpcScript() override;
 
-	virtual void onCreatureAppear(const Creature *creature);
-	virtual void onCreatureDisappear(const Creature *creature);
-	virtual void onCreatureMove(const Creature *creature, const Position &oldPos, const Position &newPos);
-	virtual void onCreatureSay(const Creature *creature, SpeakClasses, const std::string &text);
-	virtual void onThink();
+	void onCreatureAppear(const Creature *creature) override;
+	void onCreatureDisappear(const Creature *creature) override;
+	void onCreatureMove(const Creature *creature, const Position &oldPos, const Position &newPos) override;
+	void onCreatureSay(const Creature *creature, SpeakClasses, const std::string &text) override;
+	void onThink() override;
 
 private:
 	NpcScriptInterface *m_scriptInterface;
@@ -132,48 +132,48 @@ public:
 	static uint32_t npcCount;
 #endif
 
-	virtual ~Npc();
+	~Npc() override;
 
-	virtual Npc *getNpc()
+	Npc *getNpc() override
 	{
 		return this;
 	}
-	virtual const Npc *getNpc() const
+	const Npc *getNpc() const override
 	{
 		return this;
 	}
 
-	virtual bool isPushable() const
+	bool isPushable() const override
 	{
 		return true;
 	}
 
-	virtual uint32_t idRange()
+	uint32_t idRange() override
 	{
 		return 0x80000000;
 	}
 	static AutoList<Npc> listNpc;
-	void removeList()
+	void removeList() override
 	{
 		listNpc.removeList(getID());
 	}
-	void addList()
+	void addList() override
 	{
 		listNpc.addList(this);
 	}
 
 	static Npc *createNpc(const std::string &name);
 
-	virtual bool canSee(const Position &pos) const;
+	bool canSee(const Position &pos) const override;
 
 	bool load();
 	void reload();
 
-	virtual const std::string &getName() const
+	const std::string &getName() const override
 	{
 		return name;
 	}
-	virtual const std::string &getNameDescription() const
+	const std::string &getNameDescription() const override
 	{
 		return name;
 	}
@@ -217,47 +217,47 @@ public:
 protected:
 	Npc(const std::string &_name);
 
-	virtual void onAddTileItem(const Tile *tile, const Position &pos, const Item *item);
-	virtual void onUpdateTileItem(const Tile *tile,
+	void onAddTileItem(const Tile *tile, const Position &pos, const Item *item) override;
+	void onUpdateTileItem(const Tile *tile,
 	                              const Position &pos,
 	                              uint32_t stackpos,
 	                              const Item *oldItem,
 	                              const ItemType &oldType,
 	                              const Item *newItem,
-	                              const ItemType &newType);
-	virtual void
-	onRemoveTileItem(const Tile *tile, const Position &pos, uint32_t stackpos, const ItemType &iType, const Item *item);
-	virtual void onUpdateTile(const Tile *tile, const Position &pos);
+	                              const ItemType &newType) override;
+	void
+	onRemoveTileItem(const Tile *tile, const Position &pos, uint32_t stackpos, const ItemType &iType, const Item *item) override;
+	void onUpdateTile(const Tile *tile, const Position &pos) override;
 
-	virtual void onCreatureAppear(const Creature *creature, bool isLogin);
-	virtual void onCreatureDisappear(const Creature *creature, uint32_t stackpos, bool isLogout);
-	virtual void onCreatureMove(const Creature *creature,
+	void onCreatureAppear(const Creature *creature, bool isLogin) override;
+	void onCreatureDisappear(const Creature *creature, uint32_t stackpos, bool isLogout) override;
+	void onCreatureMove(const Creature *creature,
 	                            const Tile *newTile,
 	                            const Position &newPos,
 	                            const Tile *oldTile,
 	                            const Position &oldPos,
 	                            uint32_t oldStackPos,
-	                            bool teleport);
+	                            bool teleport) override;
 
-	virtual void onCreatureTurn(const Creature *creature, uint32_t stackpos);
-	virtual void onCreatureSay(const Creature *creature, SpeakClasses type, const std::string &text);
-	virtual void onCreatureChangeOutfit(const Creature *creature, const Outfit_t &outfit);
-	virtual void onThink(uint32_t interval);
-	virtual std::string getDescription(int32_t lookDistance) const;
+	void onCreatureTurn(const Creature *creature, uint32_t stackpos) override;
+	void onCreatureSay(const Creature *creature, SpeakClasses type, const std::string &text) override;
+	void onCreatureChangeOutfit(const Creature *creature, const Outfit_t &outfit) override;
+	void onThink(uint32_t interval) override;
+	std::string getDescription(int32_t lookDistance) const override;
 
-	bool isImmune(CombatType_t type) const
+	bool isImmune(CombatType_t type) const override
 	{
 		return true;
 	}
-	bool isImmune(ConditionType_t type, bool aggressive = true) const
+	bool isImmune(ConditionType_t type, bool aggressive = true) const override
 	{
 		return true;
 	}
-	virtual bool isAttackable() const
+	bool isAttackable() const override
 	{
 		return attackable;
 	}
-	virtual bool getNextStep(Direction &dir);
+	bool getNextStep(Direction &dir) override;
 
 	bool canWalkTo(const Position &fromPos, Direction dir);
 	bool getRandomStep(Direction &dir);

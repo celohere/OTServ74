@@ -136,7 +136,7 @@ class QTreeLeafNode : public QTreeNode
 {
 public:
 	QTreeLeafNode();
-	virtual ~QTreeLeafNode();
+	~QTreeLeafNode() override;
 
 	Floor *createFloor(uint32_t z);
 	Floor *getFloor(uint16_t z)

@@ -53,7 +53,7 @@ class MoveEvents : public BaseEvents
 {
 public:
 	MoveEvents();
-	virtual ~MoveEvents();
+	~MoveEvents() override;
 
 	uint32_t onCreatureMove(Creature *creature, const Tile *fromTile, const Tile *toTile, bool isIn);
 	uint32_t onPlayerEquip(Player *player, Item *item, slots_t slot);
@@ -68,11 +68,11 @@ public:
 protected:
 	typedef std::map<int32_t, MoveEventList> MoveListMap;
 	typedef std::map<Position, MoveEventList> MovePosListMap;
-	virtual void clear();
-	virtual LuaScriptInterface &getScriptInterface();
-	virtual std::string getScriptBaseName();
-	virtual Event *getEvent(const std::string &nodeName);
-	virtual bool registerEvent(Event *event, xmlNodePtr p);
+	void clear() override;
+	LuaScriptInterface &getScriptInterface() override;
+	std::string getScriptBaseName() override;
+	Event *getEvent(const std::string &nodeName) override;
+	bool registerEvent(Event *event, xmlNodePtr p) override;
 
 	void addEvent(MoveEvent *moveEvent, int32_t id, MoveListMap &map);
 	void addEvent(MoveEvent *moveEvent, Position pos, MovePosListMap &map);
@@ -98,13 +98,13 @@ class MoveEvent : public Event
 {
 public:
 	MoveEvent(LuaScriptInterface *_interface);
-	virtual ~MoveEvent();
+	~MoveEvent() override;
 
 	MoveEvent_t getEventType() const;
 	void setEventType(MoveEvent_t type);
 
-	virtual bool configureEvent(xmlNodePtr p);
-	virtual bool loadFunction(const std::string &functionName);
+	bool configureEvent(xmlNodePtr p) override;
+	bool loadFunction(const std::string &functionName) override;
 
 	uint32_t fireStepEvent(Creature *creature, Item *item, const Position &fromPos, const Position &toPos);
 	uint32_t fireAddRemItem(Item *item, Item *tileItem, const Position &pos);
@@ -150,7 +150,7 @@ public:
 	}
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	static StepFunction StepInField;
 	static StepFunction StepOutField;

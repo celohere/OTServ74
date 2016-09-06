@@ -67,13 +67,13 @@ class Door : public Item
 {
 public:
 	Door(uint16_t _type);
-	virtual ~Door();
+	~Door() override;
 
-	virtual Door *getDoor()
+	Door *getDoor() override
 	{
 		return this;
 	}
-	virtual const Door *getDoor() const
+	const Door *getDoor() const override
 	{
 		return this;
 	}
@@ -84,8 +84,8 @@ public:
 	}
 
 	// serialization
-	virtual Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream);
-	virtual bool serializeAttr(PropWriteStream &propWriteStream) const;
+	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream) override;
+	bool serializeAttr(PropWriteStream &propWriteStream) const override;
 
 	void setDoorId(uint32_t _doorId)
 	{
@@ -102,8 +102,8 @@ public:
 	bool getAccessList(std::string &list) const;
 
 	// overrides
-	virtual void onRemoved();
-	void copyAttributes(Item *item);
+	void onRemoved() override;
+	void copyAttributes(Item *item) override;
 
 protected:
 	void setHouse(House *_house);
@@ -142,17 +142,17 @@ public:
 	{
 		house = _house;
 	}
-	virtual ~HouseTransferItem()
+	~HouseTransferItem() override
 	{
 	}
 
-	virtual bool onTradeEvent(TradeEvents_t event, Player *owner);
+	bool onTradeEvent(TradeEvents_t event, Player *owner) override;
 
 	House *getHouse()
 	{
 		return house;
 	}
-	virtual bool canTransform() const
+	bool canTransform() const override
 	{
 		return false;
 	}

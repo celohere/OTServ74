@@ -41,14 +41,14 @@ public:
 #endif
 	}
 
-	virtual ~ProtocolStatus()
+	~ProtocolStatus() override
 	{
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 		protocolStatusCount--;
 #endif
 	}
 
-	virtual void onRecvFirstMessage(NetworkMessage &msg);
+	void onRecvFirstMessage(NetworkMessage &msg) override;
 
 protected:
 	static std::map<uint32_t, int64_t> ipConnectMap;

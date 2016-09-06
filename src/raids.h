@@ -194,11 +194,11 @@ class AnnounceEvent : public RaidEvent
 {
 public:
 	AnnounceEvent(){};
-	virtual ~AnnounceEvent(){};
+	~AnnounceEvent() override{};
 
-	virtual bool configureRaidEvent(xmlNodePtr eventNode);
+	bool configureRaidEvent(xmlNodePtr eventNode) override;
 
-	virtual bool executeEvent();
+	bool executeEvent() override;
 
 private:
 	std::string m_message;
@@ -209,11 +209,11 @@ class SingleSpawnEvent : public RaidEvent
 {
 public:
 	SingleSpawnEvent(){};
-	virtual ~SingleSpawnEvent(){};
+	~SingleSpawnEvent() override{};
 
-	virtual bool configureRaidEvent(xmlNodePtr eventNode);
+	bool configureRaidEvent(xmlNodePtr eventNode) override;
 
-	virtual bool executeEvent();
+	bool executeEvent() override;
 
 private:
 	std::string m_monsterName;
@@ -224,14 +224,14 @@ class AreaSpawnEvent : public RaidEvent
 {
 public:
 	AreaSpawnEvent(){};
-	virtual ~AreaSpawnEvent();
+	~AreaSpawnEvent() override;
 
-	virtual bool configureRaidEvent(xmlNodePtr eventNode);
+	bool configureRaidEvent(xmlNodePtr eventNode) override;
 
 	void addMonster(MonsterSpawn *monsterSpawn);
 	void addMonster(const std::string &monsterName, uint32_t minAmount, uint32_t maxAmount);
 
-	virtual bool executeEvent();
+	bool executeEvent() override;
 
 private:
 	MonsterSpawnList m_spawnList;
@@ -243,20 +243,20 @@ class ScriptEvent : public RaidEvent, public Event
 {
 public:
 	ScriptEvent();
-	~ScriptEvent(){};
+	~ScriptEvent() override{};
 
-	virtual bool configureRaidEvent(xmlNodePtr eventNode);
-	virtual bool configureEvent(xmlNodePtr p)
+	bool configureRaidEvent(xmlNodePtr eventNode) override;
+	bool configureEvent(xmlNodePtr p) override
 	{
 		return false;
 	}
 
-	bool executeEvent();
+	bool executeEvent() override;
 
 	static void reInitScriptInterface();
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	static LuaScriptInterface m_scriptInterface;
 };

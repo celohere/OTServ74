@@ -85,9 +85,9 @@ class PrivateChatChannel : public ChatChannel
 {
 public:
 	PrivateChatChannel(uint16_t channelId, std::string channelName);
-	virtual ~PrivateChatChannel(){};
+	~PrivateChatChannel() override{};
 
-	virtual const uint32_t getOwner()
+	const uint32_t getOwner() override
 	{
 		return m_owner;
 	}

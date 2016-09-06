@@ -27,19 +27,19 @@ class Depot : public Container
 {
 public:
 	Depot(uint16_t _type);
-	~Depot();
+	~Depot() override;
 
-	virtual Depot *getDepot()
+	Depot *getDepot() override
 	{
 		return this;
 	}
-	virtual const Depot *getDepot() const
+	const Depot *getDepot() const override
 	{
 		return this;
 	}
 
 	// serialization
-	virtual Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream);
+	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream &propStream) override;
 
 	uint32_t getDepotId() const
 	{
@@ -55,21 +55,21 @@ public:
 	}
 
 	// cylinder implementations
-	virtual ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const;
+	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
 
-	virtual ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const;
+	ReturnValue
+	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
 
-	virtual void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER);
-	virtual void postRemoveNotification(Thing *thing,
+	void
+	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing *thing,
 	                                    const Cylinder *newParent,
 	                                    int32_t index,
 	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER);
+	                                    cylinderlink_t link = LINK_OWNER) override;
 
 	// overrides
-	virtual bool canRemove() const
+	bool canRemove() const override
 	{
 		return false;
 	}

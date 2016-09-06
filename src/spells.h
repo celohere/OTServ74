@@ -42,7 +42,7 @@ class Spells : public BaseEvents
 {
 public:
 	Spells();
-	virtual ~Spells();
+	~Spells() override;
 
 	Spell *getSpellByName(const std::string &name);
 	RuneSpell *getRuneSpell(uint32_t id);
@@ -60,13 +60,13 @@ public:
 	static int32_t spellInFightTime;
 
 	static Position getCasterPosition(Creature *creature, Direction dir);
-	virtual std::string getScriptBaseName();
+	std::string getScriptBaseName() override;
 
 protected:
-	virtual void clear();
-	virtual LuaScriptInterface &getScriptInterface();
-	virtual Event *getEvent(const std::string &nodeName);
-	virtual bool registerEvent(Event *event, xmlNodePtr p);
+	void clear() override;
+	LuaScriptInterface &getScriptInterface() override;
+	Event *getEvent(const std::string &nodeName) override;
+	bool registerEvent(Event *event, xmlNodePtr p) override;
 
 	RunesMap runes;
 	InstantsMap instants;
@@ -97,11 +97,11 @@ class CombatSpell : public Event, public BaseSpell
 {
 public:
 	CombatSpell(Combat *_combat, bool _needTarget, bool _needDirection);
-	virtual ~CombatSpell();
+	~CombatSpell() override;
 
-	virtual bool castSpell(Creature *creature);
-	virtual bool castSpell(Creature *creature, Creature *target);
-	virtual bool configureEvent(xmlNodePtr p)
+	bool castSpell(Creature *creature) override;
+	bool castSpell(Creature *creature, Creature *target) override;
+	bool configureEvent(xmlNodePtr p) override
 	{
 		return true;
 	}
@@ -116,7 +116,7 @@ public:
 	}
 
 protected:
-	virtual std::string getScriptEventName()
+	std::string getScriptEventName() override
 	{
 		return "onCastSpell";
 	}
@@ -129,7 +129,7 @@ class Spell : public BaseSpell
 {
 public:
 	Spell();
-	virtual ~Spell(){};
+	~Spell() override{};
 
 	bool configureSpell(xmlNodePtr xmlspell);
 	const std::string &getName() const
@@ -221,20 +221,20 @@ class InstantSpell : public TalkAction, public Spell
 {
 public:
 	InstantSpell(LuaScriptInterface *_interface);
-	virtual ~InstantSpell();
+	~InstantSpell() override;
 
-	virtual bool configureEvent(xmlNodePtr p);
-	virtual bool loadFunction(const std::string &functionName);
+	bool configureEvent(xmlNodePtr p) override;
+	bool loadFunction(const std::string &functionName) override;
 
 	virtual bool playerCastInstant(Player *player, const std::string &param);
 
-	virtual bool castSpell(Creature *creature);
-	virtual bool castSpell(Creature *creature, Creature *target);
+	bool castSpell(Creature *creature) override;
+	bool castSpell(Creature *creature, Creature *target) override;
 
 	// scripting
 	bool executeCastSpell(Creature *creature, const LuaVariant &var);
 
-	virtual bool isInstant() const
+	bool isInstant() const override
 	{
 		return true;
 	}
@@ -246,7 +246,7 @@ public:
 	bool canThrowSpell(const Creature *creature, const Creature *target) const;
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	static InstantSpellFunction HouseGuestList;
 	static InstantSpellFunction HouseSubOwnerList;
@@ -272,18 +272,18 @@ class ConjureSpell : public InstantSpell
 {
 public:
 	ConjureSpell(LuaScriptInterface *_interface);
-	virtual ~ConjureSpell();
+	~ConjureSpell() override;
 
-	virtual bool configureEvent(xmlNodePtr p);
-	virtual bool loadFunction(const std::string &functionName);
+	bool configureEvent(xmlNodePtr p) override;
+	bool loadFunction(const std::string &functionName) override;
 
-	virtual bool playerCastInstant(Player *player, const std::string &param);
+	bool playerCastInstant(Player *player, const std::string &param) override;
 
-	virtual bool castSpell(Creature *creature)
+	bool castSpell(Creature *creature) override
 	{
 		return false;
 	}
-	virtual bool castSpell(Creature *creature, Creature *target)
+	bool castSpell(Creature *creature, Creature *target) override
 	{
 		return false;
 	}
@@ -302,7 +302,7 @@ public:
 	}
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	static ReturnValue internalConjureItem(Player *player, uint32_t conjureId, uint32_t conjureCount);
 	static ReturnValue internalConjureItem(Player *player,
@@ -329,31 +329,31 @@ class RuneSpell : public Action, public Spell
 {
 public:
 	RuneSpell(LuaScriptInterface *_interface);
-	virtual ~RuneSpell();
+	~RuneSpell() override;
 
-	virtual bool configureEvent(xmlNodePtr p);
-	virtual bool loadFunction(const std::string &functionName);
+	bool configureEvent(xmlNodePtr p) override;
+	bool loadFunction(const std::string &functionName) override;
 
-	virtual ReturnValue canExecuteAction(const Player *player, const Position &toPos);
-	virtual bool hasOwnErrorHandler()
+	ReturnValue canExecuteAction(const Player *player, const Position &toPos) override;
+	bool hasOwnErrorHandler() override
 	{
 		return true;
 	}
 
-	virtual bool executeUse(Player *player,
+	bool executeUse(Player *player,
 	                        Item *item,
 	                        const PositionEx &posFrom,
 	                        const PositionEx &posTo,
 	                        bool extendedUse,
-	                        uint32_t creatureId);
+	                        uint32_t creatureId) override;
 
-	virtual bool castSpell(Creature *creature);
-	virtual bool castSpell(Creature *creature, Creature *target);
+	bool castSpell(Creature *creature) override;
+	bool castSpell(Creature *creature, Creature *target) override;
 
 	// scripting
 	bool executeCastSpell(Creature *creature, const LuaVariant &var);
 
-	virtual bool isInstant() const
+	bool isInstant() const override
 	{
 		return false;
 	}
@@ -363,7 +363,7 @@ public:
 	}
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	static RuneSpellFunction Illusion;
 	static RuneSpellFunction Convince;

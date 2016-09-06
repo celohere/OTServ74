@@ -38,7 +38,7 @@ class GlobalEvents : public BaseEvents
 {
 public:
 	GlobalEvents();
-	virtual ~GlobalEvents();
+	~GlobalEvents() override;
 	void startup();
 
 	void timer();
@@ -49,16 +49,16 @@ public:
 	void clearMap(GlobalEventMap &map);
 
 protected:
-	virtual std::string getScriptBaseName()
+	std::string getScriptBaseName() override
 	{
 		return "globalevents";
 	}
-	virtual void clear();
+	void clear() override;
 
-	virtual Event *getEvent(const std::string &nodeName);
-	virtual bool registerEvent(Event *event, xmlNodePtr p);
+	Event *getEvent(const std::string &nodeName) override;
+	bool registerEvent(Event *event, xmlNodePtr p) override;
 
-	virtual LuaScriptInterface &getScriptInterface()
+	LuaScriptInterface &getScriptInterface() override
 	{
 		return m_scriptInterface;
 	}
@@ -72,11 +72,11 @@ class GlobalEvent : public Event
 {
 public:
 	GlobalEvent(LuaScriptInterface *_interface);
-	virtual ~GlobalEvent()
+	~GlobalEvent() override
 	{
 	}
 
-	virtual bool configureEvent(xmlNodePtr p);
+	bool configureEvent(xmlNodePtr p) override;
 
 	uint32_t executeRecord(uint32_t current, uint32_t old);
 	uint32_t executeEvent();
@@ -116,7 +116,7 @@ public:
 protected:
 	GlobalEvent_t m_eventType;
 
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	std::string m_name;
 	time_t m_nextExecution;

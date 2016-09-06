@@ -125,13 +125,13 @@ protected:
 	Creature();
 
 public:
-	virtual ~Creature();
+	~Creature() override;
 
-	virtual Creature *getCreature()
+	Creature *getCreature() override
 	{
 		return this;
 	}
-	virtual const Creature *getCreature() const
+	const Creature *getCreature() const override
 	{
 		return this;
 	}
@@ -166,8 +166,8 @@ public:
 
 	virtual const std::string &getName() const = 0;
 	virtual const std::string &getNameDescription() const = 0;
-	virtual std::string getXRayDescription() const;
-	virtual std::string getDescription(int32_t lookDistance) const;
+	std::string getXRayDescription() const override;
+	std::string getDescription(int32_t lookDistance) const override;
 
 	void setID()
 	{
@@ -214,15 +214,15 @@ public:
 		masterRadius = radius;
 	}
 
-	virtual int getThrowRange() const
+	int getThrowRange() const override
 	{
 		return 1;
 	}
-	virtual bool isPushable() const
+	bool isPushable() const override
 	{
 		return (getWalkDelay() <= 0);
 	}
-	virtual bool isRemoved() const
+	bool isRemoved() const override
 	{
 		return isInternalRemoved;
 	}
@@ -533,21 +533,21 @@ public:
 	// creature script events
 	bool registerCreatureEvent(const std::string &name);
 
-	virtual void setParent(Cylinder *cylinder)
+	void setParent(Cylinder *cylinder) override
 	{
 		_tile = dynamic_cast<Tile *>(cylinder);
 		Thing::setParent(cylinder);
 	}
 
-	virtual const Position &getPosition() const
+	const Position &getPosition() const override
 	{
 		return _tile->getTilePosition();
 	}
-	virtual Tile *getTile()
+	Tile *getTile() override
 	{
 		return _tile;
 	}
-	virtual const Tile *getTile() const
+	const Tile *getTile() const override
 	{
 		return _tile;
 	}

@@ -39,14 +39,14 @@ public:
 		protocolLoginCount++;
 #endif
 	}
-	virtual ~ProtocolLogin()
+	~ProtocolLogin() override
 	{
 #ifdef __ENABLE_SERVER_DIAGNOSTIC__
 		protocolLoginCount--;
 #endif
 	}
 
-	virtual void onRecvFirstMessage(NetworkMessage &msg);
+	void onRecvFirstMessage(NetworkMessage &msg) override;
 
 protected:
 	void disconnectClient(uint8_t error, const char *message);

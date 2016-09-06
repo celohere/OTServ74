@@ -46,7 +46,7 @@ class Actions : public BaseEvents
 {
 public:
 	Actions();
-	virtual ~Actions();
+	~Actions() override;
 
 	bool useItem(Player *player, const Position &pos, uint8_t index, Item *item);
 	bool useItemEx(Player *player,
@@ -81,11 +81,11 @@ protected:
 	                              uint32_t creatureId,
 	                              bool &isSuccess);
 
-	virtual void clear();
-	virtual LuaScriptInterface &getScriptInterface();
-	virtual std::string getScriptBaseName();
-	virtual Event *getEvent(const std::string &nodeName);
-	virtual bool registerEvent(Event *event, xmlNodePtr p);
+	void clear() override;
+	LuaScriptInterface &getScriptInterface() override;
+	std::string getScriptBaseName() override;
+	Event *getEvent(const std::string &nodeName) override;
+	bool registerEvent(Event *event, xmlNodePtr p) override;
 
 	typedef std::map<unsigned short, Action *> ActionUseMap;
 	ActionUseMap useItemMap;
@@ -102,9 +102,9 @@ class Action : public Event
 {
 public:
 	Action(LuaScriptInterface *_interface);
-	virtual ~Action();
+	~Action() override;
 
-	virtual bool configureEvent(xmlNodePtr p);
+	bool configureEvent(xmlNodePtr p) override;
 
 	// scripting
 	virtual bool executeUse(Player *player,
@@ -140,7 +140,7 @@ public:
 	}
 
 protected:
-	virtual std::string getScriptEventName();
+	std::string getScriptEventName() override;
 
 	bool allowFarUse;
 	bool checkLineOfSight;

@@ -53,7 +53,7 @@ public:
 #endif
 
 	ProtocolGame(Connection *connection);
-	virtual ~ProtocolGame();
+	~ProtocolGame() override;
 
 	bool login(const std::string &name, bool isSetGM);
 	bool logout(bool forced);
@@ -67,8 +67,8 @@ private:
 	void disconnectClient(uint8_t error, const char *message);
 	void disconnect();
 
-	virtual void releaseProtocol();
-	virtual void deleteProtocolTask();
+	void releaseProtocol() override;
+	void deleteProtocolTask() override;
 
 	void checkCreatureAsKnown(uint32_t id, bool &known, uint32_t &removedKnown);
 
@@ -77,8 +77,8 @@ private:
 	bool canSee(const Position &pos) const;
 
 	// we have all the parse methods
-	virtual void parsePacket(NetworkMessage &msg);
-	virtual void onRecvFirstMessage(NetworkMessage &msg);
+	void parsePacket(NetworkMessage &msg) override;
+	void onRecvFirstMessage(NetworkMessage &msg) override;
 	bool parseFirstPacket(NetworkMessage &msg);
 
 	// Parse methods

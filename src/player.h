@@ -94,13 +94,13 @@ public:
 #endif
 
 	Player(const std::string &name, ProtocolGame *p);
-	virtual ~Player();
+	~Player() override;
 
-	virtual Player *getPlayer()
+	Player *getPlayer() override
 	{
 		return this;
 	}
-	virtual const Player *getPlayer() const
+	const Player *getPlayer() const override
 	{
 		return this;
 	}
@@ -108,15 +108,15 @@ public:
 	static MuteCountMap muteCountMap;
 	static int32_t maxMessageBuffer;
 
-	virtual const std::string &getName() const
+	const std::string &getName() const override
 	{
 		return name;
 	}
-	virtual const std::string &getNameDescription() const
+	const std::string &getNameDescription() const override
 	{
 		return name;
 	}
-	virtual std::string getDescription(int32_t lookDistance) const;
+	std::string getDescription(int32_t lookDistance) const override;
 
 	void setGUID(uint32_t _guid)
 	{
@@ -126,13 +126,13 @@ public:
 	{
 		return guid;
 	}
-	virtual uint32_t idRange()
+	uint32_t idRange() override
 	{
 		return 0x10000000;
 	}
 	static AutoList<Player> listPlayer;
-	void removeList();
-	void addList();
+	void removeList() override;
+	void addList() override;
 	void kickPlayer();
 
 	static uint64_t getExpForLevel(int32_t level)
@@ -290,12 +290,12 @@ public:
 		town = _town;
 	}
 
-	virtual bool isPushable() const;
-	virtual int getThrowRange() const
+	bool isPushable() const override;
+	int getThrowRange() const override
 	{
 		return 1;
 	}
-	virtual bool canSeeInvisibility() const;
+	bool canSeeInvisibility() const override;
 	uint32_t isMuted();
 	void addMessageBuffer();
 	void removeMessageBuffer();
@@ -316,11 +316,11 @@ public:
 			return 0.00;
 	}
 
-	virtual int32_t getMaxHealth() const
+	int32_t getMaxHealth() const override
 	{
 		return getPlayerInfo(PLAYERINFO_MAXHEALTH);
 	}
-	virtual int32_t getMaxMana() const
+	int32_t getMaxMana() const override
 	{
 		return getPlayerInfo(PLAYERINFO_MAXMANA);
 	}
@@ -383,10 +383,10 @@ public:
 	Depot *getDepot(uint32_t depotId, bool autoCreateDepot);
 	bool addDepot(Depot *depot, uint32_t depotId);
 
-	virtual bool canSee(const Position &pos) const;
-	virtual bool canSeeCreature(const Creature *creature) const;
+	bool canSee(const Position &pos) const override;
+	bool canSeeCreature(const Creature *creature) const override;
 
-	virtual RaceType_t getRace() const
+	RaceType_t getRace() const override
 	{
 		return RACE_BLOOD;
 	}
@@ -412,15 +412,15 @@ public:
 	bool addVIP(uint32_t guid, std::string &name, bool isOnline, bool interal = false);
 
 	// follow functions
-	virtual bool setFollowCreature(Creature *creature, bool fullPathSearch = false);
+	bool setFollowCreature(Creature *creature, bool fullPathSearch = false) override;
 
 	// follow events
-	virtual void onFollowCreature(const Creature *creature);
+	void onFollowCreature(const Creature *creature) override;
 
 	// walk events
-	virtual void onWalk(Direction &dir);
-	virtual void onWalkAborted();
-	virtual void onWalkComplete();
+	void onWalk(Direction &dir) override;
+	void onWalkAborted() override;
+	void onWalkComplete() override;
 
 	void setChaseMode(chaseMode_t mode);
 	chaseMode_t getChaseMode() const
@@ -442,14 +442,14 @@ public:
 	}
 
 	// combat functions
-	virtual bool setAttackedCreature(Creature *creature);
-	bool isImmune(CombatType_t type) const;
-	bool isImmune(ConditionType_t type, bool aggressive = true) const;
+	bool setAttackedCreature(Creature *creature) override;
+	bool isImmune(CombatType_t type) const override;
+	bool isImmune(ConditionType_t type, bool aggressive = true) const override;
 	bool hasShield() const;
-	virtual bool isAttackable() const;
+	bool isAttackable() const override;
 
-	virtual void changeHealth(int32_t healthChange);
-	virtual void changeMana(int32_t manaChange);
+	void changeHealth(int32_t healthChange) override;
+	void changeMana(int32_t manaChange) override;
 
 #ifdef __PROTOCOL_76__
 	void changeSoul(int32_t soulChange);
@@ -459,13 +459,13 @@ public:
 	{
 		return pzLocked;
 	}
-	virtual BlockType_t blockHit(Creature *attacker,
+	BlockType_t blockHit(Creature *attacker,
 	                             CombatType_t combatType,
 	                             int32_t &damage,
 	                             bool checkDefense = false,
-	                             bool checkArmor = false);
-	virtual void doAttacking(uint32_t interval);
-	virtual bool hasExtraSwing()
+	                             bool checkArmor = false) override;
+	void doAttacking(uint32_t interval) override;
+	bool hasExtraSwing() override
 	{
 		return lastAttack > 0 && ((OTSYS_TIME() - lastAttack) >= getAttackSpeed());
 	}
@@ -485,46 +485,46 @@ public:
 	}
 
 	Item *getWeapon(bool ignoreAmmu = false);
-	virtual WeaponType_t getWeaponType();
+	WeaponType_t getWeaponType() override;
 	int32_t getWeaponSkill(const Item *item) const;
 	void getShieldAndWeapon(const Item *&shield, const Item *&weapon) const;
 
-	virtual void drainHealth(Creature *attacker, CombatType_t combatType, int32_t damage);
-	virtual void drainMana(Creature *attacker, int32_t manaLoss);
+	void drainHealth(Creature *attacker, CombatType_t combatType, int32_t damage) override;
+	void drainMana(Creature *attacker, int32_t manaLoss) override;
 	void addManaSpent(uint32_t amount, bool useMultiplier = true);
 	void addSkillAdvance(skills_t skill, uint32_t count, bool useMultiplier = true);
 
-	virtual int32_t getArmor() const;
-	virtual int32_t getDefense() const;
-	virtual float getAttackFactor() const;
-	virtual float getDefenseFactor() const;
+	int32_t getArmor() const override;
+	int32_t getDefense() const override;
+	float getAttackFactor() const override;
+	float getDefenseFactor() const override;
 
 	void addCombatExhaust(uint32_t ticks);
 	void addHealExhaust(uint32_t ticks);
 	void addInFightTicks(bool pzlock = false);
 	void addDefaultRegeneration(uint32_t addTicks);
 
-	virtual uint64_t getGainedExperience(Creature *attacker, bool useMultiplier = true) const;
+	uint64_t getGainedExperience(Creature *attacker, bool useMultiplier = true) const override;
 
 	// combat event functions
-	virtual void onAddCondition(ConditionType_t type);
-	virtual void onAddCombatCondition(ConditionType_t type);
-	virtual void onEndCondition(ConditionType_t type);
-	virtual void onCombatRemoveCondition(const Creature *attacker, Condition *condition);
-	virtual void onAttackedCreature(Creature *target);
-	virtual void onAttacked();
-	virtual void onAttackedCreatureDrainHealth(Creature *target, int32_t points);
-	virtual void onTargetCreatureGainHealth(Creature *target, int32_t points);
-	virtual void onKilledCreature(Creature *target, bool lastHit);
-	virtual void onGainExperience(uint64_t gainExp);
-	virtual void onAttackedCreatureBlockHit(Creature *target, BlockType_t blockType);
-	virtual void onBlockHit(BlockType_t blockType);
-	virtual void onChangeZone(ZoneType_t zone);
-	virtual void onAttackedCreatureChangeZone(ZoneType_t zone);
-	virtual void onIdleStatus();
-	virtual void onPlacedCreature();
-	virtual void onRemovedCreature();
-	virtual void getCreatureLight(LightInfo &light) const;
+	void onAddCondition(ConditionType_t type) override;
+	void onAddCombatCondition(ConditionType_t type) override;
+	void onEndCondition(ConditionType_t type) override;
+	void onCombatRemoveCondition(const Creature *attacker, Condition *condition) override;
+	void onAttackedCreature(Creature *target) override;
+	void onAttacked() override;
+	void onAttackedCreatureDrainHealth(Creature *target, int32_t points) override;
+	void onTargetCreatureGainHealth(Creature *target, int32_t points) override;
+	void onKilledCreature(Creature *target, bool lastHit) override;
+	void onGainExperience(uint64_t gainExp) override;
+	void onAttackedCreatureBlockHit(Creature *target, BlockType_t blockType) override;
+	void onBlockHit(BlockType_t blockType) override;
+	void onChangeZone(ZoneType_t zone) override;
+	void onAttackedCreatureChangeZone(ZoneType_t zone) override;
+	void onIdleStatus() override;
+	void onPlacedCreature() override;
+	void onRemovedCreature() override;
+	void getCreatureLight(LightInfo &light) const override;
 
 	void setParty(Party *_party)
 	{
@@ -665,30 +665,30 @@ public:
 	}
 
 	// event methods
-	virtual void onAddTileItem(const Tile *tile, const Position &pos, const Item *item);
-	virtual void onUpdateTileItem(const Tile *tile,
+	void onAddTileItem(const Tile *tile, const Position &pos, const Item *item) override;
+	void onUpdateTileItem(const Tile *tile,
 	                              const Position &pos,
 	                              uint32_t stackpos,
 	                              const Item *oldItem,
 	                              const ItemType &oldType,
 	                              const Item *newItem,
-	                              const ItemType &newType);
-	virtual void
-	onRemoveTileItem(const Tile *tile, const Position &pos, uint32_t stackpos, const ItemType &iType, const Item *item);
-	virtual void onUpdateTile(const Tile *tile, const Position &pos);
+	                              const ItemType &newType) override;
+	void
+	onRemoveTileItem(const Tile *tile, const Position &pos, uint32_t stackpos, const ItemType &iType, const Item *item) override;
+	void onUpdateTile(const Tile *tile, const Position &pos) override;
 
-	virtual void onCreatureAppear(const Creature *creature, bool isLogin);
-	virtual void onCreatureDisappear(const Creature *creature, uint32_t stackpos, bool isLogout);
-	virtual void onCreatureMove(const Creature *creature,
+	void onCreatureAppear(const Creature *creature, bool isLogin) override;
+	void onCreatureDisappear(const Creature *creature, uint32_t stackpos, bool isLogout) override;
+	void onCreatureMove(const Creature *creature,
 	                            const Tile *newTile,
 	                            const Position &newPos,
 	                            const Tile *oldTile,
 	                            const Position &oldPos,
 	                            uint32_t oldStackPos,
-	                            bool teleport);
+	                            bool teleport) override;
 
-	virtual void onAttackedCreatureDissapear(bool isLogout);
-	virtual void onFollowCreatureDissapear(bool isLogout);
+	void onAttackedCreatureDissapear(bool isLogout) override;
+	void onFollowCreatureDissapear(bool isLogout) override;
 
 	// virtual void onCreatureSay(const Creature* creature, SpeakClasses type, const
 	// std::string& text);
@@ -841,16 +841,16 @@ public:
 		if (npings > 0) npings--;
 	}
 
-	virtual void onThink(uint32_t interval);
-	virtual void onAttacking(uint32_t interval);
+	void onThink(uint32_t interval) override;
+	void onAttacking(uint32_t interval) override;
 
-	virtual void
-	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER);
-	virtual void postRemoveNotification(Thing *thing,
+	void
+	postAddNotification(Thing *thing, const Cylinder *oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) override;
+	void postRemoveNotification(Thing *thing,
 	                                    const Cylinder *newParent,
 	                                    int32_t index,
 	                                    bool isCompleteRemoval,
-	                                    cylinderlink_t link = LINK_OWNER);
+	                                    cylinderlink_t link = LINK_OWNER) override;
 
 	Item *getWriteItem(uint32_t &_windowTextId, uint16_t &_maxWriteLen);
 	void setWriteItem(Item *item, uint16_t _maxWriteLen = 0);
@@ -900,37 +900,37 @@ protected:
 	void setNextActionTask(SchedulerTask *task);
 
 	void sendToRook();
-	void onDie();
-	void die();
-	virtual void dropCorpse();
-	virtual Item *getCorpse();
+	void onDie() override;
+	void die() override;
+	void dropCorpse() override;
+	Item *getCorpse() override;
 
 	// cylinder implementations
-	virtual ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const;
-	virtual ReturnValue
-	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const;
-	virtual ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const;
-	virtual Cylinder *
-	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags);
+	ReturnValue __queryAdd(int32_t index, const Thing *thing, uint32_t count, uint32_t flags) const override;
+	ReturnValue
+	__queryMaxCount(int32_t index, const Thing *thing, uint32_t count, uint32_t &maxQueryCount, uint32_t flags) const override;
+	ReturnValue __queryRemove(const Thing *thing, uint32_t count, uint32_t flags) const override;
+	Cylinder *
+	__queryDestination(int32_t &index, const Thing *thing, Item **destItem, uint32_t &flags) override;
 
-	virtual void __addThing(Thing *thing);
-	virtual void __addThing(int32_t index, Thing *thing);
+	void __addThing(Thing *thing) override;
+	void __addThing(int32_t index, Thing *thing) override;
 
-	virtual void __updateThing(Thing *thing, uint16_t itemId, uint32_t count);
-	virtual void __replaceThing(uint32_t index, Thing *thing);
+	void __updateThing(Thing *thing, uint16_t itemId, uint32_t count) override;
+	void __replaceThing(uint32_t index, Thing *thing) override;
 
-	virtual void __removeThing(Thing *thing, uint32_t count);
+	void __removeThing(Thing *thing, uint32_t count) override;
 
-	virtual int32_t __getIndexOfThing(const Thing *thing) const;
-	virtual int32_t __getFirstIndex() const;
-	virtual int32_t __getLastIndex() const;
-	virtual uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1, bool itemCount = true) const;
-	virtual std::map<uint32_t, uint32_t> &
-	__getAllItemTypeCount(std::map<uint32_t, uint32_t> &countMap, bool itemCount = true) const;
-	virtual Thing *__getThing(uint32_t index) const;
+	int32_t __getIndexOfThing(const Thing *thing) const override;
+	int32_t __getFirstIndex() const override;
+	int32_t __getLastIndex() const override;
+	uint32_t __getItemTypeCount(uint16_t itemId, int32_t subType = -1, bool itemCount = true) const override;
+	std::map<uint32_t, uint32_t> &
+	__getAllItemTypeCount(std::map<uint32_t, uint32_t> &countMap, bool itemCount = true) const override;
+	Thing *__getThing(uint32_t index) const override;
 
-	virtual void __internalAddThing(Thing *thing);
-	virtual void __internalAddThing(uint32_t index, Thing *thing);
+	void __internalAddThing(Thing *thing) override;
+	void __internalAddThing(uint32_t index, Thing *thing) override;
 
 protected:
 	ProtocolGame *client;
@@ -1057,7 +1057,7 @@ protected:
 #endif
 
 	void updateItemsLight(bool internal = false);
-	virtual int32_t getStepSpeed() const
+	int32_t getStepSpeed() const override
 	{
 		if (getSpeed() > PLAYER_MAX_SPEED) {
 			return PLAYER_MAX_SPEED;
@@ -1077,27 +1077,27 @@ protected:
 	}
 
 	static uint32_t getPercentLevel(uint64_t count, uint32_t nextLevelCount);
-	virtual uint64_t getLostExperience() const
+	uint64_t getLostExperience() const override
 	{
 		return (skillLoss ? (experience * lossPercent[LOSS_EXPERIENCE] / 100) : 0);
 	}
 
-	virtual void dropLoot(Container *corpse);
-	virtual uint32_t getDamageImmunities() const
+	void dropLoot(Container *corpse) override;
+	uint32_t getDamageImmunities() const override
 	{
 		return damageImmunities;
 	}
-	virtual uint32_t getConditionImmunities() const
+	uint32_t getConditionImmunities() const override
 	{
 		return conditionImmunities;
 	}
-	virtual uint32_t getConditionSuppressions() const
+	uint32_t getConditionSuppressions() const override
 	{
 		return conditionSuppressions;
 	}
-	virtual uint16_t getLookCorpse() const;
+	uint16_t getLookCorpse() const override;
 	virtual uint32_t getAttackSpeed() const;
-	virtual void getPathSearchParams(const Creature *creature, FindPathParams &fpp) const;
+	void getPathSearchParams(const Creature *creature, FindPathParams &fpp) const override;
 
 	friend class Game;
 	friend class Npc;

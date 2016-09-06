@@ -32,13 +32,13 @@ class IOMapXML : public IOMap
 {
 public:
 	IOMapXML(){};
-	~IOMapXML(){};
+	~IOMapXML() override{};
 
-	virtual const char *getSourceDescription()
+	const char *getSourceDescription() override
 	{
 		return "OTX";
 	};
-	virtual bool loadMap(Map *map, const std::string &identifier);
+	bool loadMap(Map *map, const std::string &identifier) override;
 };
 
 #endif
