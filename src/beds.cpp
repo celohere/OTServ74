@@ -190,25 +190,21 @@ void BedItem::sleep(Player *player)
 	}
 }
 
-void BedItem::wakeUp(Player *player)
+void BedItem::wakeUp(Player* const player)
 {
-	if (house == nullptr) {
+	if (house == nullptr)
 		return;
-	}
 
 	if (sleeperGUID != 0) {
-		if ((player == nullptr)) {
+		if (player == nullptr) {
 			std::string name;
 			if (IOPlayer::instance()->getNameByGuid(sleeperGUID, name)) {
-				Player *_player = new Player(name, nullptr);
+				Player _player{name, nullptr};
 
-				if (IOPlayer::instance()->loadPlayer(_player, name)) {
-					regeneratePlayer(_player);
-					IOPlayer::instance()->savePlayer(_player);
+				if (IOPlayer::instance()->loadPlayer(&_player, name)) {
+					regeneratePlayer(&_player);
+					IOPlayer::instance()->savePlayer(&_player);
 				}
-
-				delete _player;
-				_player = nullptr;
 			}
 		} else {
 			regeneratePlayer(player);
