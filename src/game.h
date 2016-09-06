@@ -52,8 +52,8 @@ enum LightState_t {
 };
 
 struct RuleViolation {
-	RuleViolation(Player *_reporter, const std::string &_text, uint32_t _time)
-	: reporter(_reporter), gamemaster(nullptr), text(_text), time(_time), isOpen(true)
+	RuleViolation(Player *_reporter, std::string _text, uint32_t _time)
+	: reporter(_reporter), gamemaster(nullptr), text(std::move(_text)), time(_time), isOpen(true)
 	{
 	}
 

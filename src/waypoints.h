@@ -25,7 +25,7 @@
 class Waypoint
 {
 public:
-	Waypoint(const std::string &name, const Position &pos) : name(name), pos(pos)
+	Waypoint(std::string name, const Position &pos) : name(std::move(name)), pos(pos)
 	{
 	}
 
