@@ -197,7 +197,7 @@ void BedItem::wakeUp(Player *player)
 	}
 
 	if (sleeperGUID != 0) {
-		if (player = nullptr) {
+		if ((player == nullptr)) {
 			std::string name;
 			if (IOPlayer::instance()->getNameByGuid(sleeperGUID, name)) {
 				Player *_player = new Player(name, nullptr);
