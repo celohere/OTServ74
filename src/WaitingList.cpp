@@ -6,13 +6,13 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "status.h"
-#include "waitlist.h"
+#include "WaitingList.h"
 
 
 static void clean_wait_list(WaitingList::WaitList* waitList);
 
 
-WaitingList WaitingList::s_waitingList;
+WaitingList WaitingList::s_instance;
 
 
 WaitingList::WaitListItr WaitingList::findClient(const Player& player, slot_t* const slot)
@@ -21,10 +21,10 @@ WaitingList::WaitListItr WaitingList::findClient(const Player& player, slot_t* c
 	*slot = 1;
 
 	const auto itr = std::find_if(m_waitList.begin(), m_waitList.end(),
-	[&](const Wait& wait) {
-		if (wait.acc == player.getAccount() 
-		    && wait.ip == player.getIP()
-		    && iequals(wait.name, player.getName())) {
+	[&](const WaitingClient& client) {
+		if (client.acc == player.getAccount() 
+		    && client.ip == player.getIP()
+		    && iequals(client.name, player.getName())) {
 			return true;
 		} else {
 			++(*slot);
@@ -33,7 +33,6 @@ WaitingList::WaitListItr WaitingList::findClient(const Player& player, slot_t* c
 	});
 
 	return itr;
-
 }
 
 
@@ -64,6 +63,8 @@ int32_t WaitingList::getTimeOut(slot_t slot)
 
 bool WaitingList::clientLogin(const Player& player)
 {
+	// TODO: premium priority
+
 	if (player.hasFlag(PlayerFlag_CanAlwaysLogin)) {
 		return true;
 	}
@@ -92,19 +93,17 @@ bool WaitingList::clientLogin(const Player& player)
 		}
 	}
 
+	// push a new waiting client
 	slot = m_waitList.size();
-	Wait wait;
-	wait.name = player.getName();
-	wait.acc = player.getAccount();
-	wait.ip = player.getIP();
-	wait.premium = player.isPremium();
-	wait.timeout = OTSYS_TIME() + getTimeOut(slot) * 1000;
+	WaitingClient new_client;
+	new_client.name = player.getName();
+	new_client.acc = player.getAccount();
+	new_client.ip = player.getIP();
+	new_client.premium = player.isPremium();
+	new_client.timeout = OTSYS_TIME() + getTimeOut(slot) * 1000;
 
-	LOG_DEBUG_WAITLIST("Name: " + wait.name + "(" +
-          std::to_string(m_waitList.size() + 1) + ")" + " has been added to the waiting list");
-
-	// TODO: premium priority
-	m_waitList.push_back(std::move(wait));
+	LOG_DEBUG_WAITLIST("Name: " + new_client.name + " has been added to the waiting list");
+	m_waitList.push_back(std::move(new_client));
 	return false;
 }
 

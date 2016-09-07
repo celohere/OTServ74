@@ -1,24 +1,14 @@
-//////////////////////////////////////////////////////////////////////
-// OpenTibia - an opensource roleplaying game
-//////////////////////////////////////////////////////////////////////
-// Implementation of tibia v7.x protocol
-//////////////////////////////////////////////////////////////////////
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//////////////////////////////////////////////////////////////////////
-
 #include "otpch.h"
+
+
+#include <ctime>
+#include <iostream>
+#include <list>
+#include <sstream>
+#include <string>
+
+#include <boost/function.hpp>
+
 
 #include "actions.h"
 #include "ban.h"
@@ -36,23 +26,13 @@
 #include "player.h"
 #include "protocolgame.h"
 #include "tile.h"
-#include "waitlist.h"
+#include "WaitingList.h"
 
-#include <ctime>
-#include <iostream>
-#include <list>
-#include <sstream>
-#include <string>
-
-#include <boost/function.hpp>
 
 extern Game g_game;
 extern ConfigManager g_config;
 extern Actions actions;
 
-#ifdef __PROTOCOL_77__
-extern RSA* g_otservRSA;
-#endif // __PROTOCOL_77__
 
 extern BanManager g_bans;
 extern CreatureEvents* g_creatureEvents;
@@ -71,7 +51,8 @@ uint32_t ProtocolGame::ProtocolGameCount = 0;
 #endif
 
 // Helping templates to add dispatcher tasks
-template <class T1, class f1, class r> void ProtocolGame::addGameTask(r (Game::*f)(f1), T1 p1)
+template <class T1, class f1, class r> 
+void ProtocolGame::addGameTask(r (Game::*f)(f1), T1 p1)
 {
 	if (m_now > m_nextTask || m_messageCount < 5) {
 		Dispatcher::getDispatcher().addTask(createTask(boost::bind(f, &g_game, p1)));
