@@ -50,112 +50,22 @@ uint32_t ProtocolGame::ProtocolGameCount = 0;
 #define ADD_TASK_INTERVAL -1
 #endif
 
-// Helping templates to add dispatcher tasks
-template <class T1, class f1, class r> 
-void ProtocolGame::addGameTask(r (Game::*f)(f1), T1 p1)
+// Helping template to add dispatcher tasks
+template <class MethodPtr, class ...Ts> 
+void ProtocolGame::addGameTask(MethodPtr mptr, Ts&& ...ts)
 {
-	if (m_now > m_nextTask || m_messageCount < 5) {
-		Dispatcher::getDispatcher().addTask(createTask(boost::bind(f, &g_game, p1)));
-
-		m_nextTask = m_now + ADD_TASK_INTERVAL;
-	} else {
-		m_rejectCount++;
-		// std::cout << "reject task" << std::endl;
-	}
-}
-
-template <class T1, class T2, class f1, class f2, class r>
-void ProtocolGame::addGameTask(r (Game::*f)(f1, f2), T1 p1, T2 p2)
-{
-	if (m_now > m_nextTask || m_messageCount < 5) {
-		Dispatcher::getDispatcher().addTask(createTask(boost::bind(f, &g_game, p1, p2)));
-
-		m_nextTask = m_now + ADD_TASK_INTERVAL;
-	} else {
-		m_rejectCount++;
-		// std::cout << "reject task" << std::endl;
-	}
-}
-
-template <class T1, class T2, class T3, class f1, class f2, class f3, class r>
-void ProtocolGame::addGameTask(r (Game::*f)(f1, f2, f3), T1 p1, T2 p2, T3 p3)
-{
-	if (m_now > m_nextTask || m_messageCount < 5) {
-		Dispatcher::getDispatcher().addTask(createTask(boost::bind(f, &g_game, p1, p2, p3)));
-
-		m_nextTask = m_now + ADD_TASK_INTERVAL;
-	} else {
-		m_rejectCount++;
-		// std::cout << "reject task" << std::endl;
-	}
-}
-
-template <class T1, class T2, class T3, class T4, class f1, class f2, class f3, class f4, class r>
-void ProtocolGame::addGameTask(r (Game::*f)(f1, f2, f3, f4), T1 p1, T2 p2, T3 p3, T4 p4)
-{
-	if (m_now > m_nextTask || m_messageCount < 5) {
-		Dispatcher::getDispatcher().addTask(createTask(boost::bind(f, &g_game, p1, p2, p3, p4)));
-
-		m_nextTask = m_now + ADD_TASK_INTERVAL;
-	} else {
-		m_rejectCount++;
-		// std::cout << "reject task" << std::endl;
-	}
-}
-
-template <class T1, class T2, class T3, class T4, class T5, class f1, class f2, class f3, class f4, class f5, class r>
-void ProtocolGame::addGameTask(r (Game::*f)(f1, f2, f3, f4, f5), T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
-{
-	if (m_now > m_nextTask || m_messageCount < 5) {
-		Dispatcher::getDispatcher().addTask(createTask(boost::bind(f, &g_game, p1, p2, p3, p4, p5)));
-
-		m_nextTask = m_now + ADD_TASK_INTERVAL;
-	} else {
-		m_rejectCount++;
-		// std::cout << "reject task" << std::endl;
-	}
-}
-
-template <class T1, class T2, class T3, class T4, class T5, class T6, class f1, class f2, class f3, class f4, class f5, class f6, class r>
-void ProtocolGame::addGameTask(r (Game::*f)(f1, f2, f3, f4, f5, f6), T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6)
-{
-	if (m_now > m_nextTask || m_messageCount < 5) {
-		Dispatcher::getDispatcher().addTask(createTask(boost::bind(f, &g_game, p1, p2, p3, p4, p5, p6)));
-
-		m_nextTask = m_now + ADD_TASK_INTERVAL;
-	} else {
-		m_rejectCount++;
-		// std::cout << "reject task" << std::endl;
-	}
-}
-
-template <class T1, class T2, class T3, class T4, class T5, class T6, class T7, class f1, class f2, class f3, class f4, class f5, class f6, class f7, class r>
-void ProtocolGame::addGameTask(r (Game::*f)(f1, f2, f3, f4, f5, f6, f7), T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7)
-{
+	using boost::bind;
 	if (m_now > m_nextTask || m_messageCount < 5) {
 		Dispatcher::getDispatcher().addTask(
-		createTask(boost::bind(f, &g_game, p1, p2, p3, p4, p5, p6, p7)));
+			createTask(bind(mptr, &g_game, std::forward<Ts>(ts)...)));
 
 		m_nextTask = m_now + ADD_TASK_INTERVAL;
 	} else {
 		m_rejectCount++;
-		// std::cout << "reject task" << std::endl;
+		//LOG_DEBUG("rejected task");
 	}
 }
 
-template <class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class f1, class f2, class f3, class f4, class f5, class f6, class f7, class f8, class r>
-void ProtocolGame::addGameTask(r (Game::*f)(f1, f2, f3, f4, f5, f6, f7, f8), T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8)
-{
-	if (m_now > m_nextTask || m_messageCount < 5) {
-		Dispatcher::getDispatcher().addTask(
-		createTask(boost::bind(f, &g_game, p1, p2, p3, p4, p5, p6, p7, p8)));
-
-		m_nextTask = m_now + ADD_TASK_INTERVAL;
-	} else {
-		m_rejectCount++;
-		// std::cout << "reject task" << std::endl;
-	}
-}
 
 ProtocolGame::ProtocolGame(Connection* connection) : Protocol(connection)
 {
