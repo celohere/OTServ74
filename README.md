@@ -3,8 +3,8 @@ Original sources:
 https://code.google.com/p/avesta74/  
 https://github.com/tarantonio/avesta  
 
-Fixing it by modernizing it to C++11, optimizing, removing bad practices.  
-And seriously... there is LOTS of awful code here!  
+Fixing it by modernizing it to C++14, optimizing, removing bad practices...
+seriously, there is LOTS of awful code here!
 
 The newest versions of TFS and OpenTibia have improved a lot,  
 but it's not supporting the protocols, 7.4, 7.6, 7.7.  
