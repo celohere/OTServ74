@@ -1,12 +1,11 @@
-#ifndef __OTSERV_ITEMATTRIBUTE_H__
-#define __OTSERV_ITEMATTRIBUTE_H__
+#ifndef OTSERV_ITEMATTRIBUTE_H_
+#define OTSERV_ITEMATTRIBUTE_H_
 
-#include "log.h"
 #include <cstdint>
 #include <vector>
+#include "Log.h"
 
-
-enum ItemDecayState_t { DECAYING_FALSE = 0, DECAYING_TRUE, DECAYING_PENDING };
+enum ItemDecayState_t { DECAYING_FALSE, DECAYING_TRUE, DECAYING_PENDING };
 
 enum Attr_ReadValue { ATTR_READ_ERROR, ATTR_READ_CONTINUE, ATTR_READ_END };
 

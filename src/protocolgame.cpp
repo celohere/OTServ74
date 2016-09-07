@@ -286,8 +286,8 @@ bool ProtocolGame::login(const std::string& name, bool isSetGM)
 			return false;
 		}
 
-		if (!WaitingList::getInstance()->clientLogin(player)) {
-			int32_t currentSlot = WaitingList::getInstance()->getClientSlot(player);
+		if (!WaitingList::getInstance().clientLogin(*player)) {
+			int32_t currentSlot = WaitingList::getInstance().getClientSlot(*player);
 			int32_t retryTime = WaitingList::getTime(currentSlot);
 			std::stringstream ss;
 

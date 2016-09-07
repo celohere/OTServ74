@@ -1,25 +1,7 @@
-//////////////////////////////////////////////////////////////////////
-// OpenTibia - an opensource roleplaying game
-//////////////////////////////////////////////////////////////////////
-//
-//////////////////////////////////////////////////////////////////////
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//////////////////////////////////////////////////////////////////////
+#ifndef OTSERV_WAITLIST_H_
+#define OTSERV_WAITLIST_H_
 
-#ifndef __WAITLIST_H__
-#define __WAITLIST_H__
+#include <vector>
 
 #include "definitions.h"
 #include "game.h"
@@ -33,31 +15,42 @@ struct Wait {
 	int64_t timeout;
 };
 
-typedef std::list<Wait*> WaitList;
-typedef WaitList::iterator WaitListIterator;
 
 class WaitingList
 {
 public:
-	WaitingList();
-	virtual ~WaitingList();
+	using WaitList = std::vector<Wait>;
+	using WaitListItr  = std::vector<Wait>::iterator;
+	using slot_t = std::vector<Wait>::size_type;
 
-	static WaitingList* getInstance()
-	{
-		static WaitingList waitingList;
-		return &waitingList;
-	}
+	virtual ~WaitingList() = default;
+	bool clientLogin(const Player& player);
+	int32_t getClientSlot(const Player& player);
 
-	bool clientLogin(const Player* player);
-	int32_t getClientSlot(const Player* player);
-	static int32_t getTime(int32_t slot);
 
+	static WaitingList& getInstance();
+	static int32_t getTime(slot_t slot);
 protected:
-	WaitList priorityWaitList;
-	WaitList waitList;
+	WaitListItr findClient(const Player& player, slot_t* slot);
+	int32_t getTimeOut(slot_t slot);
 
-	int32_t getTimeOut(int32_t slot);
-	WaitListIterator findClient(const Player* player, uint32_t& slot);
-	void cleanUpList();
+	std::vector<Wait> m_waitListPriority;
+	std::vector<Wait> m_waitList;
+	static WaitingList s_waitingList;
 };
+
+
+inline WaitingList& WaitingList::getInstance()
+{
+	return s_waitingList;
+}
+
+
+
+
+
+
+
+
+
 #endif

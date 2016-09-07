@@ -1,16 +1,14 @@
-#ifndef __OTSERV_ITEM_H__
-#define __OTSERV_ITEM_H__
+#ifndef OTSERV_ITEM_H_
+#define OTSERV_ITEM_H_
 
 #include <iostream>
 #include <list>
 #include <vector>
 
-#include "ItemAttributes.h"
 #include "definitions.h"
-#include "items.h"
-#include "log.h"
+#include "ItemAttributes.h"
 #include "thing.h"
-
+#include "items.h"
 
 class Creature;
 class Player;

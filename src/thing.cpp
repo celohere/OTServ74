@@ -1,12 +1,14 @@
 #include "otpch.h"
 
+#include <string>
+
 #include "creature.h"
 #include "cylinder.h"
 #include "item.h"
-#include "log.h"
 #include "player.h"
-#include "thing.h"
 #include "tile.h"
+#include "Log.h"
+#include "thing.h"
 
 
 const Position& Thing::getPosition() const
@@ -26,10 +28,10 @@ std::string Thing::getXRayDescription() const
 	if (isRemoved()) {
 		return "Thing you looked at seems to be removed.";
 	}
+	
+	const auto to_str = [](int n) { return std::to_string(n); };
 	const auto& pos = getPosition();
-	std::stringstream ret;
-	ret << "Position: [" << pos.x << ", " << pos.y << ", " << pos.z << "]";
-	return ret.str();
+	return "Position: [" + to_str(pos.x) + ", " + to_str(pos.y) + ", " + to_str(pos.z) + "]";
 }
 
 

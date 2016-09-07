@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <memory>
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -38,9 +39,6 @@
 #include "ban.h"
 #include "tools.h"
 
-#ifdef __PROTOCOL_77__
-#include "rsa.h"
-#endif
 
 
 #ifdef BOOST_NO_EXCEPTIONS
@@ -63,10 +61,6 @@ BanManager g_bans;
 Vocations g_vocations;
 Server* g_server = nullptr;
 
-#ifdef __PROTOCOL_77__
-RSA* g_otservRSA = NULL;
-#endif
-
 boost::mutex g_loaderLock;
 boost::condition_variable g_loaderSignal;
 boost::unique_lock<boost::mutex> g_loaderUniqueLock(g_loaderLock);
@@ -80,18 +74,6 @@ boost::unique_lock<boost::mutex> g_loaderUniqueLock(g_loaderLock);
 time_t start_time;
 #endif
 
-void ErrorMessage(const char* message)
-{
-	std::cout << std::endl << std::endl << "Error: " << message << std::endl;
-
-	std::string s;
-	std::cin >> s;
-}
-
-void ErrorMessage(std::string m)
-{
-	ErrorMessage(m.c_str());
-}
 
 struct CommandLineOptions {
 	std::string configfile;
@@ -117,6 +99,20 @@ void closeRunfile(void)
 }
 #endif
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main(int argc, char* argv[])
 {
 	if (parseCommandLine(g_command_opts, std::vector<std::string>(argv, argv + argc)) == false) {
@@ -131,26 +127,29 @@ int main(int argc, char* argv[])
 		atexit(closeRunfile);
 	}
 #endif
-
-	boost::shared_ptr<std::ofstream> logfile;
-	boost::shared_ptr<std::ofstream> errfile;
+	std::unique_ptr<std::ofstream> logfile, errfile;
 	if (g_command_opts.logfile != "") {
-		logfile.reset(new std::ofstream(g_command_opts.logfile.c_str(),
-		                                (g_command_opts.truncate_log ? std::ios::trunc : std::ios::app) |
-		                                std::ios::out));
-		if (!logfile->is_open()) {
-			ErrorMessage("Could not open standard log file for writing!");
+		logfile = std::make_unique<std::ofstream>(g_command_opts.logfile,
+                          g_command_opts.truncate_log ? std::ios::trunc : std::ios::app);
+
+		if (logfile->good()) {
+			std::cout.rdbuf(logfile->rdbuf());
+		} else {
+			LOG_ERROR("Could not open standard log file for writing!");
+			logfile.reset();
 		}
-		std::cout.rdbuf(logfile->rdbuf());
 	}
+
 	if (g_command_opts.errfile != "") {
-		errfile.reset(new std::ofstream(g_command_opts.errfile.c_str(),
-		                                (g_command_opts.truncate_log ? std::ios::trunc : std::ios::app) |
-		                                std::ios::out));
-		if (!errfile->is_open()) {
-			ErrorMessage("Could not open error log file for writing!");
+		errfile = std::make_unique<std::ofstream>(g_command_opts.errfile.c_str(),
+                                      g_command_opts.truncate_log ? std::ios::trunc : std::ios::app);
+
+		if (errfile->good()) {
+			std::cerr.rdbuf(errfile->rdbuf());
+		} else {
+			LOG_ERROR("Could not open error log file for writing!");
+			errfile.reset();
 		}
-		std::cerr.rdbuf(errfile->rdbuf());
 	}
 
 #if !defined(__WINDOWS__)
@@ -367,7 +366,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 #else
 		os << "Unable to load " << configname;
 #endif
-		ErrorMessage(os.str());
+		LOG_ERROR(os.str());
 		exit(-1);
 	}
 	std::cout << "[done]" << std::endl;
@@ -402,7 +401,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 	/* Won't compile! access is not standard
     if (access(g_config.getString(ConfigManager::DATA_DIRECTORY).c_str(), F_OK)) { // check if
     datadir exists
-	ErrorMessage("Data directory does not exist!");
+	LOG_ERROR("Data directory does not exist!");
 	exit(-1);
     }
 	*/
@@ -411,7 +410,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 	std::cout << ":: Checking Database Connection... ";
 	Database* db = Database::instance();
 	if (db == nullptr || !db->isConnected()) {
-		ErrorMessage("Database Connection Failed!");
+		LOG_ERROR("Database Connection Failed!");
 		exit(-1);
 	}
 	std::cout << "[done]" << std::endl;
@@ -419,35 +418,17 @@ void mainLoader(const CommandLineOptions& command_opts)
 	std::stringstream filename;
 
 
-#ifdef __PROTOCOL_77__
-	// load RSA key
-	std::cout << ":: Loading RSA key..." << std::flush;
-	const char* p("1429962396241639952007017738289889555079540334546615321747051608293473758277"
-	              "6038882967213386204600674145392845853859217990626450972452084065728686565928"
-	              "113");
-	const char* q("7630979195970404721891201847792002125535401292779123937207447574596692788513"
-	              "6471792353355293072513505707284073737055647088717620330170968099103152128841"
-	              "01");
-	const char* d("4673033022358411862216018001503683214873298680851934467521055526294025873980"
-	              "5766860224610646919605860206328024326703361630109888417839241959507572247284"
-	              "8070352355696191737922927869078457919049551036016528225191219083671878855092"
-	              "7002538864170082173534522208794057838121087911682301377680897576685182902065"
-	              "9073");
-	g_otservRSA = new RSA();
-	g_otservRSA->setKey(p, q, d);
-
-	std::cout << "[done]" << std::endl;
-#endif // __PROTOCOL_77__
-
 	// load vocations
 	filename.str("");
 	filename << g_config.getString(ConfigManager::DATA_DIRECTORY) << "vocations.xml";
 	std::cout << ":: Loading " << filename.str() << "... " << std::flush;
 	if (!g_vocations.loadFromXml(g_config.getString(ConfigManager::DATA_DIRECTORY))) {
-		ErrorMessage("Unable to load vocations!");
+		LOG_ERROR("Unable to load vocations!");
 		exit(-1);
 	}
+	
 	std::cout << "[done]" << std::endl;
+
 
 	// load commands
 	filename.str("");
@@ -456,11 +437,13 @@ void mainLoader(const CommandLineOptions& command_opts)
 	if (!commands.loadXml(g_config.getString(ConfigManager::DATA_DIRECTORY))) {
 		std::stringstream errormsg;
 		errormsg << "Unable to load " << filename.str() << "!";
-		ErrorMessage(errormsg.str().c_str());
+		LOG_ERROR(errormsg.str().c_str());
 		exit(-1);
 	}
 	std::cout << "[done]" << std::endl;
 
+	
+	
 	// load item data
 	filename.str("");
 	filename << g_config.getString(ConfigManager::DATA_DIRECTORY) << "items/items.otb";
@@ -468,7 +451,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 	if (Item::items.loadFromOtb(filename.str())) {
 		std::stringstream errormsg;
 		errormsg << "Unable to load " << filename.str() << "!";
-		ErrorMessage(errormsg.str().c_str());
+		LOG_ERROR(errormsg.str().c_str());
 		exit(-1);
 	}
 	std::cout << "[done]" << std::endl;
@@ -479,15 +462,18 @@ void mainLoader(const CommandLineOptions& command_opts)
 	if (!Item::items.loadFromXml(g_config.getString(ConfigManager::DATA_DIRECTORY))) {
 		std::stringstream errormsg;
 		errormsg << "Unable to load " << filename.str() << "!";
-		ErrorMessage(errormsg.str().c_str());
+		LOG_ERROR(errormsg.str().c_str());
 		exit(-1);
 	}
 	std::cout << "[done]" << std::endl;
+
 
 	// load scripts
 	if (ScriptingManager::getInstance()->loadScriptSystems() == false) {
 		exit(-1);
 	}
+
+
 
 	// load monster data
 	filename.str("");
@@ -496,11 +482,10 @@ void mainLoader(const CommandLineOptions& command_opts)
 	if (!g_monsters.loadFromXml(g_config.getString(ConfigManager::DATA_DIRECTORY))) {
 		std::stringstream errormsg;
 		errormsg << "Unable to load " << filename.str() << "!";
-		ErrorMessage(errormsg.str().c_str());
+		LOG_ERROR(errormsg.str().c_str());
 		exit(-1);
 	}
 	std::cout << "[done]" << std::endl;
-
 	std::string worldType = g_config.getString(ConfigManager::WORLD_TYPE);
 
 	if (asLowerCaseString(worldType) == "pvp") {
@@ -510,7 +495,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 	} else if (asLowerCaseString(worldType) == "pvp-enforced") {
 		g_game.setWorldType(WORLD_TYPE_PVP_ENFORCED);
 	} else {
-		ErrorMessage("Unknown world type!");
+		LOG_ERROR("Unknown world type!");
 		exit(-1);
 	}
 
@@ -519,6 +504,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 #ifdef __SKULLSYSTEM__
 	std::cout << ":: Skulls enabled" << std::endl;
 #endif
+
 
 	std::string passwordType = g_config.getString(ConfigManager::PASSWORD_TYPE_STR);
 	if (passwordType.empty() || asLowerCaseString(passwordType) == "plain") {
@@ -531,7 +517,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 		g_config.setNumber(ConfigManager::PASSWORD_TYPE, PASSWORD_TYPE_SHA1);
 		std::cout << ":: Use SHA1 passwords" << std::endl;
 	} else {
-		ErrorMessage("Unknown password type!");
+		LOG_ERROR("Unknown password type!");
 		exit(-1);
 	}
 
@@ -545,7 +531,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 		         << g_config.getString(ConfigManager::MAP_FILE);
 
 		if (!g_game.loadMap(filename.str(), g_config.getString(ConfigManager::MAP_KIND))) {
-			ErrorMessage("Couldn't load map");
+			LOG_ERROR("Couldn't load map");
 			exit(-1);
 		}
 	}
@@ -598,7 +584,7 @@ void mainLoader(const CommandLineOptions& command_opts)
 			resolvedIp = *(uint32_t*)he->h_addr;
 		} else {
 			std::string error_msg = "Can't resolve: " + ip;
-			ErrorMessage(error_msg.c_str());
+			LOG_ERROR(error_msg);
 			exit(-1);
 		}
 	}

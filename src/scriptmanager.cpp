@@ -43,7 +43,7 @@ CreatureEvents* g_creatureEvents = nullptr;
 GlobalEvents* g_globalEvents = nullptr;
 
 extern ConfigManager g_config;
-extern void ErrorMessage(const char* message);
+
 
 ScriptingManager* ScriptingManager::_instance = nullptr;
 
@@ -76,7 +76,7 @@ bool ScriptingManager::loadScriptSystems()
 	std::cout << ":: Loading Weapons ...";
 	g_weapons = new Weapons();
 	if (!g_weapons->loadFromXml(datadir)) {
-		ErrorMessage("Unable to load Weapons!");
+		LOG_ERROR("Unable to load Weapons!");
 		return false;
 	}
 
@@ -87,7 +87,7 @@ bool ScriptingManager::loadScriptSystems()
 	std::cout << ":: Loading Spells ...";
 	g_spells = new Spells();
 	if (!g_spells->loadFromXml(datadir)) {
-		ErrorMessage("Unable to load Spells!");
+		LOG_ERROR("Unable to load Spells!");
 		return false;
 	}
 	std::cout << "[done]" << std::endl;
@@ -102,7 +102,7 @@ bool ScriptingManager::loadScriptSystems()
 	std::cout << ":: Loading Actions ...";
 	g_actions = new Actions();
 	if (!g_actions->loadFromXml(datadir)) {
-		ErrorMessage("Unable to load Actions!");
+		LOG_ERROR("Unable to load Actions!");
 		return false;
 	}
 	std::cout << "[done]" << std::endl;
@@ -111,7 +111,7 @@ bool ScriptingManager::loadScriptSystems()
 	std::cout << ":: Loading Talkactions ...";
 	g_talkactions = new TalkActions();
 	if (!g_talkactions->loadFromXml(datadir)) {
-		ErrorMessage("Unable to load Talkactions!");
+		LOG_ERROR("Unable to load Talkactions!");
 		return false;
 	}
 	std::cout << "[done]" << std::endl;
@@ -120,7 +120,7 @@ bool ScriptingManager::loadScriptSystems()
 	std::cout << ":: Loading MoveEvents ...";
 	g_moveEvents = new MoveEvents();
 	if (!g_moveEvents->loadFromXml(datadir)) {
-		ErrorMessage("Unable to load MoveEvents!");
+		LOG_ERROR("Unable to load MoveEvents!");
 		return false;
 	}
 	std::cout << "[done]" << std::endl;
@@ -129,7 +129,7 @@ bool ScriptingManager::loadScriptSystems()
 	std::cout << ":: Loading CreatureEvents ...";
 	g_creatureEvents = new CreatureEvents();
 	if (!g_creatureEvents->loadFromXml(datadir)) {
-		ErrorMessage("Unable to load CreatureEvents!");
+		LOG_ERROR("Unable to load CreatureEvents!");
 		return false;
 	}
 	std::cout << "[done]" << std::endl;
@@ -138,7 +138,7 @@ bool ScriptingManager::loadScriptSystems()
 	std::cout << ":: Loading GlobalEvents ...";
 	g_globalEvents = new GlobalEvents();
 	if (!g_globalEvents->loadFromXml(datadir)) {
-		ErrorMessage("Unable to load GlobalEvents!");
+		LOG_ERROR("Unable to load GlobalEvents!");
 		return false;
 	}
 	std::cout << "[done]" << std::endl;

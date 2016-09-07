@@ -1,6 +1,10 @@
+#include <algorithm>
+#include <string>
+
 #include "ItemAttributes.h"
 #include "Assert.h"
-#include <algorithm>
+
+
 
 static std::string s_emptyString;
 
@@ -86,6 +90,7 @@ void ItemAttributes::setIntAttr(ItemAttrType type, int32_t value)
 void ItemAttributes::increaseIntAttr(ItemAttrType type, int32_t value)
 {
 	assert(validateIntAttrType(type));
+	
 	ItemAttribute* const attr = getAttr(type);
 	if (attr) {
 		attr->integer += value;

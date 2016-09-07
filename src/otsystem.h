@@ -22,7 +22,6 @@
 #define __OTSERV_OTTHREAD_H__
 
 #include "definitions.h"
-#include "logger.h"
 
 #include <algorithm>
 #include <list>

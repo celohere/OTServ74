@@ -1,10 +1,9 @@
-
 #include "otpch.h"
 
+#include <sstream>
 
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
-#include <sstream>
 
 #include "actions.h"
 #include "beds.h"
@@ -15,14 +14,13 @@
 #include "game.h"
 #include "house.h"
 #include "item.h"
-#include "log.h"
 #include "monster.h"
 #include "npc.h"
 #include "player.h"
 #include "spells.h"
 #include "tasks.h"
 #include "tools.h"
-
+#include "Log.h"
 
 extern Game g_game;
 extern Spells* g_spells;
