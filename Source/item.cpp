@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "actions.h"
+#include "Actions.h"
 #include "beds.h"
 #include "combat.h"
 #include "container.h"

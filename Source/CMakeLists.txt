@@ -46,15 +46,13 @@ if(USE_STATIC_LIBS)
 	add_definitions(-D__STATIC__)
 endif()
 
-# server diagnostic
-if(USE_DIAGNOSTIC)
-	remove_definitions(-D__ENABLE_SERVER_DIAGNOSTIC__)
-	add_definitions(-D__ENABLE_SERVER_DIAGNOSTIC__)
-endif()
+# server diagnostic, use it anyway for now
+#if(USE_DIAGNOSTIC)
+add_definitions(-D__ENABLE_SERVER_DIAGNOSTIC__)
+#endif()
 
 # skull system
 if(USE_SKULLSYSTEM)
-	remove_definitions(-D__SKULLSYSTEM__)
 	add_definitions(-D__SKULLSYSTEM__)
 endif()
 
@@ -62,16 +60,6 @@ endif()
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
-
-# compile flags
-#set(WARNING_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result")
-#set(CMAKE_CXX_FLAGS                   "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
-#set(CMAKE_CXX_FLAGS_COMPILESPEED      "-O0")
-#set(CMAKE_CXX_FLAGS_DEBUG             "-O0 -g")
-#set(CMAKE_CXX_FLAGS_RELWITHDEBINFO    "-O1 -g -fno-omit-frame-pointer")
-#set(CMAKE_CXX_FLAGS_RELEASE           "-Os")
-#set(CMAKE_CXX_FLAGS_PERFORMANCE       "-Ofast -mmmx -msse -msse2")
-
 
 
 # choose Lua 5.1 or LuaJIT

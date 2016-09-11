@@ -7,12 +7,12 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
 # Revscriptsys2
 set(VERSION "0.7.0")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O0 -g3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -DDEBUG")
 
 # add debug definition
 if(CMAKE_BUILD_TYPE EQUAL "Debug")
-	remove_definitions(-D__DEBUG__ -D__DEBUG_NET_DETAIL__ -D__DEBUG__MOVESYS__ -D__DEBUG_CRITICALSECTION__ -D__DEBUG_HOUSES__ -D__DEBUG_PLAYERS__ -D__DEBUG_SCHEDULER__ -D__DEBUG_SCRIPT_ENVIRONMENT_OBJECTMAP__)
-	add_definitions(-DD__DEBUG__ -D__DEBUG_NET_DETAIL__ -D__DEBUG__MOVESYS__ -D__DEBUG_CRITICALSECTION__ -D__DEBUG_HOUSES__ -D__DEBUG_PLAYERS__ -D__DEBUG_SCHEDULER__ -D__DEBUG_SCRIPT_ENVIRONMENT_OBJECTMAP__)
+	add_definitions(-D__DEBUG__ -D__DEBUG_NET_DETAIL__ -D__DEBUG__MOVESYS__ -D__DEBUG_CRITICALSECTION__ -D__DEBUG_HOUSES__ -D__DEBUG_PLAYERS__ -D__DEBUG_SCHEDULER__ -D__DEBUG_SCRIPT_ENVIRONMENT_OBJECTMAP__)
 endif()
 
 # Options
@@ -30,7 +30,6 @@ message(STATUS "LuaJIT: " ${USE_LUAJIT})
 
 message(STATUS "Server diagnostic: " ${USE_DIAGNOSTIC})
 message(STATUS "Skull system: " ${USE_SKULLSYSTEM})
-
 message(STATUS "Static libraries: " ${USE_STATIC_LIBS})
 
 # Make sure at least one database driver is selected
@@ -39,4 +38,4 @@ if(NOT USE_MYSQL AND NOT USE_SQLITE)
 endif()
 
 # Sources
-add_subdirectory(src)
+add_subdirectory(Source)

@@ -5,7 +5,6 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 
-#include "actions.h"
 #include "beds.h"
 #include "combat.h"
 #include "configmanager.h"
@@ -21,6 +20,7 @@
 #include "tasks.h"
 #include "tools.h"
 #include "Log.h"
+#include "Actions.h"
 
 extern Game g_game;
 extern Spells* g_spells;
@@ -116,14 +116,15 @@ ReturnValue Actions::canUse(const Player* player, const Position& pos)
 
 bool Actions::hasAction(const Item* item) const
 {
-	return (getAction(item, ACTION_UNIQUEID) != nullptr) ||
-	       (getAction(item, ACTION_ACTIONID) != nullptr) ||
-	       (getAction(item, ACTION_ITEMID) != nullptr) || (getAction(item, ACTION_RUNEID) != nullptr);
+	return (getAction(item, Action::UniqueID) != nullptr)
+	       || (getAction(item, Action::ActionID) != nullptr)
+	       || (getAction(item, Action::ItemID) != nullptr)
+	       || (getAction(item, Action::RuneID) != nullptr);
 }
 
 ReturnValue Actions::canUse(const Player* player, const Position& pos, const Item* item)
 {
-	Action* action = getAction(item, ACTION_UNIQUEID);
+	Action* action = getAction(item, Action::UniqueID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, pos);
 		if (ret != RET_NOERROR) {
@@ -133,7 +134,7 @@ ReturnValue Actions::canUse(const Player* player, const Position& pos, const Ite
 		return RET_NOERROR;
 	}
 
-	action = getAction(item, ACTION_ACTIONID);
+	action = getAction(item, Action::ActionID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, pos);
 		if (ret != RET_NOERROR) {
@@ -143,7 +144,7 @@ ReturnValue Actions::canUse(const Player* player, const Position& pos, const Ite
 		return RET_NOERROR;
 	}
 
-	action = getAction(item, ACTION_ITEMID);
+	action = getAction(item, Action::ItemID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, pos);
 		if (ret != RET_NOERROR) {
@@ -153,7 +154,7 @@ ReturnValue Actions::canUse(const Player* player, const Position& pos, const Ite
 		return RET_NOERROR;
 	}
 
-	action = getAction(item, ACTION_RUNEID);
+	action = getAction(item, Action::RuneID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, pos);
 		if (ret != RET_NOERROR) {
@@ -189,29 +190,29 @@ ReturnValue Actions::canUseFar(const Creature* creature, const Position& toPos, 
 	return RET_NOERROR;
 }
 
-Action* Actions::getAction(const Item* item, ActionType_t type /* = ACTION_ANY*/) const
+Action* Actions::getAction(const Item* item, Action::Type type) const
 {
-	if (item->getUniqueId() != 0 && (type == ACTION_ANY || type == ACTION_UNIQUEID)) {
+	if (item->getUniqueId() != 0 && (type == Action::Any || type == Action::UniqueID)) {
 		ActionUseMap::const_iterator it = uniqueItemMap.find(item->getUniqueId());
 		if (it != uniqueItemMap.end()) {
 			return it->second;
 		}
 	}
-	if (item->getActionId() != 0 && (type == ACTION_ANY || type == ACTION_ACTIONID)) {
+	if (item->getActionId() != 0 && (type == Action::Any || type == Action::ActionID)) {
 		ActionUseMap::const_iterator it = actionItemMap.find(item->getActionId());
 		if (it != actionItemMap.end()) {
 			return it->second;
 		}
 	}
 
-	if (type == ACTION_ANY || type == ACTION_ITEMID) {
+	if (type == Action::Any || type == Action::ItemID) {
 		ActionUseMap::const_iterator it = useItemMap.find(item->getID());
 		if (it != useItemMap.end()) {
 			return it->second;
 		}
 	}
 
-	if (type == ACTION_ANY || type == ACTION_RUNEID) {
+	if (type == Action::Any || type == Action::RuneID) {
 		// rune items
 		Action* runeSpell = g_spells->getRuneSpell(item->getID());
 		if (runeSpell) {
@@ -244,7 +245,7 @@ ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_
 	PositionEx posEx(pos, stack);
 	bool foundAction = false;
 
-	Action* action = getAction(item, ACTION_UNIQUEID);
+	Action* action = getAction(item, Action::UniqueID);
 	if (action) {
 		// only continue with next action in the list if the previous returns false
 		if (executeUse(action, player, item, posEx, creatureId)) {
@@ -253,7 +254,7 @@ ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_
 		foundAction = true;
 	}
 
-	action = getAction(item, ACTION_ACTIONID);
+	action = getAction(item, Action::ActionID);
 	if (action) {
 		// only continue with next action in the list if the previous returns false
 		if (executeUse(action, player, item, posEx, creatureId)) {
@@ -262,7 +263,7 @@ ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_
 		foundAction = true;
 	}
 
-	action = getAction(item, ACTION_ITEMID);
+	action = getAction(item, Action::ItemID);
 	if (action) {
 		// only continue with next action in the list if the previous returns false
 		if (executeUse(action, player, item, posEx, creatureId)) {
@@ -271,7 +272,7 @@ ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_
 		foundAction = true;
 	}
 
-	action = getAction(item, ACTION_RUNEID);
+	action = getAction(item, Action::RuneID);
 	if (action) {
 		// only continue with next action in the list if the previous returns false
 		if (executeUse(action, player, item, posEx, creatureId)) {
@@ -370,7 +371,7 @@ ReturnValue Actions::internalUseItemEx(Player* player,
 {
 	isSuccess = false;
 
-	Action* action = getAction(item, ACTION_UNIQUEID);
+	Action* action = getAction(item, Action::UniqueID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, toPosEx);
 		if (ret != RET_NOERROR) {
@@ -384,7 +385,7 @@ ReturnValue Actions::internalUseItemEx(Player* player,
 		}
 	}
 
-	action = getAction(item, ACTION_ACTIONID);
+	action = getAction(item, Action::ActionID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, toPosEx);
 		if (ret != RET_NOERROR) {
@@ -399,7 +400,7 @@ ReturnValue Actions::internalUseItemEx(Player* player,
 		}
 	}
 
-	action = getAction(item, ACTION_ITEMID);
+	action = getAction(item, Action::ItemID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, toPosEx);
 		if (ret != RET_NOERROR) {
@@ -413,7 +414,7 @@ ReturnValue Actions::internalUseItemEx(Player* player,
 		}
 	}
 
-	action = getAction(item, ACTION_RUNEID);
+	action = getAction(item, Action::RuneID);
 	if (action) {
 		ReturnValue ret = action->canExecuteAction(player, toPosEx);
 		if (ret != RET_NOERROR) {

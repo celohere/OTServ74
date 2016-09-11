@@ -1,5 +1,5 @@
-#ifndef OTSERV__ASSERT_H_
-#define OTSERV__ASSERT_H_
+#ifndef OTSERV_ASSERT_H_
+#define OTSERV_ASSERT_H_
 
 
 #ifndef NDEBUG
@@ -10,3 +10,4 @@
 
 
 #endif
+

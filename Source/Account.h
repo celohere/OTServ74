@@ -1,15 +1,13 @@
-#ifndef __OTSERV_ACCOUNT_H__
-#define __OTSERV_ACCOUNT_H__
+#ifndef OTSERV_ACCOUNT_H_
+#define OTSERV_ACCOUNT_H_
 
 #include <string>
 #include <vector>
 
 #include "definitions.h"
 
-class Account
-{
-public:
-	static uint16_t getPremiumDaysLeft(int32_t _premEnd);
+struct Account {
+	static uint16_t getPremiumDaysLeft(time_t end);
 	uint32_t accnumber = 0;
 	int32_t warnings = 0;
 	time_t premEnd = 0; // < current time is none, (time_t)(-1) is infinite
@@ -17,4 +15,5 @@ public:
 	std::vector<std::string> charList;
 };
 
-#endif // #ifndef __ACCOUNT_H__
+#endif
+

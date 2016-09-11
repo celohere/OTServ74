@@ -1,7 +1,7 @@
 #include "otpch.h"
 
 
-#include <ctime>
+#include <time.h>
 #include <iostream>
 #include <list>
 #include <sstream>
@@ -10,7 +10,7 @@
 #include <boost/function.hpp>
 
 
-#include "actions.h"
+#include "Actions.h"
 #include "ban.h"
 #include "chat.h"
 #include "configmanager.h"
