@@ -30,10 +30,10 @@ enum ItemAttrValType { INTEGER, STRING };
 struct ItemAttribute {
 	ItemAttribute(ItemAttrType type);
 	ItemAttribute(const ItemAttribute& other);
-	ItemAttribute(const ItemAttribute&& other);
+	ItemAttribute(ItemAttribute&& other);
 	~ItemAttribute();
 	ItemAttribute& operator=(const ItemAttribute& other);
-	ItemAttribute& operator=(const ItemAttribute&& other);
+	ItemAttribute& operator=(ItemAttribute&& other);
 	ItemAttrValType GetValueType();
 
 	union {
@@ -54,18 +54,26 @@ inline ItemAttribute::ItemAttribute(const ItemAttribute& other)
 	*this = other;
 }
 
-inline ItemAttribute::ItemAttribute(const ItemAttribute&& other)
+inline ItemAttribute::ItemAttribute(ItemAttribute&& other)
 {
 	*this = std::move(other);
 }
 
 inline ItemAttribute::~ItemAttribute()
 {
+	using std::string;
+	if (GetValueType() == STRING)
+		str.~string();
 }
 
 inline ItemAttribute& ItemAttribute::operator=(const ItemAttribute& other)
 {
+	using std::string;
+
 	if (this != &other) {
+		if (GetValueType() == STRING)
+		       str.~string();
+
 		type = other.type;
 		switch (GetValueType()) {
 		case INTEGER:
@@ -83,10 +91,15 @@ inline ItemAttribute& ItemAttribute::operator=(const ItemAttribute& other)
 }
 
 
-inline ItemAttribute& ItemAttribute::operator=(const ItemAttribute&& other)
+inline ItemAttribute& ItemAttribute::operator=(ItemAttribute&& other)
 {
+	using std::string;
+
 	if (this != &other) {
-		type = other.type;
+		if (GetValueType() == STRING)
+			str.~string();
+
+		this->type = other.type;
 		switch (GetValueType()) {
 		case INTEGER:
 			integer = other.integer;
@@ -105,30 +118,19 @@ inline ItemAttribute& ItemAttribute::operator=(const ItemAttribute&& other)
 
 inline ItemAttrValType ItemAttribute::GetValueType()
 {
-	ItemAttrValType valtype = INTEGER;
+	ItemAttrValType valType = INTEGER;
 	switch (type) {
-	case ATTR_ITEM_ACTIONID: /* fall */
-	case ATTR_ITEM_UNIQUEID: /* fall */
-	case ATTR_ITEM_OWNER: /* fall */
-	case ATTR_ITEM_DURATION: /* fall */
-	case ATTR_ITEM_DECAYING: /* fall */
-	case ATTR_ITEM_CHARGES: /* fall */
-	case ATTR_ITEM_FLUIDTYPE: /* fall */
-	case ATTR_ITEM_DOORID:
-		valtype = INTEGER;
-		break;
-
 	case ATTR_ITEM_DESC: /* fall */
 	case ATTR_ITEM_TEXT: /* fall */
 	case ATTR_ITEM_WRITTENBY:
-		valtype = STRING;
+		valType = STRING;
 		break;
 	default:
 		LOG_ERROR("UNDEFIED ITEM ATTRIBUTE VALUE TYPE");
 		break;
 	}
 
-	return valtype;
+	return valType;
 }
 
 

@@ -5,7 +5,7 @@
 #ifndef NDEBUG
 #include <assert.h>
 #else
-#define assert()
+#define assert(...)
 #endif
 
 

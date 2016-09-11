@@ -30,7 +30,7 @@ extern Game g_game;
 
 bool IOMapSerialize::loadMap(Map* map)
 {
-	int64_t start = OTSYS_TIME();
+	const int64_t start = OTSYS_TIME();
 	bool s = false;
 
 	if (g_config.getString(ConfigManager::MAP_STORAGE_TYPE) == "relational") {
@@ -50,7 +50,7 @@ bool IOMapSerialize::loadMap(Map* map)
 bool IOMapSerialize::saveMap(Map* map)
 {
 
-	int64_t start = OTSYS_TIME();
+	const int64_t start = OTSYS_TIME();
 	bool s = false;
 
 	if (g_config.getString(ConfigManager::MAP_STORAGE_TYPE) == "relational") {
@@ -61,6 +61,9 @@ bool IOMapSerialize::saveMap(Map* map)
 		std::cout << "[IOMapSerialize::saveMap] Unknown map storage type" << std::endl;
 	}
 
+	std::cout << "Notice: Map save (" << g_config.getString(ConfigManager::MAP_STORAGE_TYPE)
+	          << ") took : " << (OTSYS_TIME() - start) / (1000.) << " s" << std::endl;
+	
 	return s;
 }
 
